@@ -1,12 +1,12 @@
 #!/bin/bash
 #This file is a submission script to request the ISAAC resources from Slurm 
-#SBATCH --account=ACF-UTK0022             # The project account to be charged
+#SBATCH --account=ACF-UTK0011             # The project account to be charged
 #SBATCH --job-name=O3		       #The name of the job
 #SBATCH --nodes=1                     # Number of nodes
 #SBATCH --ntasks-per-node=16          # cpus per node 
-#SBATCH --partition=condo-kvogiatz            # If not specified then default is "condo"
-#SBATCH --qos=condo
-#SBATCH --time=2-00:00:00             # Wall time (days-hh:mm:ss)
+#SBATCH --partition=campus            # If not specified then default is "condo"
+#SBATCH --qos=campus
+#SBATCH --time=1-00:00:00             # Wall time (days-hh:mm:ss)
 #SBATCH --error=job.e%J	       # The file where run time errors will be dumped
 #SBATCH --output=job.o%J	       # The file where the output of the terminal will be dumped
 
