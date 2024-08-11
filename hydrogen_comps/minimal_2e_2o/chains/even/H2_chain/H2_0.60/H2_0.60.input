@@ -1,0 +1,64 @@
+&GATEWAY 
+coord=H2_0.60.xyz
+Basis = ANO-RCC-VDZP
+Group = nosymm
+Expert
+End of Input
+&SEWARD
+End of Input
+&MOTRA
+Frozen=0
+>>> COPY $WorkDir/GMJ_one_int_indx.csv $CurrDir/H2_0.60.GMJ_one_int_indx.csv
+>>> COPY $WorkDir/GMJ_one_int.csv $CurrDir/H2_0.60.GMJ_one_int.csv
+>>> COPY $WorkDir/GMJ_two_int_indx.csv $CurrDir/H2_0.60.GMJ_two_int_indx.csv
+>>> COPY $WorkDir/GMJ_two_int.csv $CurrDir/H2_0.60.GMJ_two_int.csv
+&SCF &END
+>>> COPY $WorkDir/H2_0.60.scf.h5 $CurrDir/
+&RASSCF &END
+Title= RASSCF
+
+NACTEL
+2 0 0
+Inactive
+0
+RAS2
+2
+Symmetry
+1
+Spin
+1
+orblisting
+all
+ITERation
+200 100
+CIMX
+200
+SDAV
+500
+
+>>> COPY $WorkDir/H2_0.60.rasscf.h5 $CurrDir/
+>>> COPY $WorkDir/GMJ_Fock_MO.csv $CurrDir/H2_0.60.GMJ_Fock_MO.csv
+&CASPT2 &END
+Frozen 
+0
+Imaginary Shift
+0.0
+
+>>foreach i in (B,E,F,G,H)
+>>foreach j in (P,M)
+>>if ( -FILE GMJ_e2_${i}_${j}.csv )
+>>> COPY $WorkDir/GMJ_RHS_${i}_${j}.csv $CurrDir/GMJ_RHS_${i}_${j}.csv
+>>> COPY $WorkDir/GMJ_IVECW_${i}_${j}.csv $CurrDir/GMJ_IVECW_${i}_${j}.csv
+>>> COPY $WorkDir/GMJ_e2_${i}_${j}.csv $CurrDir/GMJ_e2_${i}_${j}.csv
+>>endif
+>>enddo
+>>enddo
+
+>>foreach i in (A,C,D)
+>>if ( -FILE GMJ_e2_$i.csv )
+>>> COPY $WorkDir/GMJ_RHS_$i.csv $CurrDir/GMJ_RHS_$i.csv
+>>> COPY $WorkDir/GMJ_IVECW_$i.csv $CurrDir/GMJ_IVECW_$i.csv
+>>> COPY $WorkDir/GMJ_e2_$i.csv $CurrDir/GMJ_e2_$i.csv
+>>endif
+>>enddo
+

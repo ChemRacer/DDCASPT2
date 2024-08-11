@@ -182,7 +182,7 @@ test_y = []
 
 nam='O3/fixed_feats.pickle'
 trydf=pd.read_pickle(nam).astype(float)[feat_name]  
-trydf.set_index(trydf.index.set_levels([int(i.split('/')[1].split('_')[1]) for i in trydf.index.levels[0]],level=0),inplace=True)
+trydf.set_index(trydf.index.set_levels([float(i.split('/')[1].split('_')[1]) for i in trydf.index.levels[0]],level=0),inplace=True)
 
 
 # In[ ]:
@@ -195,9 +195,9 @@ trydf
 
 
 for i in train_ind:
-    train_X.append(trydf.loc[int(i)].values)
+    train_X.append(trydf.loc[float(i)].values)
 for j in test_ind: 
-    test_X.append(trydf.loc[int(j)].values)
+    test_X.append(trydf.loc[float(j)].values)
     
     
 # This recover is wrong... did not account for the # of pair-energies     
@@ -209,18 +209,18 @@ for nidx,nam in enumerate(glob('*/fixed_targets.pickle')):
     trydf=pd.read_pickle(nam).astype(float)
     Hnam=nam.split('/')[0].split('_')[0]
     for tridx,i in enumerate(train_ind):
-        pairdf=trydf[f'{int(i)}'].values
+        pairdf=trydf[f'{float(i):.2f}'].values
         train_y.append(pairdf)
         for k in range(len(pairdf)):
-            recover_train.append((int(i),tridx,tr_idx))
+            recover_train.append((float(i),tridx,tr_idx))
             tr_idx+=1
         
     for teidx,j in enumerate(test_ind): 
-        pairdf=trydf[f'{int(j)}'].values
+        pairdf=trydf[f'{float(j):.2f}'].values
         test_y.append(pairdf)        
         
         for k in range(len(pairdf)):
-            recover_test.append((int(j),teidx,tst_idx))
+            recover_test.append((float(j),teidx,tst_idx))
             tst_idx+=1
 
 
@@ -367,9 +367,9 @@ CASSCF=pd.concat([pd.read_csv(i,index_col=1).drop(columns=['Unnamed: 0']).rename
 CASPT2=pd.concat([pd.read_csv(i,index_col=1).drop(columns=['Unnamed: 0']).rename(columns={'energy':i.split('_')[0]}) for i in glob('*/CASPT2.csv')],axis=1)
 E2=pd.concat([pd.read_csv(i,index_col=1).drop(columns=['Unnamed: 0']).rename(columns={'energy':i.split('_')[0]}) for i in glob('*/E2.csv')],axis=1)    
 
-# CASSCF.index=[f'{int(i)}' for i in CASSCF.index]
-# CASPT2.index=[f'{int(i)}' for i in CASPT2.index]
-# E2.index=[f'{int(i)}' for i in E2.index]
+# CASSCF.index=[f'{float(i):.2f}' for i in CASSCF.index]
+# CASPT2.index=[f'{float(i):.2f}' for i in CASPT2.index]
+# E2.index=[f'{float(i):.2f}' for i in E2.index]
 
 
 # In[ ]:

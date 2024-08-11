@@ -278,18 +278,18 @@ top=os.getcwd()
 # In[10]:
 
 
-radius_range=np.arange(106,182,1)
+radius_range=np.arange(106,182,0.5)
 
 
 
 train_ind,test_ind=radius_range[0::2],radius_range[1::2]
 # train_test_split(radius_range, test_size=0.3, random_state=0)
-print(len(train_ind),len(test_ind))
-with open('train_ind.pickle', 'wb') as handle:
-    pickle.dump(train_ind, handle, protocol=pickle.HIGHEST_PROTOCOL)
-
-with open('test_ind.pickle', 'wb') as handle:
-    pickle.dump(test_ind, handle, protocol=pickle.HIGHEST_PROTOCOL)
+#print(len(train_ind),len(test_ind))
+#with open('train_ind.pickle', 'wb') as handle:
+#    pickle.dump(train_ind, handle, protocol=pickle.HIGHEST_PROTOCOL)
+#
+#with open('test_ind.pickle', 'wb') as handle:
+#    pickle.dump(test_ind, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
 with open('test_ind.pickle', 'rb') as handle:
     test_ind = pickle.load(handle)
@@ -312,7 +312,7 @@ def gen_data():
     for idxr, r in enumerate(radius_range):
         
         # Loop radius
-        name=f"O3_{int(r)}"
+        name=f"O3_{float(r):.2f}"
 
         # Create files
         if os.path.exists(os.path.join(dirname,f'{name}'))==False:
@@ -323,9 +323,9 @@ def gen_data():
             f.write(f'{3}\n\n')
             
             radius=1.278
-            f.write(f"""O {radius*cos(((int(r)/2)*(pi/180))):>8f} {radius*sin((int(r)/2)*(pi/180)):>8f} {0.0000:>8f}
+            f.write(f"""O {radius*cos(((float(r)/2)*(pi/180))):>8f} {radius*sin((float(r)/2)*(pi/180)):>8f} {0.0000:>8f}
 O {0:>8f} {0:>8f} {0:>8f}
-O {radius*cos(-(int(r)/2)*(pi/180)):>8f} {radius*sin(-(int(r)/2)*(pi/180)):>8f} {0:>8f}
+O {radius*cos(-(float(r)/2)*(pi/180)):>8f} {radius*sin(-(float(r)/2)*(pi/180)):>8f} {0:>8f}
 """)
         # Write input
         with open(os.path.join(dirname,f'{name}',f'{name}.input'),'wb') as g:
@@ -339,7 +339,7 @@ O {radius*cos(-(int(r)/2)*(pi/180)):>8f} {radius*sin(-(int(r)/2)*(pi/180)):>8f} 
                 g.write(gen_rasscf(name,4,3,10,previous=None).encode()) # int((i/2)-1)
             else:
 
-                previous=os.path.join(top,dirname,f'O3_{int(radius_range[idxr-1])}',f"O3_{int(radius_range[idxr-1])}.RasOrb")
+                previous=os.path.join(top,dirname,f'O3_{float(radius_range[idxr-1]):.2f}',f"O3_{float(radius_range[idxr-1]):.2f}.RasOrb")
                 g.write(gen_rasscf(name,4,3,10,previous=previous).encode()) # int((i/2)-1)
             g.write(gen_caspt2().encode())
 
@@ -364,7 +364,7 @@ def gen_energy():
     drop=[]
     # Loop radius
     for idr,r in enumerate(radius_range):
-        name=f"O3_{int(r)}"
+        name=f"O3_{float(r):.2f}"
         try:
             output=os.path.join(dirname,f'{name}',f'{name}.output')
             energy.append([r,float((grep['-i', '::    CASPT2',output] | awk['{print $NF }'])())])
@@ -378,7 +378,7 @@ def gen_energy():
     dirname=f'O3'
     # Loop radius
     for idr,r in enumerate(radius_range):
-        name=f"O3_{int(r)}"
+        name=f"O3_{float(r):.2f}"
         try:
             output=os.path.join(dirname,f'{name}',f'{name}.output')
             casscf_energy.append([r,float((grep['-i', '::    RASSCF root number  1',output] | awk['{print $8 }'])())])
@@ -395,7 +395,7 @@ def gen_energy():
     dirname=f'O3'
     # Loop radius
     for idr,r in enumerate(radius_range):
-        name=f"O3_{int(r)}"
+        name=f"O3_{float(r):.2f}"
         try:
             output=os.path.join(dirname,f'{name}',f'{name}.output')
             E2_energy.append([r,float((grep['-i', 'E2 (Variational):',output] | awk['{print $NF }'])())])
@@ -407,14 +407,14 @@ def gen_energy():
 # In[13]:
 
 
-gen_data()
-del_useless()
+#gen_data()
+#del_useless()
 
 
 # In[14]:
 
 
-gen_energy()
+# gen_energy()
 
 
 # In[15]:
@@ -582,7 +582,7 @@ MO_VECTORS=np.array(MO_VECTORS).reshape(len(h5list),int(NBAS[0]),int(NBAS[0]))
 # In[20]:
 
 
-typ_exists=sorted(sum(list([j.replace('GMJ_e2_','') for j in i.split('/')[-1].split('.') if 'GMJ' in j] for i in glob('O3/O3_106/GMJ_e2_*.csv')),[]))
+typ_exists=sorted(sum(list([j.replace('GMJ_e2_','') for j in i.split('/')[-1].split('.') if 'GMJ' in j] for i in glob('O3/O3_106*/GMJ_e2_*.csv')),[]))
 
 
 # In[21]:
@@ -642,13 +642,11 @@ def gen_dim_dict(path,typ_exists):
 # In[25]:
 
 
-typ_exists
 
 
 # In[26]:
 
-
-dims_dict=gen_dim_dict('O3/O3_106/',typ_exists)
+dims_dict=gen_dim_dict(glob('O3/O3_106*/')[0],typ_exists)
 
 
 # In[27]:
@@ -675,7 +673,7 @@ def gen_ordered(path,typ):
     level_1=column
     0=W value
     '''
-    ordered=pd.read_csv(os.path.join(path,f'GMJ_IVECW_{typ}.csv'),delim_whitespace=True, skiprows=[0],header=None).astype(np.float64).dropna(axis=1)
+    ordered=pd.read_csv(os.path.join(path,f'GMJ_IVECW_{typ}.csv'),sep='\s+', skiprows=[0],header=None).astype(np.float64).dropna(axis=1)
     ordered.columns=list(range(len(ordered.columns)))
     ordered=ordered.stack()
     df=pd.read_csv(os.path.join(path,f'GMJ_RHS_{typ}.csv'),header=None,delimiter=',',index_col=0)
@@ -694,7 +692,7 @@ def gen_e2(paths,typ):
     
     for i in paths:
         proper_labels=gen_labels(i,typ)
-        df=pd.read_csv(os.path.join(i,f'GMJ_e2_{typ}.csv'),delim_whitespace=True, skiprows=[0],header=None).astype(np.float64).dropna(axis=1).stack()
+        df=pd.read_csv(os.path.join(i,f'GMJ_e2_{typ}.csv'),sep='\s+', skiprows=[0],header=None).astype(np.float64).dropna(axis=1).stack()
         df.index=gen_ordered(i,typ).index
         df=df.to_frame(name=str(i.split('/')[1].split('_')[1]))
         e2.append(df)
@@ -788,12 +786,9 @@ for typ in set([i.split('_')[0] for i in typ_exists ]):
 # In[35]:
 
 
-typ_exists
 
 
 # In[36]:
-
-
 stacked_e2=pd.concat([gen_e2(paths,typ) for typ in typ_exists]).groupby(level=0).sum()
 E2Dict=pd.read_csv(f"O3/E2.csv",index_col=0).to_numpy()
 # stacked_e2.columns=[float(i.split('/')[1].split('_')[1]) for i in stacked_e2.columns]
@@ -843,8 +838,8 @@ def gen_indx(list_of_dicts):
     return indx[0]
 
 
-path_check='O3/O3_106/O3_106.output'
-
+#path_check='O3/O3_106/O3_106.output'
+path_check=glob('O3/O3_106*/*.output')[0]
 # Sanity check...
 # REMEVDZPER FROZEN CORE APPROXIMATION
 # Number of frozen orbitals
@@ -1205,7 +1200,7 @@ class gen_big_4(object):
     def gen_ijkl(self):
         # Dimensions: training index x pair energies x top 4 most frequent virtual orbitals for two electrion excitations
         
-        self.train_4=np.array(Parallel(n_jobs=6,verbose=10)(delayed(self.big_4)(f'{int(i)}') for i in train_ind))
+        self.train_4=np.array(Parallel(n_jobs=6,verbose=10)(delayed(self.big_4)(f'{float(i):.2f}') for i in train_ind))
         print(self.train_4.shape)
         # Most frequent: list of tuples containing (pair energy index, [top 4 most frequent virtual orbitals for two electrion excitations])
         # This can serve as a label too.
