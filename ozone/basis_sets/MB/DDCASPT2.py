@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[1]:
+# In[ ]:
 
 
 import sys
@@ -35,9 +35,10 @@ import h5py as h5
 import seaborn as sns; sns.set(style="ticks", color_codes=True)
 
 from sklearn.model_selection import train_test_split
+from time import perf_counter
 
 
-# In[2]:
+# In[ ]:
 
 
 #######################################################
@@ -74,12 +75,6 @@ from sklearn.model_selection import train_test_split
 # In[ ]:
 
 
-
-
-
-# In[3]:
-
-
 # Delete excessive extra files
 def del_useless():
     '''
@@ -93,7 +88,7 @@ def del_useless():
                     os.remove(os.path.join(root,file))
 
 
-# In[4]:
+# In[ ]:
 
 
 # When restarting a setr of calculations just clear everyting out
@@ -115,7 +110,7 @@ def clean_dir():
                 
 
 
-# In[5]:
+# In[ ]:
 
 
 # Run this before clean_dir, this pulls the xyz files out just to 
@@ -132,7 +127,7 @@ def pull_xyz():
 
 
 
-# In[6]:
+# In[ ]:
 
 
 def gen_gateway(name,basis_set):
@@ -238,19 +233,19 @@ Imaginary Shift
 
 
 
-# In[7]:
+# In[ ]:
 
 
 os.getcwd()
 
 
-# In[8]:
+# In[ ]:
 
 
 basis_set='ANO-RCC-MB'
 
 
-# In[9]:
+# In[ ]:
 
 
 top=os.getcwd()
@@ -272,24 +267,18 @@ top=os.getcwd()
 # In[ ]:
 
 
-
-
-
-# In[10]:
-
-
 radius_range=np.arange(106,182,0.5)
 
 
 
 train_ind,test_ind=radius_range[0::2],radius_range[1::2]
 # train_test_split(radius_range, test_size=0.3, random_state=0)
-#print(len(train_ind),len(test_ind))
-#with open('train_ind.pickle', 'wb') as handle:
-#    pickle.dump(train_ind, handle, protocol=pickle.HIGHEST_PROTOCOL)
-#
-#with open('test_ind.pickle', 'wb') as handle:
-#    pickle.dump(test_ind, handle, protocol=pickle.HIGHEST_PROTOCOL)
+print(len(train_ind),len(test_ind))
+with open('train_ind.pickle', 'wb') as handle:
+    pickle.dump(train_ind, handle, protocol=pickle.HIGHEST_PROTOCOL)
+
+with open('test_ind.pickle', 'wb') as handle:
+    pickle.dump(test_ind, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
 with open('test_ind.pickle', 'rb') as handle:
     test_ind = pickle.load(handle)
@@ -300,26 +289,33 @@ with open('train_ind.pickle', 'rb') as handle:
 print(len(train_ind),len(test_ind))    
 
 
-# In[11]:
+# In[ ]:
 
 
-def gen_data():
+def gen_data(verbose=True):
+    
     dirname=f'O3'
     if os.path.exists(dirname)==False:
+        if verbose:
+            print(f'Making {dirname}')
         os.mkdir(dirname)
         
         
     for idxr, r in enumerate(radius_range):
-        
+        t0=perf_counter()
         # Loop radius
         name=f"O3_{float(r):.2f}"
-
+        subdirname=os.path.join(dirname,f'{name}')
+        
         # Create files
-        if os.path.exists(os.path.join(dirname,f'{name}'))==False:
-            os.mkdir(os.path.join(dirname,f'{name}'))
+        if os.path.exists(subdirname)==False:
+            if verbose:
+                print(f'Making {subdirname}')
+            os.mkdir(subdirname)
+            
 
         # Write xyz
-        with open(os.path.join(dirname,f'{name}',f'{name}.xyz'),'w') as f:
+        with open(os.path.join(subdirname,f'{name}.xyz'),'w') as f:
             f.write(f'{3}\n\n')
             
             radius=1.278
@@ -327,8 +323,10 @@ def gen_data():
 O {0:>8f} {0:>8f} {0:>8f}
 O {radius*cos(-(float(r)/2)*(pi/180)):>8f} {radius*sin(-(float(r)/2)*(pi/180)):>8f} {0:>8f}
 """)
+        if verbose:
+            print(f"xyz created")
         # Write input
-        with open(os.path.join(dirname,f'{name}',f'{name}.input'),'wb') as g:
+        with open(os.path.join(subdirname,f'{name}.input'),'wb') as g:
             g.write(gen_gateway(name,basis_set).encode())
             g.write(gen_seward().encode())
             g.write(gen_motra(name).encode())
@@ -343,19 +341,40 @@ O {radius*cos(-(float(r)/2)*(pi/180)):>8f} {radius*sin(-(float(r)/2)*(pi/180)):>
                 g.write(gen_rasscf(name,4,3,10,previous=previous).encode()) # int((i/2)-1)
             g.write(gen_caspt2().encode())
 
+        if verbose:
+            print(f"Input created")
         # Change dir
-        if os.getcwd()!=os.path.join(dirname,f'{name}'):    
-            os.chdir(os.path.join(dirname,f'{name}'))
+        if os.getcwd()!=subdirname:   
+            if verbose:
+                print(f"Changing directories to {subdirname}")
+            os.chdir(subdirname)
 
         # Run
         call(['pymolcas','-new','-clean',f'{name}.input', '-oe', f'{name}.output'])
-
+        if verbose:
+            print(f"Calculation ran in {perf_counter()-t0:.2f} seconds")
+        
+        for c in glob("*csv"):
+            if 'e2' in c or 'IVECW' in c:
+                pd.read_csv(c).to_csv(c,compression='zip')
+            else:
+                pd.read_csv(c,header=None).to_csv(c,compression='zip') 
+        if verbose:
+            print("Compression done")
+        
         # Back to top dir
         if os.getcwd()!=top:
+            if verbose:
+                print(f"Moving back to {top}")
             os.chdir(top)
+        print()
 
 
 # In[12]:
+
+
+
+# In[ ]:
 
 
 def gen_energy():
@@ -404,20 +423,27 @@ def gen_energy():
     pd.DataFrame(E2_energy,columns=['radius','energy']).to_csv(f'O3/E2.csv')        
 
 
-# In[13]:
+
+# In[ ]:
 
 
-#gen_data()
-#del_useless()
 
 
-# In[14]:
+
+# In[ ]:
+
+
+# gen_data()
+# del_useless()
+
+
+# In[ ]:
 
 
 # gen_energy()
 
 
-# In[15]:
+# In[ ]:
 
 
 cmap=sns.color_palette('rocket',7)
@@ -429,7 +455,7 @@ cmap=sns.color_palette('rocket',7)
 
 
 
-# In[16]:
+# In[ ]:
 
 
 # gen_energy()
@@ -453,12 +479,12 @@ plt.show()
 
 
 
-# In[17]:
+# In[ ]:
 
 
 cwd = os.getcwd()
 #   Keep everything at float64
-DTYPE = np.float_
+DTYPE = float
 # DTYPE = np.float16
 
 #   Create an array with the easy data
@@ -476,7 +502,7 @@ def createArrray(filename):
     return arrayname
 
 
-# In[18]:
+# In[ ]:
 
 
 #   Start transforming the HDF5 files from the data directory
@@ -530,7 +556,7 @@ MO_OCCUPATIONS= np.array(MO_OCCUPATIONS).reshape(shape)
 MO_TYPEINDICES=np.array(MO_TYPEINDICES).reshape(shape)
 
 
-# In[19]:
+# In[ ]:
 
 
 h5list_scf = sorted(glob('O3/*/*.scf.h5'))
@@ -579,39 +605,40 @@ MO_VECTORS=np.array(MO_VECTORS).reshape(len(h5list),int(NBAS[0]),int(NBAS[0]))
 
 
 
-# In[20]:
+# In[ ]:
 
 
-typ_exists=sorted(sum(list([j.replace('GMJ_e2_','') for j in i.split('/')[-1].split('.') if 'GMJ' in j] for i in glob('O3/O3_106*/GMJ_e2_*.csv')),[]))
+typ_exists=sorted(set([os.path.basename(i).replace('GMJ_e2_','').replace('.csv','') for i in glob(os.path.join(os.getcwd(),'O3/*/GMJ_e2_*.csv'))]))
 
 
-# In[21]:
+# In[ ]:
 
 
-typ_exists
 
 
-# In[22]:
+
+# In[ ]:
 
 
 # Generate the labels that match the IVECW and IVECC2 files
 def gen_labels(path,typ):
-    return [j.split()[0].replace('\n','').replace('00','').replace('S0','S').replace('I0','I').replace(',','') for j in pd.read_csv(f'{path}/GMJ_RHS_{typ}.csv',header=None)[0]]
+    return [j.split()[0].replace('\n','').replace('00','').replace('S0','S').replace('I0','I').replace(',','') for j in pd.read_csv(f'{path}/GMJ_RHS_{typ}.csv',compression='zip',index_col=0)['0']]
 
 
 
 
-# In[23]:
+# In[ ]:
 
 
 def gen_pair_labels(path,typ):
     Labels=[]
-    Indexes=[]
-    return sorted(set(['_'.join(j.split()[0].replace('\n','').replace('00','').replace('S0','S').replace('I0','I').replace(',','').split('_')[0:2]) for j in open(f'{path}/GMJ_RHS_{typ}.csv','r').readlines()]))
+    for i in pd.read_csv(f'{path}/GMJ_RHS_{typ}.csv',compression='zip',index_col=0)['0']:
+        Labels.append('_'.join([''.join((j[0],j[1:].lstrip('0'))) for j in i.split('_')]))
+    return sorted(Labels)
 
 
 
-# In[24]:
+# In[ ]:
 
 
 def gen_dim_dict(path,typ_exists):
@@ -633,36 +660,36 @@ def gen_dim_dict(path,typ_exists):
     H_P (II->VV) (P): \n IJAB \n E_{ai} E_{bj} \n pqrs=aibj=2031 \n
     H_M (II->VV) (M): \n IJAB \n E_{ai} E_{bj} \n pqrs=aibj=2031 \n
     '''    
-    dims=[]
-    for typ in typ_exists:
-        dims.append((typ,np.array([i.split('=')[-1].split('x') for i in open(os.path.join(f'{path}',f'GMJ_e2_{typ}.csv'),'r').readlines() if 'mat. size =' in i ]).flatten().astype(int)))
-    return dict(dims)
+    dims = {typ:np.array(pd.read_csv(f"{path}/GMJ_e2_{typ}.csv",compression='zip',index_col=0).columns[0].split('=')[-1].split('x')).astype(int) for typ in typ_exists}
+    return dims
 
 
-# In[25]:
+# In[ ]:
 
 
+typ_exists
 
 
-# In[26]:
-
-dims_dict=gen_dim_dict(glob('O3/O3_106*/')[0],typ_exists)
+# In[ ]:
 
 
-# In[27]:
+dims_dict=gen_dim_dict([i for i in glob('O3/*') if os.path.isdir(i)][0],typ_exists)
+
+
+# In[ ]:
 
 
 dims_dict
 
 
-# In[28]:
+# In[ ]:
 
 
 def strip(lst):   
     return '_'.join(i.replace('A00','A').replace('I00','I').replace('S00','S').replace('I0','I').replace('A0','A').replace('S0','S') for i in lst.split('_'))
 
 
-# In[29]:
+# In[ ]:
 
 
 def gen_ordered(path,typ):
@@ -673,17 +700,27 @@ def gen_ordered(path,typ):
     level_1=column
     0=W value
     '''
-    ordered=pd.read_csv(os.path.join(path,f'GMJ_IVECW_{typ}.csv'),sep='\s+', skiprows=[0],header=None).astype(np.float64).dropna(axis=1)
+    
+    ordered=pd.read_csv(os.path.join(path,f'GMJ_IVECW_{typ}.csv'),sep='\s+',compression='zip',header=None, skiprows=[0],index_col=0)
+    if len(ordered.columns)==0:
+        ordered=pd.read_csv(os.path.join(path,f'GMJ_IVECW_{typ}.csv'),sep=',',compression='zip',header=None, skiprows=[0],index_col=0)
+        
+    
+        
+    ordered.index=list(range(len(ordered.index)))
     ordered.columns=list(range(len(ordered.columns)))
     ordered=ordered.stack()
-    df=pd.read_csv(os.path.join(path,f'GMJ_RHS_{typ}.csv'),header=None,delimiter=',',index_col=0)
+
+    df=pd.read_csv(os.path.join(path,f'GMJ_RHS_{typ}.csv'),delimiter=',',index_col=0,compression='zip',usecols=[1,2])
+    
     df.index=list(map(strip,df.index))
-    merged=ordered.reset_index().sort_values(by=0).set_index(df.sort_values(by=1).index).sort_values(['level_0','level_1'])    
+    
+    merged=ordered.reset_index().sort_values(by=0).set_index(df.sort_values(by='1').index).sort_values(['level_0','level_1'])    
 
     return merged
 
 
-# In[30]:
+# In[ ]:
 
 
 ## Generate IVECW
@@ -692,7 +729,16 @@ def gen_e2(paths,typ):
     
     for i in paths:
         proper_labels=gen_labels(i,typ)
-        df=pd.read_csv(os.path.join(i,f'GMJ_e2_{typ}.csv'),sep='\s+', skiprows=[0],header=None).astype(np.float64).dropna(axis=1).stack()
+        
+        # df=pd.read_csv(os.path.join(i,f'GMJ_e2_{typ}.csv'),sep='\s+',compression='zip',header=None, skiprows=[0],index_col=0).astype(np.float64).stack()
+        df=pd.read_csv(os.path.join(i,f'GMJ_e2_{typ}.csv'),sep='\s+',compression='zip',header=None, skiprows=[0],index_col=0)
+        if len(df.columns)==0:
+            df=pd.read_csv(os.path.join(i,f'GMJ_e2_{typ}.csv'),sep=',',compression='zip',header=None, skiprows=[0],index_col=0)        
+        
+        df.index=list(range(len(df.index)))
+        df.columns=list(range(len(df.columns)))
+        df=df.astype(float).stack()
+        
         df.index=gen_ordered(i,typ).index
         df=df.to_frame(name=str(i.split('/')[1].split('_')[1]))
         e2.append(df)
@@ -701,7 +747,7 @@ def gen_e2(paths,typ):
     return df1
 
 
-# In[31]:
+# In[ ]:
 
 
 def gen_pair(paths,typ):
@@ -714,7 +760,7 @@ def gen_pair(paths,typ):
 
 
 
-# In[32]:
+# In[ ]:
 
 
 def stack_label(path,typ):
@@ -728,7 +774,7 @@ def stack_label(path,typ):
         return gen_pair_labels(path,f'{typ}')
 
 
-# In[33]:
+# In[ ]:
 
 
 def stack_e2(path,typ):
@@ -743,7 +789,13 @@ def stack_e2(path,typ):
         return gen_pair(path,f'{typ}').groupby(level=0).sum()
 
 
-# In[34]:
+# In[ ]:
+
+
+
+
+
+# In[ ]:
 
 
 paths=glob('O3/O3_*/')
@@ -783,39 +835,42 @@ for typ in set([i.split('_')[0] for i in typ_exists ]):
         typH_labels=stack_label(path,typ)
 
 
-# In[35]:
+# In[ ]:
 
 
+typ_exists
 
 
-# In[36]:
+# In[ ]:
+
+
 stacked_e2=pd.concat([gen_e2(paths,typ) for typ in typ_exists]).groupby(level=0).sum()
 E2Dict=pd.read_csv(f"O3/E2.csv",index_col=0).to_numpy()
 # stacked_e2.columns=[float(i.split('/')[1].split('_')[1]) for i in stacked_e2.columns]
 stacked_e2=stacked_e2.sum(axis=0).sort_index().reset_index().to_numpy()
 
 
-# In[37]:
+# In[ ]:
 
 
 plt.scatter(E2Dict[:,1],stacked_e2[:,1])
 plt.plot(E2Dict[:,1],E2Dict[:,1],'k--')
 
 
-# In[38]:
+# In[ ]:
 
 
 typ_exists
 
 
-# In[39]:
+# In[ ]:
 
 
 stacked_pairs=pd.concat([stack_e2(paths,typ) for typ in typ_exists]).groupby(level=0).sum()
 pair_labels=stacked_pairs.index.tolist()
 
 
-# In[40]:
+# In[ ]:
 
 
 dummy_stack=pd.concat([gen_e2(paths,typ) for typ in typ_exists])
@@ -827,7 +882,7 @@ dummy_stack=pd.concat([gen_e2(paths,typ) for typ in typ_exists])
 
 
 
-# In[41]:
+# In[ ]:
 
 
 def gen_indx(list_of_dicts):
@@ -838,8 +893,8 @@ def gen_indx(list_of_dicts):
     return indx[0]
 
 
-#path_check='O3/O3_106/O3_106.output'
-path_check=glob('O3/O3_106*/*.output')[0]
+path_check=sorted(glob('O3/O3_*/O3_*.output'))[0]
+
 # Sanity check...
 # REMEVDZPER FROZEN CORE APPROXIMATION
 # Number of frozen orbitals
@@ -866,7 +921,7 @@ for i in range(virt):
 print(f'Basis sanity check passed={bas_check==len(Basis_Indices)}') 
 
 
-# In[42]:
+# In[ ]:
 
 
 # Grab molecular orbital occupations and make it into a dataframe labeled with xyz file name
@@ -883,44 +938,17 @@ MO_OCC_DF=MO_OCCUPATIONS_DF
 # In[ ]:
 
 
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[43]:
-
-
 # 
 # Keep in mind HDF5 zeroes out the actrive orbitals... we'll use the Fock matrix to recover these
 # 
 # Grab molecular orbital energy and make it into a dataframe labeled with xyz file name
-MO_ENERGIES=[]
-for j in paths:
-    MO_ENERGIES.append(np.genfromtxt(os.path.join(j,f"{j.split('/')[1]}.GMJ_Fock_MO.csv"), delimiter=''))
 
 
 # Dataframe of MO energies, index=basis indices and columns=paths
-MO_ENERGIES_DF=pd.DataFrame(MO_ENERGIES,index=paths,columns=Basis_Indices).transpose()
+MO_ENERGIES_DF=pd.concat([pd.read_csv(os.path.join(j,j.split('/')[1]+'.GMJ_Fock_MO.csv'),sep=',',compression='zip',index_col=0).set_index(pd.Index(Basis_Indices)).set_axis([j], axis=1) for j in paths],axis=1).sort_index(axis=1)
 
 
 # In[ ]:
-
-
-
-
-
-# In[44]:
-
-
-len(Basis_Indices)
-
-
-# In[45]:
 
 
 def gen_one_int():
@@ -929,8 +957,7 @@ def gen_one_int():
     Indexes=[]
     upd_1int_indx=[]
     def one_gener(i):
-        return pd.DataFrame(np.genfromtxt(os.path.join(i,f"{i.split('/')[1]}.GMJ_one_int.csv"), delimiter='',dtype=float),index=Basis_Indices,columns=Basis_Indices)
-            
+        return pd.DataFrame(np.array([i.split() for i in pd.read_csv(os.path.join(i,f"{i.split('/')[1]}.GMJ_one_int.csv"),compression='zip',index_col=None)['0']]).astype(float),index=Basis_Indices,columns=Basis_Indices)
 
 #     Dict=dict(zip(Indexes,Labels))
     return dict((i,one_gener(i)) for i in paths)
@@ -939,7 +966,7 @@ def gen_one_int():
 
 
 
-# In[46]:
+# In[ ]:
 
 
 t0=time()
@@ -953,7 +980,7 @@ print(f'Integrals loaded in {time()-t0:0.4f} s')
 
 
 
-# In[47]:
+# In[ ]:
 
 
 # pd.set_option("precision", 2)
@@ -972,13 +999,13 @@ for ind,i in enumerate(range(nmo)):
             indice.append(f'{i+1}_{j+1}')
 
 
-# In[48]:
+# In[ ]:
 
 
 len(indice),len(ad_ind)
 
 
-# In[49]:
+# In[ ]:
 
 
 # raw_MO=pd.DataFrame(np.genfromtxt(os.path.join(path_to_2_ints,f'{paths[0]}.GMJ_two_int.csv'), delimiter='',dtype=float),index=indice,columns=indice)
@@ -992,20 +1019,26 @@ len(indice),len(ad_ind)
 #             # raw_MO.loc[f'{j+1}_{i+1}']=AO_DF.loc[f'{i+1}_{j+1}']
 
 
-# In[50]:
+# In[ ]:
 
 
 import itertools
 
 def gen_MO(k):
     
-    if os.path.exists(os.path.join(k,f"{k.split('/')[1]}.GMJ_two_int.csv"))==True:
+    if os.path.exists(os.path.join(k,f"{k.split('/')[1]}.GMJ_two_int.csv")):
 
-        raw_MO=np.genfromtxt(os.path.join(k,f"{k.split('/')[1]}.GMJ_two_int.csv")).reshape(len(Basis_Indices),len(Basis_Indices),len(Basis_Indices),len(Basis_Indices))
+        raw_MO=pd.read_csv(os.path.join(k,f"{k.split('/')[1]}.GMJ_two_int.csv"),compression='zip',index_col=0).to_numpy().reshape(len(Basis_Indices),len(Basis_Indices),len(Basis_Indices),len(Basis_Indices))
     return raw_MO
 
 
-# In[51]:
+# In[ ]:
+
+
+
+
+
+# In[ ]:
 
 
 # featurelist=list()
@@ -1110,7 +1143,7 @@ def gen_MO(k):
 
 
 
-# In[52]:
+# In[ ]:
 
 
 froz=[indx for indx,i in enumerate(Basis_Indices) if i.startswith('F')]
@@ -1119,7 +1152,7 @@ act=[indx for indx,i in enumerate(Basis_Indices) if i.startswith('A')]
 virt=[indx for indx,i in enumerate(Basis_Indices) if i.startswith('S')]
 
 
-# In[53]:
+# In[ ]:
 
 
 # gen_F=dict(zip(paths,scf_F))
@@ -1131,10 +1164,16 @@ gen_F_SCF=pd.DataFrame(scf_F,columns=Basis_Indices,index=paths).T
 gen_occ_SCF=pd.DataFrame(scf_OCC,columns=Basis_Indices,index=paths).T
 
 
-# In[54]:
+# In[ ]:
 
 
-Basis_Indices
+MO_OCCUPATIONS_DF
+
+
+# In[ ]:
+
+
+gen_occ
 
 
 # In[ ]:
@@ -1143,13 +1182,13 @@ Basis_Indices
 
 
 
-# In[55]:
+# In[ ]:
 
 
 full_set=sorted(set(sum([gen_pair_labels(path,typ) for typ in typ_exists],[])))
 
 
-# In[56]:
+# In[ ]:
 
 
 # Rewrite the jacob style featurization step
@@ -1162,7 +1201,7 @@ virttt=len(MO_OCC_DF.T.describe().loc['mean'][MO_OCC_DF.T.describe().loc['mean']
 # # START HERE TOMORROW
 # - Data processing
 
-# In[57]:
+# In[ ]:
 
 
 argged=np.argsort(dummy_stack.abs().values,axis=0).T
@@ -1171,13 +1210,13 @@ for idxc,c in enumerate(dummy_stack.columns):
     top_excits[c]=dummy_stack[c].iloc[argged[idxc]].iloc[-4:].index
 
 
-# In[58]:
+# In[ ]:
 
 
 train_ind
 
 
-# In[59]:
+# In[ ]:
 
 
 class gen_big_4(object):
@@ -1227,7 +1266,7 @@ class gen_big_4(object):
         return set_i_indices,set_j_indices,set_k_indices,set_l_indices,self.train_freq
 
 
-# In[60]:
+# In[ ]:
 
 
 ijkl_idx=gen_big_4().gen_ijkl()
@@ -1238,7 +1277,7 @@ set_l_indices=ijkl_idx[3]
 set_indices=ijkl_idx[4]
 
 
-# In[61]:
+# In[ ]:
 
 
 occcc=len(MO_OCC_DF.T.describe().loc['mean'][MO_OCC_DF.T.describe().loc['mean']!=0])
@@ -1248,7 +1287,7 @@ virttt=len(MO_OCC_DF.T.describe().loc['mean'][MO_OCC_DF.T.describe().loc['mean']
 
 
 
-# In[62]:
+# In[ ]:
 
 
 # Create slices for AA->AA indices
@@ -1260,7 +1299,7 @@ inner_slice=slice(min(internal_A),max(internal_A)+1)
 outer_slice=slice(min(external_A),max(external_A)+1)
 
 
-# In[63]:
+# In[ ]:
 
 
 class gen_two_ints(object):
@@ -1357,6 +1396,8 @@ class gen_two_ints(object):
 #dim(triplecheck)=(occ,occ,virt,virt)
         self.triplecheck=2*self.t2start*self.get_MO('oovv')
         self.triplecheck -=  np.swapaxes(self.get_MO('oovv'),2,3)*self.t2start 
+        # Zero out NaNs
+        self.triplecheck[np.argwhere(np.isnan(self.triplecheck))]=0
 # Zero out AA->AA
         self.triplecheck[inner_slice,inner_slice,outer_slice,outer_slice]=0
 
@@ -1385,11 +1426,11 @@ class gen_two_ints(object):
         tmp_tau = self.build_tau(self.t2start,self.t1)
         self.pairs=2*tmp_tau*self.get_MO('oovv')
         self.pairs-= np.swapaxes(self.get_MO('oovv'),2,3)*tmp_tau
+        self.pairs[np.argwhere(np.isnan(self.pairs))]=0
         self.pairs = np.sum(self.pairs,axis=(2,3))
 # Zero out AA->AA
         self.pairs[inner_slice,outer_slice]=0        
-
-
+        
 
 
         test=np.zeros(self.t2start.shape)
@@ -1444,6 +1485,7 @@ class gen_two_ints(object):
         self.screenvirt[inner_slice,inner_slice,outer_slice,outer_slice]=0
         # b=(i,j,a,b)=(13, 13, 5, 5)
         b=self.triplecheck
+        
 # Zero out AA->AA
         diag_indx=[]
         off_diag_indx=[]     
@@ -1454,7 +1496,7 @@ class gen_two_ints(object):
         index=['pair_energy','coulomb','screen1_1','screen1_2','screen1_3','screen1_4','screen2_1','screen2_2','screen2_3','screen2_4','eijab_1','eijab_2','eijab_3','eijab_4','screenvirt_1','screenvirt_2','screenvirt_3','screenvirt_4']        
         for idx,i in enumerate([j for j,v in set_indices]):
 # εij{MP2}              
-            new=np.sum(b[set_i_indices[idx],set_j_indices[idx]])#0
+            new=np.sum(b[set_i_indices[idx],set_j_indices[idx]])#
 # <ii||jj>    
             new=np.hstack((new,self.MO[set_i_indices[idx],set_i_indices[idx],set_j_indices[idx],set_j_indices[idx]]))
 # <ii||aa>    
@@ -1479,12 +1521,6 @@ class gen_two_ints(object):
 # In[ ]:
 
 
-
-
-
-# In[64]:
-
-
 def elements(x):
     '''
     Takes an integer, x, and returns the number of off-diagonal elements of an upper triangular matrix
@@ -1493,13 +1529,7 @@ def elements(x):
     return (x*(x-1))/2
 
 
-# In[65]:
-
-
-set_indices[0][0],set_indices[0][1]
-
-
-# In[66]:
+# In[ ]:
 
 
 def gen_1_feats(k):
@@ -1581,18 +1611,12 @@ def gen_1_feats(k):
 # In[ ]:
 
 
-
-
-
-# In[67]:
-
-
 def gen_two_el():
-    return dict([(k,gen_two_ints().gen_feat(k))for k in paths])
+    return dict([(k.split('/')[1].lstrip('O3_'),gen_two_ints().gen_feat(k))for k in paths])
 
 
 def gen_one_diag():
-    return dict([(k,gen_1_feats(k)) for k in paths])
+    return dict([(k.split('/')[1].lstrip('O3_'),gen_1_feats(k)) for k in paths])
 
 
 def gen_bin():
@@ -1605,7 +1629,7 @@ def gen_bin():
     for i in paths:
         k=str(i)
         keys.append(k)
-        for ind,g in enumerate(full_set):
+        for ind,g in enumerate(pair_labels):
 # Epq Ers
 # # e_q+e_s-e_p-e_r
 # TIUV
@@ -1613,8 +1637,9 @@ def gen_bin():
 # Eti Euv (E01 E23)
 # e_i+e_v-e_u-e_t
 # e[0] + e[3] - e[1] - e[2]
-            featind.append(g)
+            
             idx=g.split('_')
+            featind.append(g)
             q=idx[0]
             s=idx[1]
 # Since I!=A just append 0 since they'll never both come from the same orbital                
@@ -1622,7 +1647,7 @@ def gen_bin():
                 FSO.append(1)
             else:
                 FSO.append(0)
-    return dict([(z,pd.DataFrame({'From_Same_Orbital':np.array(FSO).reshape(len(paths),-1)[idx]},index=np.array(featind).reshape(len(paths),-1)[idx])) for idx,z in enumerate(keys)])               
+    return dict([(z.split('/')[1].lstrip('O3_'),pd.DataFrame({'From_Same_Orbital':np.array(FSO).reshape(len(paths),-1)[idx]},index=np.array(featind).reshape(len(paths),-1)[idx])) for idx,z in enumerate(keys)])               
 
 
 
@@ -1633,7 +1658,7 @@ def gen_bin():
 
 
 
-# In[68]:
+# In[ ]:
 
 
 def Big_Data_GS():
@@ -1656,40 +1681,21 @@ def Big_Data_GS():
 # In[ ]:
 
 
-
-
-
-# In[69]:
-
-
 Big_Data_GS()
 
 
-# In[70]:
+# In[ ]:
 
 
 # pd.read_pickle(f'fixed_feats.pickle'),
 # pd.read_pickle(f'typH_targets.pickle').plot()
 
 
-# In[71]:
+# In[ ]:
 
 
-df=pd.concat([pd.concat({k: v for k,v in gen_bin().items()},axis=0),
-                               pd.concat({k: v for k,v in gen_two_el().items()},axis=0),
-                               pd.concat({k: v for k,v in gen_one_diag().items()},axis=0)],axis=1)
-
-
-# In[72]:
-
-
-np.argwhere(np.isnan(df.values))
-
-
-# In[73]:
-
-
-(df.isna().values==True).any()
+for i in paths:
+    shutil.rmtree(i)
 
 
 # In[ ]:
