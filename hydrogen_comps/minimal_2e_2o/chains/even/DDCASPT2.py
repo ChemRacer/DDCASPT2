@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+# In[ ]:
 
 
 import sys
@@ -21,6 +22,7 @@ import pandas as pd
 # import psi4
 from joblib import Parallel,effective_n_jobs,delayed
 from time import time
+import matplotlib.pyplot as plt
 from plumbum.cmd import grep, awk
 
 import shutil
@@ -34,6 +36,7 @@ import seaborn as sns; sns.set(style="ticks", color_codes=True)
 from sklearn.model_selection import train_test_split
 
 
+# In[ ]:
 
 
 #######################################################
@@ -67,11 +70,13 @@ from sklearn.model_selection import train_test_split
 #######################################################
 
 
+# In[ ]:
 
 
 
 
 
+# In[ ]:
 
 
 # Delete excessive extra files
@@ -87,6 +92,7 @@ def del_useless():
                     os.remove(os.path.join(root,file))
 
 
+# In[ ]:
 
 
 # When restarting a setr of calculations just clear everyting out
@@ -108,6 +114,7 @@ def clean_dir():
                 
 
 
+# In[ ]:
 
 
 # Run this before clean_dir, this pulls the xyz files out just to 
@@ -118,11 +125,13 @@ def pull_xyz():
             shutil.copy(os.path.join(os.getcwd(),'/'.join(('Coords',i))),os.path.join(os.getcwd(),i))
 
 
+# In[ ]:
 
 
 
 
 
+# In[ ]:
 
 
 def gen_gateway(name,basis_set):
@@ -226,21 +235,25 @@ Imaginary Shift
 
 
 
+# In[ ]:
 
 
 
 
 
+# In[ ]:
 
 
 basis_set='ANO-RCC-VDZP'
 
 
+# In[ ]:
 
 
 top='/home/grierjones/DDCASPT2/hydrogen_comps/minimal_2e_2o/chains/even'
 
 
+# In[ ]:
 
 
 radius_range=np.linspace(0.6,3,100)
@@ -268,17 +281,20 @@ with open('train_ind.pickle', 'rb') as handle:
 print(len(train_ind),len(test_ind))    
 
 
+# In[ ]:
 
 
 # os.chdir('/home/grierjones/DDCASPT2/hydrogen_comps/minimal_2e_2o/chains/even')
 # gen_data(4)
 
 
+# In[ ]:
 
 
 radius_range
 
 
+# In[ ]:
 
 
 def gen_data(i):
@@ -331,11 +347,13 @@ def gen_data(i):
             os.chdir(top)
 
 
+# In[ ]:
 
 
 
 
 
+# In[ ]:
 
 
 # os.chdir('/home/grierjones/DDCASPT2/hydrogen_comps/minimal_2e_2o/chains/even')
@@ -346,6 +364,7 @@ def gen_data(i):
 # results = Parallel(n_jobs=16,verbose=1000)(delayed(gen_data)(i) for i in chains)    
 
 
+# In[ ]:
 
 
 def gen_energy():
@@ -408,23 +427,61 @@ def gen_energy():
         pd.DataFrame(E2_chain_E[i],columns=['radius','energy']).to_csv(f'H{i}_chain/E2.csv')        
 
 
+# In[ ]:
 
 
 cmap=sns.color_palette('rocket',7)
 
 
+# In[ ]:
+
+
+gen_energy()
+fig,ax=plt.subplots(2,2,figsize=(10,6),sharex=True)
+for idx,i in enumerate(chains):
+    CASSCF=pd.read_csv(f"H{i}_chain/CASSCF.csv",index_col=0).to_numpy()
+    CASPT2=pd.read_csv(f"H{i}_chain/CASPT2.csv",index_col=0).to_numpy()
+    if i<=4:
+        ax[0,idx%2].plot(CASSCF[:,0],CASSCF[:,1],color=cmap[idx],label='CASSCF')
+        ax[0,idx%2].plot(CASPT2[:,0],CASPT2[:,1],'--',color=cmap[idx],label='CASPT2')
+        ax[0,idx%2].legend()
+        ax[0,idx%2].set_title(f"H$_{i}$")
+        ax[0,idx%2].set_xlabel("Radius (Å)")
+        ax[0,idx%2].set_ylabel("Energy (E$_{h}$)")
+    else:
+        ax[1,idx%2].plot(CASSCF[:,0],CASSCF[:,1],color=cmap[idx],label='CASSCF')
+        ax[1,idx%2].plot(CASPT2[:,0],CASPT2[:,1],'--',color=cmap[idx],label='CASPT2')
+        ax[1,idx%2].legend()
+        ax[1,idx%2].set_title("H$_{"+str(i)+"}$")
+        ax[1,idx%2].set_xlim(0.5,3.1)
+        ax[1,idx%2].set_xticks(np.round(np.linspace(min(radius_range),max(radius_range),4),2))
+        ax[1,idx%2].set_xlabel("Radius (Å)")
+        ax[1,idx%2].set_ylabel("Energy (E$_{h}$)")        
+    
+plt.tight_layout()
+plt.savefig('energies.png',dpi=300,bbox_inches='tight')
+plt.show()
+
+
+# In[ ]:
+
+
+for idx,i in enumerate(chains):
+    CASSCF=pd.read_csv(f"H{i}_chain/CASSCF.csv",index_col=0).to_numpy()
+    CASPT2=pd.read_csv(f"H{i}_chain/CASPT2.csv",index_col=0).to_numpy()
+    plt.plot(CASSCF[:,0],CASSCF[:,1],color=cmap[idx],label=f'CASSCF H$_{i}$')
+    plt.plot(CASPT2[:,0],CASPT2[:,1],'--',color=cmap[idx],label=f'CASPT2 H$_{i}$')    
+
+# plt.legend()
+
+
+# In[ ]:
 
 
 
 
 
-
-
-
-
-
-
-
+# In[ ]:
 
 
 cwd = os.getcwd()
@@ -447,117 +504,271 @@ def createArrray(filename):
     return arrayname
 
 
+# In[ ]:
 
 
-#   Start transforming the HDF5 files from the data directory
-h5list = sorted(glob('H10_chain/*/*rasscf.h5'))
-f = h5.File(h5list[0], 'r')
-datasetNames = [n for n in f.keys()]
-b = []
-labels = []
+def gen_all(name):
+    #   Start transforming the HDF5 files from the data directory
+    h5list = sorted(glob(f'{name}_chain/*/*rasscf.h5'))
+    f = h5.File(h5list[0], 'r')
+    datasetNames = [n for n in f.keys()]
+    b = []
+    labels = []
+    
+    # Useful attributes from the hdf5 files
+    NBAS=[]
+    NACTEL=[]
+    for k, elem in enumerate(h5list):
+        for count, ele in enumerate([i for i in f.attrs]):
+            if ele =='NBAS':
+                for i, elemt in enumerate(np.array(h5.File(h5list[k],'r').attrs[ele]).reshape(-1)):
+                    NBAS.append(elemt)
+            if ele =='NACTEL':
+                for i, elemt in enumerate(np.array(h5.File(h5list[k],'r').attrs[ele]).reshape(-1)):
+                    NACTEL.append(elemt)
+    
+    
+    MO_ENERGIES=[]
+    MO_OCCUPATIONS=[]
+    MO_TYPEINDICES=[]
+    MO_VECTORS=[]
+    t0=time()
+    #   Eliminate certain features that won't be good for regression
+    for k, elem in enumerate(h5list):
+        for count, ele in enumerate([n for n in h5.File(elem, 'r').keys()]):
+            if ele =='MO_TYPEINDICES':
+                for i, elemt in enumerate(np.array(h5.File(elem,'r')[ele]).reshape(-1)):
+                    MO_TYPEINDICES.append(elemt)
+    
+            if ele =='MO_ENERGIES':
+                for i, elemt in enumerate(np.array(h5.File(elem,'r')[ele]).reshape(-1)):
+                    MO_ENERGIES.append(elemt)
+    
+            if ele =='MO_OCCUPATIONS':
+                for i, elemt in enumerate(np.array(h5.File(elem,'r')[ele]).reshape(-1)):
+                    MO_OCCUPATIONS.append(elemt)
+    
+    
+    
+    
+    print(f'time: {time()-t0} s')
+    shape=len(h5list),int(NBAS[0])
+    # AO_FOCKINT_MATRIX=np.array(AO_FOCKINT_MATRIX).reshape(len(dislist),int(NBAS[0]),int(NBAS[0]))
+    MO_ENERGIES= np.array(MO_ENERGIES).reshape(shape)
+    MO_OCCUPATIONS= np.array(MO_OCCUPATIONS).reshape(shape)
+    MO_TYPEINDICES=np.array(MO_TYPEINDICES).reshape(shape)
+    
+    
+    h5list_scf = sorted(glob(f'{name}_chain/*/*.scf.h5'))
+    f = h5.File(h5list_scf[0], 'r')
+    datasetNames = [n for n in f.keys()]
+    b = []
+    labels = []
+    # AO_FOCKINT_MATRIX=[]
+    # Useful attributes from the hdf5 files
+    NBAS=[]
+    NACTEL=[]
+    for k, elem in enumerate(h5list_scf):
+        for count, ele in enumerate([i for i in f.attrs]):
+            if ele =='NBAS':
+                for i, elemt in enumerate(np.array(h5.File(h5list_scf[k],'r').attrs[ele]).reshape(-1)):
+                    NBAS.append(elemt)
+    MO_VECTORS=[]
+    scf_F=[]  
+    scf_OCC=[]
+    t0=time()
+    #   Eliminate certain features that won't be good for regression
+    for k, elem in enumerate(h5list_scf):
+        for count, ele in enumerate([n for n in h5.File(h5list_scf[k], 'r').keys()]):
+            if ele =='MO_VECTORS':
+                for i, elemt in enumerate(np.array(h5.File(h5list_scf[k],'r')[ele]).reshape(-1)):
+                    MO_VECTORS.append(elemt)
+            if ele =='MO_ENERGIES':
+                for i, elemt in enumerate(np.array(h5.File(h5list_scf[k],'r')[ele]).reshape(-1)):
+                    scf_F.append(elemt)
+            if ele =='MO_OCCUPATIONS':
+                for i, elemt in enumerate(np.array(h5.File(h5list_scf[k],'r')[ele]).reshape(-1)):
+                    scf_OCC.append(elemt)
+    
+    
+    
+    
+    
+    
+    
+    print(f'time: {time()-t0} s')
+    scf_F= np.array(MO_ENERGIES).reshape(shape)
+    scf_OCC= np.array(MO_OCCUPATIONS).reshape(shape)
+    MO_VECTORS=np.array(MO_VECTORS).reshape(len(h5list),int(NBAS[0]),int(NBAS[0]))
+    
+    
+    
+    typ_exists=sorted(sum(list([j.replace('GMJ_e2_','') for j in i.split('/')[-1].split('.') if 'GMJ' in j] for i in glob(f'{name}_chain/{name}_{radius_range[0]:.2f}/GMJ_e2_*.csv')),[]))
+    dims_dict=gen_dim_dict(f'{name}_chain/{name}_{radius_range[0]:.2f}/',typ_exists)
+    
+    paths=glob(f'{name}_chain/{name}_*/')
+    path=paths[0]
+    # Generate the data
+    for typ in set([i.split('_')[0] for i in typ_exists ]):
+        if typ=='A':
+            typA_e2=stack_e2(paths,typ,typ_exists)
+            typA_labels=stack_label(path,typ,typ_exists)
+            
+        if typ=='B':        
+            typB_e2=stack_e2(paths,typ,typ_exists)
+            typB_labels=stack_label(path,typ,typ_exists)
+            
+        if typ=='C':
+            typC_e2=stack_e2(paths,typ,typ_exists)
+            typC_labels=stack_label(path,typ,typ_exists)
+            
+        if typ=='D':        
+            typD_e2=stack_e2(paths,typ,typ_exists)
+            typD_labels=stack_label(path,typ,typ_exists)
+                    
+        if typ=='E':
+            typE_e2=stack_e2(paths,typ,typ_exists)
+            typE_labels=stack_label(path,typ,typ_exists)
+                    
+        if typ=='F':        
+            typF_e2=stack_e2(paths,typ,typ_exists)
+            typF_labels=stack_label(path,typ,typ_exists)
+                    
+        if typ=='G':        
+            typG_e2=stack_e2(paths,typ,typ_exists)
+            typG_labels=stack_label(path,typ,typ_exists)
+                    
+        if typ=='H':  
+            typH_e2=stack_e2(paths,typ,typ_exists)
+            typH_labels=stack_label(path,typ,typ_exists)
+    stacked_e2=pd.concat([gen_e2(paths,typ) for typ in typ_exists]).groupby(level=0).sum()
+    E2Dict=pd.read_csv(f"{name}_chain/E2.csv",index_col=0).to_numpy()
+    # stacked_e2.columns=[float(i.split('/')[1].split('_')[1]) for i in stacked_e2.columns]
+    stacked_e2=stacked_e2.sum(axis=0).sort_index().reset_index().to_numpy()
+    stacked_pairs=pd.concat([stack_e2(paths,typ,typ_exists) for typ in typ_exists]).groupby(level=0).sum()
+    pair_labels=stacked_pairs.index.tolist()
+    dummy_stack=pd.concat([gen_e2(paths,typ) for typ in typ_exists])
+    
+    
+    path_check=f'{name}_chain/{name}_{radius_range[0]:.2f}/{name}_{radius_range[0]:.2f}.output'
+    
+    # Sanity check...
+    # REMEVDZPER FROZEN CORE APPROXIMATION
+    # Number of frozen orbitals
+    fro=int(subprocess.Popen(f"grep -i 'Frozen orbitals' {path_check} | tail -n 1",shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT).communicate()[0].split()[-1])
+    # Number of inactive orbitals
+    inact=int(subprocess.Popen(f"grep -i 'Inactive orbitals' {path_check} | tail -n 1",shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT).communicate()[0].split()[-1])
+    # Number of active orbitals
+    act=int(subprocess.Popen(f"grep -i 'Active orbitals' {path_check} | tail -n 1",shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT).communicate()[0].split()[-1])
+    # Number of seconary orbitals
+    virt=int(subprocess.Popen(f"grep -i 'Secondary orbitals' {path_check} | tail -n 1",shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT).communicate()[0].split()[-1])
+    # Number of basis functions for sanity check
+    bas_check=int(subprocess.Popen(f"grep -i 'Number of basis functions' {path_check} | tail -n 1",shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT).communicate()[0].split()[-1])
+    
+    Basis_Indices=[]
+    for i in range(fro):
+        Basis_Indices.append(f'F{i+1}')
+    for i in range(inact):
+        Basis_Indices.append(f'I{i+1}')
+    for i in range(act):
+        Basis_Indices.append(f'A{i+1}')
+    for i in range(virt):
+        Basis_Indices.append(f'S{i+1}')    
+        
+    print(f'Basis sanity check passed={bas_check==len(Basis_Indices)}') 
+    
+    # Grab molecular orbital occupations and make it into a dataframe labeled with xyz file name
+    MO_OCC=[]
+    for j in range(len(chains)):
+        MO_OCC.append(dict(zip(Basis_Indices,[i for i in list(MO_OCCUPATIONS[j])])))
+    MO_OCC_Dict=dict(zip([str(k) for k in paths],MO_OCC))
+    MO_OCC_DF=pd.DataFrame(MO_OCC_Dict)
+    
+    # Dataframe of MO occupation, index=basis indices and columns=paths
+    MO_OCCUPATIONS_DF=pd.DataFrame(MO_OCCUPATIONS,index=paths,columns=Basis_Indices).transpose()
+    
+    # 
+    # Keep in mind HDF5 zeroes out the actrive orbitals... we'll use the Fock matrix to recover these
+    # 
+    # Grab molecular orbital energy and make it into a dataframe labeled with xyz file name
+    MO_ENERGIES=[]
+    for j in paths:
+        MO_ENERGIES.append(np.genfromtxt(os.path.join(j,f"{j.split('/')[1]}.GMJ_Fock_MO.csv"), delimiter=''))
+    
+    
+    # Dataframe of MO energies, index=basis indices and columns=paths
+    MO_ENERGIES_DF=pd.DataFrame(MO_ENERGIES,index=paths,columns=Basis_Indices).transpose()
+    t0=time()
+    int1=gen_one_int(paths,Basis_Indices)
+    print(f'Integrals loaded in {time()-t0:0.4f} s')
+    # pd.set_option("precision", 2)
+    # np.set_printoptions(precision=2)
+    # pd.options.display.float_format = '{:,.2f}'.format
+    
+    
+    
+    nmo=len(Basis_Indices)
+    indice=[]
+    ad_ind=[]
+    for ind,i in enumerate(range(nmo)):
+        for indx,j in enumerate(range(nmo)):
+            ad_ind.append(f'{i+1}_{j+1}')
+            if j<=i:
+                indice.append(f'{i+1}_{j+1}')
+    
+    
+    froz=[indx for indx,i in enumerate(Basis_Indices) if i.startswith('F')]
+    inact=[indx for indx,i in enumerate(Basis_Indices) if i.startswith('I')]
+    act=[indx for indx,i in enumerate(Basis_Indices) if i.startswith('A')]
+    virt=[indx for indx,i in enumerate(Basis_Indices) if i.startswith('S')]
+    # gen_F=dict(zip(paths,scf_F))
+    # gen_occ=dict(zip(paths,scf_OCC))
+    
+    gen_F=MO_ENERGIES_DF
+    gen_occ=MO_OCCUPATIONS_DF
+    gen_F_SCF=pd.DataFrame(scf_F,columns=Basis_Indices,index=paths).T
+    gen_occ_SCF=pd.DataFrame(scf_OCC,columns=Basis_Indices,index=paths).T
+    
+    
+    full_set=sorted(set(sum([gen_pair_labels(path,typ) for typ in typ_exists],[])))
+    
+    # Rewrite the jacob style featurization step
+    occcc=len(MO_OCC_DF.T.describe().loc['mean'][MO_OCC_DF.T.describe().loc['mean']!=0])
+    virttt=len(MO_OCC_DF.T.describe().loc['mean'][MO_OCC_DF.T.describe().loc['mean']!=2])
+    
+    
+    argged=np.argsort(dummy_stack.abs().values,axis=0).T
+    top_excits={}
+    for idxc,c in enumerate(dummy_stack.columns):
+        top_excits[c]=dummy_stack[c].iloc[argged[idxc]].iloc[-4:].index
+    
+    ijkl_idx=gen_big_4().gen_ijkl(Basis_Indices,stacked_pairs,dummy_stack)
+    set_i_indices=ijkl_idx[0]
+    set_j_indices=ijkl_idx[1]
+    set_k_indices=ijkl_idx[2]
+    set_l_indices=ijkl_idx[3]
+    set_indices=ijkl_idx[4]
+    
+    
+    
+    
+    occcc=len(MO_OCC_DF.T.describe().loc['mean'][MO_OCC_DF.T.describe().loc['mean']!=0])
+    virttt=len(MO_OCC_DF.T.describe().loc['mean'][MO_OCC_DF.T.describe().loc['mean']!=2])
+    
+    
+    
+    # Create slices for AA->AA indices
+    # This will help zero out infinities
+    internal_A=[idx for idx,i in enumerate(MO_OCC_DF.T.describe().loc['mean'][MO_OCC_DF.T.describe().loc['mean']!=0].index) if 'A' in i]
+    external_A=[idx for idx,i in enumerate(MO_OCC_DF.T.describe().loc['mean'][MO_OCC_DF.T.describe().loc['mean']!=2].index) if 'A' in i]
+    
+    inner_slice=slice(min(internal_A),max(internal_A)+1)
+    outer_slice=slice(min(external_A),max(external_A)+1)
+    
+    Big_Data_GS(name,paths,full_set,virttt,occcc,froz,Basis_Indices,gen_F,gen_occ,gen_F_SCF,gen_occ_SCF,pair_labels,inner_slice,outer_slice,set_indices,set_i_indices,set_j_indices,set_k_indices,set_l_indices,int1,stacked_pairs)
 
-# Useful attributes from the hdf5 files
-NBAS=[]
-NACTEL=[]
-for k, elem in enumerate(h5list):
-    for count, ele in enumerate([i for i in f.attrs]):
-        if ele =='NBAS':
-            for i, elemt in enumerate(np.array(h5.File(h5list[k],'r').attrs[ele]).reshape(-1)):
-                NBAS.append(elemt)
-        if ele =='NACTEL':
-            for i, elemt in enumerate(np.array(h5.File(h5list[k],'r').attrs[ele]).reshape(-1)):
-                NACTEL.append(elemt)
 
-
-MO_ENERGIES=[]
-MO_OCCUPATIONS=[]
-MO_TYPEINDICES=[]
-MO_VECTORS=[]
-t0=time()
-#   Eliminate certain features that won't be good for regression
-for k, elem in enumerate(h5list):
-    for count, ele in enumerate([n for n in h5.File(elem, 'r').keys()]):
-        if ele =='MO_TYPEINDICES':
-            for i, elemt in enumerate(np.array(h5.File(elem,'r')[ele]).reshape(-1)):
-                MO_TYPEINDICES.append(elemt)
-
-        if ele =='MO_ENERGIES':
-            for i, elemt in enumerate(np.array(h5.File(elem,'r')[ele]).reshape(-1)):
-                MO_ENERGIES.append(elemt)
-
-        if ele =='MO_OCCUPATIONS':
-            for i, elemt in enumerate(np.array(h5.File(elem,'r')[ele]).reshape(-1)):
-                MO_OCCUPATIONS.append(elemt)
-
-
-
-
-print(f'time: {time()-t0} s')
-shape=len(h5list),int(NBAS[0])
-# AO_FOCKINT_MATRIX=np.array(AO_FOCKINT_MATRIX).reshape(len(dislist),int(NBAS[0]),int(NBAS[0]))
-MO_ENERGIES= np.array(MO_ENERGIES).reshape(shape)
-MO_OCCUPATIONS= np.array(MO_OCCUPATIONS).reshape(shape)
-MO_TYPEINDICES=np.array(MO_TYPEINDICES).reshape(shape)
-
-
-
-
-h5list_scf = sorted(glob('H10_chain/*/*.scf.h5'))
-f = h5.File(h5list_scf[0], 'r')
-datasetNames = [n for n in f.keys()]
-b = []
-labels = []
-# AO_FOCKINT_MATRIX=[]
-# Useful attributes from the hdf5 files
-NBAS=[]
-NACTEL=[]
-for k, elem in enumerate(h5list_scf):
-    for count, ele in enumerate([i for i in f.attrs]):
-        if ele =='NBAS':
-            for i, elemt in enumerate(np.array(h5.File(h5list_scf[k],'r').attrs[ele]).reshape(-1)):
-                NBAS.append(elemt)
-MO_VECTORS=[]
-scf_F=[]  
-scf_OCC=[]
-t0=time()
-#   Eliminate certain features that won't be good for regression
-for k, elem in enumerate(h5list_scf):
-    for count, ele in enumerate([n for n in h5.File(h5list_scf[k], 'r').keys()]):
-        if ele =='MO_VECTORS':
-            for i, elemt in enumerate(np.array(h5.File(h5list_scf[k],'r')[ele]).reshape(-1)):
-                MO_VECTORS.append(elemt)
-        if ele =='MO_ENERGIES':
-            for i, elemt in enumerate(np.array(h5.File(h5list_scf[k],'r')[ele]).reshape(-1)):
-                scf_F.append(elemt)
-        if ele =='MO_OCCUPATIONS':
-            for i, elemt in enumerate(np.array(h5.File(h5list_scf[k],'r')[ele]).reshape(-1)):
-                scf_OCC.append(elemt)
-
-
-
-
-
-
-
-print(f'time: {time()-t0} s')
-scf_F= np.array(MO_ENERGIES).reshape(shape)
-scf_OCC= np.array(MO_OCCUPATIONS).reshape(shape)
-MO_VECTORS=np.array(MO_VECTORS).reshape(len(h5list),int(NBAS[0]),int(NBAS[0]))
-
-
-
-
-
-
-
-typ_exists=sorted(sum(list([j.replace('GMJ_e2_','') for j in i.split('/')[-1].split('.') if 'GMJ' in j] for i in glob('H10_chain/H10_0.60/GMJ_e2_*.csv')),[]))
-
-
-
-
-typ_exists
-
-
+# In[ ]:
 
 
 # Generate the labels that match the IVECW and IVECC2 files
@@ -567,20 +778,25 @@ def gen_labels(path,typ):
 
 
 
-
-
-# path,typ = "H10_chain/H10_0.60/","C"
-
-
+# In[ ]:
 
 
 def gen_pair_labels(path,typ):
     Labels=[]
     Indexes=[]
-    return sorted(set(['_'.join(j.split()[0].replace('\n','').replace('00','').replace('S0','S').replace('I0','I').replace(',','').split('_')[0:2]) for j in open(f'{path}/GMJ_RHS_{typ}.csv','r').readlines()]))
+    return sorted(set(['_'.join(re.sub(r'(?<!\d)0+(\d+)', r'\1', j).split('_')[0:2]) for j in pd.read_csv(f'{path}/GMJ_RHS_{typ}.csv',header=None)[0].values]))
 
 
 
+# In[ ]:
+
+
+# path,typ = "H10_chain/H10_0.60/","C"
+# gen_pair_labels(path,typ)
+
+
+
+# In[ ]:
 
 
 def gen_dim_dict(path,typ_exists):
@@ -608,27 +824,14 @@ def gen_dim_dict(path,typ_exists):
     return dict(dims)
 
 
-
-
-typ_exists
-
-
-
-
-dims_dict=gen_dim_dict('H10_chain/H10_0.60/',typ_exists)
-
-
-
-
-dims_dict
-
-
+# In[ ]:
 
 
 def strip(lst):   
     return '_'.join(i.replace('A00','A').replace('I00','I').replace('S00','S').replace('I0','I').replace('A0','A').replace('S0','S') for i in lst.split('_'))
 
 
+# In[ ]:
 
 
 def gen_ordered(path,typ):
@@ -652,6 +855,7 @@ def gen_ordered(path,typ):
     return merged
 
 
+# In[ ]:
 
 
 ## Generate IVECW
@@ -669,6 +873,7 @@ def gen_e2(paths,typ):
     return df1
 
 
+# In[ ]:
 
 
 def gen_pair(paths,typ):
@@ -681,9 +886,10 @@ def gen_pair(paths,typ):
 
 
 
+# In[ ]:
 
 
-def stack_label(path,typ):
+def stack_label(path,typ,typ_exists):
     if f'{typ}_M' in typ_exists and f'{typ}_P' in typ_exists:
         return gen_pair_labels(path,f'{typ}_P')+gen_pair_labels(path,f'{typ}_M')
     elif f'{typ}_P' in typ_exists:
@@ -694,9 +900,20 @@ def stack_label(path,typ):
         return gen_pair_labels(path,f'{typ}')
 
 
+# In[ ]:
 
 
-def stack_e2(path,typ):
+# name='H2'
+# typ_exists=sorted(sum(list([j.replace('GMJ_e2_','') for j in i.split('/')[-1].split('.') if 'GMJ' in j] for i in glob(f'{name}_chain/{name}_{radius_range[0]:.2f}/GMJ_e2_*.csv')),[]))
+# dims_dict=gen_dim_dict(f'{name}_chain/{name}_{radius_range[0]:.2f}/',typ_exists)
+# stack_label(glob(f'{name}_chain/{name}_*/')[0],'C',typ_exists)
+# # gen_pair_labels(path, typ)
+
+
+# In[ ]:
+
+
+def stack_e2(path,typ,typ_exists):
     if f'{typ}_M' in typ_exists and f'{typ}_P' in typ_exists:
         df=pd.concat([gen_pair(path,f'{typ}_M'),gen_pair(path,f'{typ}_P')],axis=0).groupby(level=0).sum()
         return df
@@ -708,78 +925,7 @@ def stack_e2(path,typ):
         return gen_pair(path,f'{typ}').groupby(level=0).sum()
 
 
-
-
-paths=glob('H10_chain/H10_*/')
-path=paths[0]
-# Generate the data
-for typ in set([i.split('_')[0] for i in typ_exists ]):
-    if typ=='A':
-        typA_e2=stack_e2(paths,typ)
-        typA_labels=stack_label(path,typ)
-        
-    if typ=='B':        
-        typB_e2=stack_e2(paths,typ)
-        typB_labels=stack_label(path,typ)
-        
-    if typ=='C':
-        typC_e2=stack_e2(paths,typ)
-        typC_labels=stack_label(path,typ)
-        
-    if typ=='D':        
-        typD_e2=stack_e2(paths,typ)
-        typD_labels=stack_label(path,typ)
-                
-    if typ=='E':
-        typE_e2=stack_e2(paths,typ)
-        typE_labels=stack_label(path,typ)
-                
-    if typ=='F':        
-        typF_e2=stack_e2(paths,typ)
-        typF_labels=stack_label(path,typ)
-                
-    if typ=='G':        
-        typG_e2=stack_e2(paths,typ)
-        typG_labels=stack_label(path,typ)
-                
-    if typ=='H':  
-        typH_e2=stack_e2(paths,typ)
-        typH_labels=stack_label(path,typ)
-
-
-
-
-typ_exists
-
-
-
-
-stacked_e2=pd.concat([gen_e2(paths,typ) for typ in typ_exists]).groupby(level=0).sum()
-E2Dict=pd.read_csv(f"H10_chain/E2.csv",index_col=0).to_numpy()
-# stacked_e2.columns=[float(i.split('/')[1].split('_')[1]) for i in stacked_e2.columns]
-stacked_e2=stacked_e2.sum(axis=0).sort_index().reset_index().to_numpy()
-
-
-
-
-
-
-
-
-typ_exists
-
-
-
-
-stacked_pairs=pd.concat([stack_e2(paths,typ) for typ in typ_exists]).groupby(level=0).sum()
-pair_labels=stacked_pairs.index.tolist()
-
-
-
-
-dummy_stack=pd.concat([gen_e2(paths,typ) for typ in typ_exists])
-
-
+# In[ ]:
 
 
 def gen_indx(list_of_dicts):
@@ -790,81 +936,11 @@ def gen_indx(list_of_dicts):
     return indx[0]
 
 
-path_check='H10_chain/H10_0.60/H10_0.60.output'
 
-# Sanity check...
-# REMEVDZPER FROZEN CORE APPROXIMATION
-# Number of frozen orbitals
-fro=int(subprocess.Popen(f"grep -i 'Frozen orbitals' {path_check} | tail -n 1",shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT).communicate()[0].split()[-1])
-# Number of inactive orbitals
-inact=int(subprocess.Popen(f"grep -i 'Inactive orbitals' {path_check} | tail -n 1",shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT).communicate()[0].split()[-1])
-# Number of active orbitals
-act=int(subprocess.Popen(f"grep -i 'Active orbitals' {path_check} | tail -n 1",shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT).communicate()[0].split()[-1])
-# Number of seconary orbitals
-virt=int(subprocess.Popen(f"grep -i 'Secondary orbitals' {path_check} | tail -n 1",shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT).communicate()[0].split()[-1])
-# Number of basis functions for sanity check
-bas_check=int(subprocess.Popen(f"grep -i 'Number of basis functions' {path_check} | tail -n 1",shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT).communicate()[0].split()[-1])
-
-Basis_Indices=[]
-for i in range(fro):
-    Basis_Indices.append(f'F{i+1}')
-for i in range(inact):
-    Basis_Indices.append(f'I{i+1}')
-for i in range(act):
-    Basis_Indices.append(f'A{i+1}')
-for i in range(virt):
-    Basis_Indices.append(f'S{i+1}')    
-    
-print(f'Basis sanity check passed={bas_check==len(Basis_Indices)}') 
+# In[ ]:
 
 
-
-
-# Grab molecular orbital occupations and make it into a dataframe labeled with xyz file name
-MO_OCC=[]
-for j in range(len(chains)):
-    MO_OCC.append(dict(zip(Basis_Indices,[i for i in list(MO_OCCUPATIONS[j])])))
-MO_OCC_Dict=dict(zip([str(k) for k in paths],MO_OCC))
-MO_OCC_DF=pd.DataFrame(MO_OCC_Dict)
-
-# Dataframe of MO occupation, index=basis indices and columns=paths
-MO_OCCUPATIONS_DF=pd.DataFrame(MO_OCCUPATIONS,index=paths,columns=Basis_Indices).transpose()
-
-
-
-
-
-
-
-
-
-
-# 
-# Keep in mind HDF5 zeroes out the actrive orbitals... we'll use the Fock matrix to recover these
-# 
-# Grab molecular orbital energy and make it into a dataframe labeled with xyz file name
-MO_ENERGIES=[]
-for j in paths:
-    MO_ENERGIES.append(np.genfromtxt(os.path.join(j,f"{j.split('/')[1]}.GMJ_Fock_MO.csv"), delimiter=''))
-
-
-# Dataframe of MO energies, index=basis indices and columns=paths
-MO_ENERGIES_DF=pd.DataFrame(MO_ENERGIES,index=paths,columns=Basis_Indices).transpose()
-
-
-
-
-
-
-
-
-
-len(Basis_Indices)
-
-
-
-
-def gen_one_int():
+def gen_one_int(paths,Basis_Indices):
     one_int=[]
     Labels=[]
     Indexes=[]
@@ -880,59 +956,12 @@ def gen_one_int():
 
 
 
-
-
-t0=time()
-int1=gen_one_int()
-print(f'Integrals loaded in {time()-t0:0.4f} s')
-
-
-
-
-
-
-
-
-
-# pd.set_option("precision", 2)
-# np.set_printoptions(precision=2)
-# pd.options.display.float_format = '{:,.2f}'.format
-
-
-
-nmo=len(Basis_Indices)
-indice=[]
-ad_ind=[]
-for ind,i in enumerate(range(nmo)):
-    for indx,j in enumerate(range(nmo)):
-        ad_ind.append(f'{i+1}_{j+1}')
-        if j<=i:
-            indice.append(f'{i+1}_{j+1}')
-
-
-
-
-len(indice),len(ad_ind)
-
-
-
-
-# raw_MO=pd.DataFrame(np.genfromtxt(os.path.join(path_to_2_ints,f'{paths[0]}.GMJ_two_int.csv'), delimiter='',dtype=float),index=indice,columns=indice)
-
-# # This is wrong
-# for ind,a in enumerate(indice):
-#     for indx,b in enumerate(indice):
-#         if a!=b:
-#             print(a.split('_'),b.split('_'))
-#             # print(f'{j+1}_{i+1}',raw_MO[f'{j+1}_{i+1}'])
-#             # raw_MO.loc[f'{j+1}_{i+1}']=AO_DF.loc[f'{i+1}_{j+1}']
-
-
+# In[ ]:
 
 
 import itertools
 
-def gen_MO(k):
+def gen_MO(k,Basis_Indices):
     
     if os.path.exists(os.path.join(k,f"{k.split('/')[1]}.GMJ_two_int.csv"))==True:
 
@@ -940,163 +969,7 @@ def gen_MO(k):
     return raw_MO
 
 
-
-
-# featurelist=list()
-# def GenerateFeatures(wf_object, Miller=False, values=4):
-#     b =   wf_object.triplecheck
-
-#     #c = np.log10(np.absolute(wf_object.get_MO('oovv')*wf_object.t2start))
-#     ##infcheck=(c == -np.inf)
-#     #c[infcheck]=20
-
-#     #d = wf_object.pairs
-
-#     if Miller == False:
-#         for i in range(b.shape[0]):
-#             for j in range (b.shape[1]):
-#                 print('Top',i,j)
-#                 featurelist.clear()
-# # sort MP2 two-electron excitations e_{ij}^{ab} for ij
-# # (most negative, …, smallest negative, …, smallest positive, …, largest positive)
-# # [:values]=first x values        
-# # [-values:]=last x values
-#                 ind=np.argsort(b[i,j].flatten(),axis=0)
-# # εij{MP2}
-#                 new=np.sum(b[i,j])#0
-# #                 featurelist.append('Pair_Energy')
-# # <ii||jj>        
-#                 new=np.hstack((new,wf_object.MO[i,i,j,j]))
-# # screen1 first 4 values (i) <ii||aa>
-#                 new=np.hstack((new,np.take_along_axis(wf_object.screen1[i,j].flatten(), ind, axis=0)[:values]))#1,2,3,4
-# # screen2 first 4 values (j) <jj||bb>
-#                 new=np.hstack((new,np.take_along_axis(wf_object.screen2[i,j].flatten(), ind, axis=0)[:values]))#9,10,11,12
-# # <aa||bb> matrix first 4 values 
-#                 new=np.hstack((new,np.take_along_axis(wf_object.screenvirt[i,j].flatten(), ind, axis=0)[:values]))#9,10,11,12
-# # e_{ij}^{ab}{MP2} first 4 values
-#                 new=np.hstack((new,np.take_along_axis(b[i,j].flatten(), ind, axis=0)[:values]))#17,18,19,20
-#                 if i==j:       
-# # <ii||jj> is excluded since i==j                
-#                     ind=np.argsort(b[i,j].flatten(),axis=0)
-# # εij{MP2}                    
-#                     new=np.sum(b[i,j])#0
-# # screen1 first 4 values (i)
-#                     new=np.hstack((new,np.take_along_axis(wf_object.screen1[i,j].flatten(), ind, axis=0)[:values]))#1,2,3,4
-# # screen2 first 4 values (j)       
-#                     new=np.hstack((new,np.take_along_axis(wf_object.screen2[i,j].flatten(), ind, axis=0)[:values]))#9,10,11,12
-# # screen1 last 4 values (i)
-#                     new=np.hstack((new,np.take_along_axis(wf_object.screen1[i,j].flatten(), ind, axis=0)[-values:]))#1,2,3,4
-# # screen2 last 4 values (j)
-#                     new=np.hstack((new,np.take_along_axis(wf_object.screen2[i,j].flatten(), ind, axis=0)[-values:]))#9,10,11,12
-
-# # e_{ij}^{ab}{MP2} first 4 values                    
-#                     new=np.hstack((new,np.take_along_axis(b[i,j].flatten(), ind, axis=0)[:values]))#17,18,19,20
-# # e_{ij}^{ab}{MP2} last 4 values    
-#                     new=np.hstack((new,np.take_along_axis(b[i,j].flatten(), ind, axis=0)[-values:]))#17,18,19,20
-# # Missing εij{MP2} correlation in representation                    
-#                     one=np.sum(np.take_along_axis(b[i,j].flatten(), ind, axis=0)[-values:])
-#                     two=np.sum(np.take_along_axis(b[i,j].flatten(), ind, axis=0)[:values])
-#                     new=np.hstack((new, np.sum(b[i,j])-one-two))
-#                     featurelist.append('triplecheck1')
-#                 else:
-# # i!=j                    
-#                     ind=np.argsort(b[i,j].flatten(),axis=0)
-# # εij{MP2}    
-#                     new=np.sum(b[i,j])#0      
-# # <ii||jj>                    
-#                     new=np.hstack((new,wf_object.MO[i,i,j,j]))
-# # screen1 first 4 values (i)
-#                     new=np.hstack((new,np.take_along_axis(wf_object.screen1[i,j].flatten(), ind, axis=0)[:values]))#1,2,3,4
-# # screen2 first 4 values (j)                    
-#                     new=np.hstack((new,np.take_along_axis(wf_object.screen2[i,j].flatten(), ind, axis=0)[:values]))#9,10,11,12
-# # screen1 last 4 values (i)
-#                     new=np.hstack((new,np.take_along_axis(wf_object.screen1[i,j].flatten(), ind, axis=0)[-values:]))#1,2,3,4
-# # screen2 last 4 values (j)                    
-#                     new=np.hstack((new,np.take_along_axis(wf_object.screen2[i,j].flatten(), ind, axis=0)[-values:]))#9,10,11,12
-# # e_{ij}^{ab}{MP2} first 4 values                                        
-#                     new=np.hstack((new,np.take_along_axis(b[i,j].flatten(), ind, axis=0)[:values]))#17,18,19,20
-# # e_{ij}^{ab}{MP2} last 4 values    
-#                     new=np.hstack((new,np.take_along_axis(b[i,j].flatten(), ind, axis=0)[-values:]))#17,18,19,20                    
-# # Missing εij{MP2} correlation in representation                    
-#                     one=np.sum(np.take_along_axis(b[i,j].flatten(), ind, axis=0)[-values:])
-#                     two=np.sum(np.take_along_axis(b[i,j].flatten(), ind, axis=0)[:values])
-#                     new=np.hstack((new, np.sum(b[i,j])-one-two))
-
-
-#                 if ((i==0) and (j==0)):
-#                     a=new.copy()
-#                     diag=wf_object.pairs[i,j]
-#                 elif ((i==0) and (j==1)):
-#                     g=new.copy()
-#                     offdiag=wf_object.pairs[i,j]
-#                 elif (i==j):        
-#                     a=np.vstack((a,new))#41
-#                     diag=np.vstack((diag,wf_object.pairs[i,j]))
-#                 elif (j > i):
-#                     g=np.vstack((g,new))#41
-#                     offdiag=np.vstack((offdiag,wf_object.pairs[i,j]))
-#         return a,diag,g,offdiag
-
-
-
-
-
-
-
-
-
-froz=[indx for indx,i in enumerate(Basis_Indices) if i.startswith('F')]
-inact=[indx for indx,i in enumerate(Basis_Indices) if i.startswith('I')]
-act=[indx for indx,i in enumerate(Basis_Indices) if i.startswith('A')]
-virt=[indx for indx,i in enumerate(Basis_Indices) if i.startswith('S')]
-
-
-
-
-# gen_F=dict(zip(paths,scf_F))
-# gen_occ=dict(zip(paths,scf_OCC))
-
-gen_F=MO_ENERGIES_DF
-gen_occ=MO_OCCUPATIONS_DF
-gen_F_SCF=pd.DataFrame(scf_F,columns=Basis_Indices,index=paths).T
-gen_occ_SCF=pd.DataFrame(scf_OCC,columns=Basis_Indices,index=paths).T
-
-
-
-
-Basis_Indices
-
-
-
-
-
-
-
-
-
-full_set=sorted(set(sum([gen_pair_labels(path,typ) for typ in typ_exists],[])))
-
-
-
-
-# Rewrite the jacob style featurization step
-occcc=len(MO_OCC_DF.T.describe().loc['mean'][MO_OCC_DF.T.describe().loc['mean']!=0])
-virttt=len(MO_OCC_DF.T.describe().loc['mean'][MO_OCC_DF.T.describe().loc['mean']!=2])
-
-
-
-
-# # START HERE TOMORROW
-# - Data processing
-
-
-
-argged=np.argsort(dummy_stack.abs().values,axis=0).T
-top_excits={}
-for idxc,c in enumerate(dummy_stack.columns):
-    top_excits[c]=dummy_stack[c].iloc[argged[idxc]].iloc[-4:].index
-
-
+# In[ ]:
 
 
 class gen_big_4(object):
@@ -1113,13 +986,13 @@ class gen_big_4(object):
 
     '''    
     # Pick 4 largest contributers to the pair energy
-    def big_4(self,dist):
+    def big_4(self,dist,dummy_stack,stacked_pairs):
         return [['_'.join(k.split('_')[2:4]) for k in dummy_stack.loc[[ j for j in dummy_stack.index.tolist() if j.split('_')[0]==i.split('_')[0] and j.split('_')[1]==i.split('_')[1]]][dist].abs().sort_values(ascending=False).index[0:4].tolist()] for i in stacked_pairs.index.tolist()]
     
-    def gen_ijkl(self):
+    def gen_ijkl(self,Basis_Indices,stacked_pairs,dummy_stack):
         # Dimensions: training index x pair energies x top 4 most frequent virtual orbitals for two electrion excitations
         
-        self.train_4=np.array(Parallel(n_jobs=6,verbose=10)(delayed(self.big_4)(f'{i:.2f}') for i in train_ind))
+        self.train_4=np.array(Parallel(n_jobs=-1,verbose=10)(delayed(self.big_4)(f'{i:.2f}',dummy_stack,stacked_pairs) for i in train_ind))
         print(self.train_4.shape)
         # Most frequent: list of tuples containing (pair energy index, [top 4 most frequent virtual orbitals for two electrion excitations])
         # This can serve as a label too.
@@ -1146,36 +1019,7 @@ class gen_big_4(object):
         return set_i_indices,set_j_indices,set_k_indices,set_l_indices,self.train_freq
 
 
-
-
-ijkl_idx=gen_big_4().gen_ijkl()
-set_i_indices=ijkl_idx[0]
-set_j_indices=ijkl_idx[1]
-set_k_indices=ijkl_idx[2]
-set_l_indices=ijkl_idx[3]
-set_indices=ijkl_idx[4]
-
-
-
-
-occcc=len(MO_OCC_DF.T.describe().loc['mean'][MO_OCC_DF.T.describe().loc['mean']!=0])
-virttt=len(MO_OCC_DF.T.describe().loc['mean'][MO_OCC_DF.T.describe().loc['mean']!=2])
-
-
-
-
-
-
-
-# Create slices for AA->AA indices
-# This will help zero out infinities
-internal_A=[idx for idx,i in enumerate(MO_OCC_DF.T.describe().loc['mean'][MO_OCC_DF.T.describe().loc['mean']!=0].index) if 'A' in i]
-external_A=[idx for idx,i in enumerate(MO_OCC_DF.T.describe().loc['mean'][MO_OCC_DF.T.describe().loc['mean']!=2].index) if 'A' in i]
-
-inner_slice=slice(min(internal_A),max(internal_A)+1)
-outer_slice=slice(min(external_A),max(external_A)+1)
-
-
+# In[ ]:
 
 
 class gen_two_ints(object):
@@ -1206,7 +1050,7 @@ class gen_two_ints(object):
         return ttau    
     
 #     def __init__(self,k):
-    def gen_feat(self,k):
+    def gen_feat(self,k,virttt,occcc,froz,Basis_Indices,gen_F,inner_slice,outer_slice,set_indices,set_i_indices,set_j_indices,set_k_indices,set_l_indices):
 # Set variables
 # nocc:=Occupied orbitals
 # nvirt:=virtual orbitals
@@ -1244,7 +1088,7 @@ class gen_two_ints(object):
 # Occupied    
         self.occupado=np.zeros((nocc,))
 # MO integrals    
-        self.MO=gen_MO(k)
+        self.MO=gen_MO(k,Basis_Indices)
 # MO Fock matrix    
         self.F=gen_F[k].to_numpy()
 # Zero out t1 matrix, dim(occ,virt)    
@@ -1382,20 +1226,9 @@ class gen_two_ints(object):
             new=np.hstack((new,np.array([self.screenvirt[set_i_indices[idx],set_j_indices[idx],k,l] for k,l in zip(set_k_indices[idx],set_l_indices[idx])]).flatten()))
             featurelist.append((i,new))
         return pd.DataFrame(dict(featurelist),index=index).T
-#         return pd.concat([pd.DataFrame(self.a,index=diag_indx),pd.DataFrame(self.g,index=off_diag_indx)]).loc[full_set]
-
-# gen_feat
-#     self.dict=dict([(k,gen_feat(k))for k in paths])
 
 
-
-
-
-
-
-
-
-
+# In[ ]:
 
 
 def elements(x):
@@ -1406,14 +1239,10 @@ def elements(x):
     return (x*(x-1))/2
 
 
+# In[ ]:
 
 
-set_indices[0][0],set_indices[0][1]
-
-
-
-
-def gen_1_feats(k):
+def gen_1_feats(k,int1,set_indices,gen_F,gen_occ,gen_F_SCF,gen_occ_SCF,pair_labels):
     # t0=time()
     # For an e_pq, there should be 10 F, 10 occs, and then 10 SCF F and 10 SCF occs
     Fp=[]
@@ -1489,22 +1318,18 @@ def gen_1_feats(k):
     return pd.concat([rs,dummy_df],axis=1)
 
 
+# In[ ]:
 
 
+def gen_two_el(paths,virttt,occcc,froz,Basis_Indices,gen_F,inner_slice,outer_slice,set_indices,set_i_indices,set_j_indices,set_k_indices,set_l_indices):
+    return dict([(k,gen_two_ints().gen_feat(k,virttt,occcc,froz,Basis_Indices,gen_F,inner_slice,outer_slice,set_indices,set_i_indices,set_j_indices,set_k_indices,set_l_indices))for k in paths])
 
 
+def gen_one_diag(paths,int1,set_indices,gen_F,gen_occ,gen_F_SCF,gen_occ_SCF,pair_labels):
+    return dict([(k,gen_1_feats(k,int1,set_indices,gen_F,gen_occ,gen_F_SCF,gen_occ_SCF,pair_labels)) for k in paths])
 
 
-
-def gen_two_el():
-    return dict([(k,gen_two_ints().gen_feat(k))for k in paths])
-
-
-def gen_one_diag():
-    return dict([(k,gen_1_feats(k)) for k in paths])
-
-
-def gen_bin():
+def gen_bin(paths,full_set):
     # FSO=From same orbital
     FSO=[]
     # Indexing
@@ -1536,58 +1361,37 @@ def gen_bin():
 
 
 
+# In[ ]:
 
 
-
-
-
-
-
-def Big_Data_GS():
+def Big_Data_GS(name,paths,full_set,virttt,occcc,froz,Basis_Indices,gen_F,gen_occ,gen_F_SCF,gen_occ_SCF,pair_labels,inner_slice,outer_slice,set_indices,set_i_indices,set_j_indices,set_k_indices,set_l_indices,int1,stacked_pairs):
     t0=time()
-    with open('H10_chain/fixed_feats.pickle', 'wb') as handle:
-        pickle.dump(pd.concat([pd.concat({k: v for k,v in gen_bin().items()},axis=0),
-                               pd.concat({k: v for k,v in gen_two_el().items()},axis=0),
-                               pd.concat({k: v for k,v in gen_one_diag().items()},axis=0)],axis=1), handle, protocol=pickle.HIGHEST_PROTOCOL)
-    with open('H10_chain/fixed_targets.pickle', 'wb') as handle:
+    with open(f'{name}_chain/fixed_feats.pickle', 'wb') as handle:
+        pickle.dump(pd.concat([pd.concat({k: v for k,v in gen_bin(paths,full_set).items()},axis=0),
+                               pd.concat({k: v for k,v in gen_two_el(paths,virttt,occcc,froz,Basis_Indices,gen_F,inner_slice,outer_slice,set_indices,set_i_indices,set_j_indices,set_k_indices,set_l_indices).items()},axis=0),
+                               pd.concat({k: v for k,v in gen_one_diag(paths,int1,set_indices,gen_F,gen_occ,gen_F_SCF,gen_occ_SCF,pair_labels).items()},axis=0)],axis=1), handle, protocol=pickle.HIGHEST_PROTOCOL)
+    with open(f'{name}_chain/fixed_targets.pickle', 'wb') as handle:
         pickle.dump(stacked_pairs, handle, protocol=pickle.HIGHEST_PROTOCOL)
     print(time()-t0)
 
 
+# In[ ]:
 
 
 
 
 
+# In[ ]:
+
+
+for i in chains:
+    name = f"H{i}"
+    gen_all(f"H{i}")
+    
+
+
+# In[ ]:
 
 
 
-
-
-
-
-Big_Data_GS()
-
-
-
-
-# pd.read_pickle(f'fixed_feats.pickle'),
-# pd.read_pickle(f'typH_targets.pickle').plot()
-
-
-
-
-df=pd.concat([pd.concat({k: v for k,v in gen_bin().items()},axis=0),
-                               pd.concat({k: v for k,v in gen_two_el().items()},axis=0),
-                               pd.concat({k: v for k,v in gen_one_diag().items()},axis=0)],axis=1)
-
-
-
-
-np.argwhere(np.isnan(df.values))
-
-
-
-
-(df.isna().values==True).any()
 
