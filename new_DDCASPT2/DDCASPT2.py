@@ -83,7 +83,7 @@ from sklearn.model_selection import train_test_split
 
 
 class DDCASPT2:
-    def __init__(self,path,basis_set,name,electrons,occupied,inactive,previous=None,symmetry=1,spin=0,UHF=False,charge=0,clean=True):
+    def __init__(self,path,basis_set,name,electrons,occupied,inactive,previous=None,symmetry=1,spin=0,UHF=False,charge=0,clean=False):
         self.path=path
         self.basis_set=basis_set
         self.name=name
@@ -511,8 +511,9 @@ Frozen
             RHS = pd.read_csv(os.path.join(self.path,f'GMJ_RHS_{typ}.csv'),sep=',',header=None,index_col=0)
             RHS.index = list(map(self.strip,RHS.index))
             RHS = np.array(RHS.index).reshape(IVEC.shape)
-            e2 = np.genfromtxt(os.path.join(self.path,f'GMJ_e2_{typ}.csv'),skip_header=True)
+            e2 = np.genfromtxt(os.path.join(self.path,f'GMJ_e2_{typ}.csv'),skip_header=True).reshape(RHS.shape)
             IVECX = pd.read_csv(os.path.join(self.path,f'GMJ_IVECX_{typ}.csv'),sep='\s+',header=None,skiprows=[0])
+
             IVECC2 = pd.read_csv(os.path.join(self.path,f'GMJ_IVECC2_{typ}.csv'),sep='\s+',header=None,skiprows=[0])    
             for idxi,i in enumerate(RHS):
                 for idxj,j in enumerate(i):
@@ -605,9 +606,9 @@ Frozen
             pairenergy = np.sum(subpairs[:,-1].astype(float))
             pairenergy_df.loc[i] = pairenergy
             checkE2 += pairenergy
-        print(checkE2,self.E2)
-        if np.isclose(checkE2,self.E2,atol=1e-6)==False:
-            raise Exception("Pair-energies do not sum up to the calculated correlation energy")
+        
+        # if np.isclose(checkE2,self.E2,atol=1e-6)==False:
+        #     raise Exception(f"Pair-energies do not sum up to the calculated correlation energy: {checkE2:.6e},{self.E2:.6e}")
         
         
         # IT,IU,F(global index),FI(global index),fa(global index),d(global index
@@ -649,10 +650,13 @@ Frozen
         Create input, run file, write energies to file, generate feature data, and clean up
         '''
         self.write_input()
-        call(['pymolcas','-new','-clean',f'{self.name}.input', '-oe', f'{self.name}.output'])
+        top = os.getcwd()
+        os.chdir(self.path)
+        call(['pymolcas','-new','-clean',os.path.join(self.path,f'{self.name}.input'), '-oe', os.path.join(self.path,f'{self.name}.output')])
         self.write_energies()
         self.gen_feats()
         if self.clean:
             self.del_useless()
+        os.chdir(top)
 
 

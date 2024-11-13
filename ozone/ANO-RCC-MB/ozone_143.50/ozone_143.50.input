@@ -1,0 +1,73 @@
+&GATEWAY 
+coord=ozone_143.50.xyz
+Basis = ANO-RCC-MB
+Group = nosymm
+Expert
+End of Input
+
+&SEWARD
+End of Input
+
+&SCF &END
+>>> COPY $WorkDir/ozone_143.50.scf.h5 $CurrDir/
+
+&RASSCF &END
+Title= RASSCF
+FileOrb
+/home/grierjones/DDCASPT2/ozone/ANO-RCC-MB/ozone_143.00/ozone_143.00.RasOrb
+NACTEL
+4 0 0
+Inactive
+10
+RAS2
+3
+Symmetry
+1
+Spin
+1
+orblisting
+all
+ITERation
+200 100
+CIMX
+200
+SDAV
+500
+
+>>> COPY $WorkDir/ozone_143.50.rasscf.h5 $CurrDir/
+>>> COPY $WorkDir/GMJ_Fock_MO.csv $CurrDir/ozone_143.50.GMJ_Fock_MO.csv
+>>> COPY $WorkDir/GMJ_PT2_Fock_MO.csv $CurrDir/ozone_143.50.GMJ_PT2_Fock_MO.csv
+
+&MOTRA
+Frozen=0
+LUMORB
+>>> COPY $WorkDir/GMJ_one_int_indx.csv $CurrDir/ozone_143.50.GMJ_one_int_indx.csv
+>>> COPY $WorkDir/GMJ_one_int.csv $CurrDir/ozone_143.50.GMJ_one_int.csv
+>>> COPY $WorkDir/GMJ_two_int_indx.csv $CurrDir/ozone_143.50.GMJ_two_int_indx.csv
+>>> COPY $WorkDir/GMJ_two_int.csv $CurrDir/ozone_143.50.GMJ_two_int.csv
+
+&CASPT2 &END
+Frozen 
+0
+
+>>foreach i in (B,E,F,G,H)
+>>foreach j in (P,M)
+>>if ( -FILE GMJ_e2_${i}_${j}.csv )
+>>> COPY $WorkDir/GMJ_RHS_${i}_${j}.csv $CurrDir/GMJ_RHS_${i}_${j}.csv
+>>> COPY $WorkDir/GMJ_IVECW_${i}_${j}.csv $CurrDir/GMJ_IVECW_${i}_${j}.csv
+>>> COPY $WorkDir/GMJ_IVECX_${i}_${j}.csv $CurrDir/GMJ_IVECX_${i}_${j}.csv
+>>> COPY $WorkDir/GMJ_IVECC2_${i}_${j}.csv $CurrDir/GMJ_IVECC2_${i}_${j}.csv
+>>> COPY $WorkDir/GMJ_e2_${i}_${j}.csv $CurrDir/GMJ_e2_${i}_${j}.csv
+>>endif
+>>enddo
+>>enddo
+
+>>foreach i in (A,C,D)
+>>if ( -FILE GMJ_e2_$i.csv )
+>>> COPY $WorkDir/GMJ_RHS_$i.csv $CurrDir/GMJ_RHS_$i.csv
+>>> COPY $WorkDir/GMJ_IVECW_$i.csv $CurrDir/GMJ_IVECW_$i.csv
+>>> COPY $WorkDir/GMJ_IVECX_$i.csv $CurrDir/GMJ_IVECX_$i.csv
+>>> COPY $WorkDir/GMJ_IVECC2_$i.csv $CurrDir/GMJ_IVECC2_$i.csv
+>>> COPY $WorkDir/GMJ_e2_$i.csv $CurrDir/GMJ_e2_$i.csv
+>>endif
+>>enddo
