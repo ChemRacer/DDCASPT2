@@ -1,10 +1,16 @@
 #!/usr/bin/env python
 # coding: utf-8
+
+# In[ ]:
+
+
 import sys
+# !{sys.executable} -m pip install --upgrade  xeus-python notebook
+#######################################################
+#Import packages
 import numpy as np
 import os
-os.environ['MOLCAS']='/home/grierjones/Test/build'
-os.environ['MOLCAS_WORKDIR']='/tmp'
+
 import re
 from math import sin, cos, pi
 from glob import glob
@@ -12,6 +18,7 @@ import subprocess
 import pickle
 from subprocess import call, check_output
 import pandas as pd
+# import psi4
 from joblib import Parallel,effective_n_jobs,delayed
 from time import time
 import matplotlib.pyplot as plt
@@ -28,6 +35,7 @@ import seaborn as sns; sns.set(style="ticks", color_codes=True)
 from sklearn.model_selection import train_test_split
 
 
+# In[ ]:
 
 
 #######################################################
@@ -80,6 +88,7 @@ from sklearn.model_selection import train_test_split
 # H_M (II->VV) (M): \ IJAB \ E$_{ai}$ E$_{bj}$ \ pqrs=aibj=2031 \
 # 
 
+# In[ ]:
 
 
 class DDCASPT2:
@@ -96,6 +105,16 @@ class DDCASPT2:
         self.UHF=UHF
         self.charge=charge
         self.clean=clean
+        
+        if 'grierjones' in os.getcwd():
+            os.environ['MOLCAS']='/home/grierjones/Test/build'
+            os.environ['MOLCAS_WORKDIR']='/tmp'
+        elif 'isaac' in os.getcwd():
+            os.environ['MOLCAS']="/lustre/isaac/proj/UTK0022/GMJ/Test/build"
+            os.environ['MOLCAS_WORKDIR']='/lustre/isaac/scratch/gjones39/'
+
+        print(f"Found a valid MOLCAS installation at {os.environ['MOLCAS']}")
+        print(f"MOLCAS_WORKDIR is set to {os.environ['MOLCAS_WORKDIR']}")
 
     def del_useless(self):
         '''
@@ -184,11 +203,8 @@ Spin
 orblisting
 all
 ITERation
-200 100
-CIMX
-200
-SDAV
-500
+300 200
+
 
 >>> COPY $WorkDir/{self.name}.rasscf.h5 $CurrDir/
 >>> COPY $WorkDir/GMJ_Fock_MO.csv $CurrDir/{self.name}.GMJ_Fock_MO.csv
@@ -201,6 +217,8 @@ SDAV
         string="""&CASPT2 &END
 Frozen 
 0
+MAXITER
+50
 
 >>foreach i in (B,E,F,G,H)
 >>foreach j in (P,M)
@@ -541,6 +559,7 @@ Frozen
         binary_feat = []
         MO_feat = []
         two_el_feats = []
+        
         for i in tqdm(uniquepairs):
             q,s = i.split('_')
             qidx = self.basis_dict[q]
@@ -658,5 +677,21 @@ Frozen
         if self.clean:
             self.del_useless()
         os.chdir(top)
+
+
+# In[ ]:
+
+
+basis_set='ANO-RCC-VDZP'
+top=os.getcwd()
+
+# d = DDCASPT2('./',basis_set,'O3_106.00',4,3,10,previous=None)()
+# d = DDCASPT2('./',basis_set,'H2',2,2,0,previous=None)()
+# d = DDCASPT2('./',basis_set,'988-v',20,13,78,spin=4,UHF=True,charge=2,previous=None)()
+
+
+# In[ ]:
+
+
 
 

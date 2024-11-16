@@ -677,5 +677,3 @@ MAXITER
         # if self.clean:
         #     self.del_useless()
         # os.chdir(top)
-
-
