@@ -72,11 +72,11 @@ def run(i):
                     f.write(f'H {0:>8f} {0:>8f} {j*r:>8f}\n')
             print(subdirpath)
             if idxr==0:
-                d = DDCASPT2(subdirpath,basis_set,name,i,i,0,previous=None)()
+                d = DDCASPT2(subdirpath,basis_set,name,i,i,0,previous=None)(run=False)
             else:            
                 previous=os.path.join(topdir,dirname,f'H{i}_{radius_range[idxr-1]:.2f}',f"H{i}_{radius_range[idxr-1]:.2f}.RasOrb")
                 print(previous)
-                d = DDCASPT2(subdirpath,basis_set,name,i,i,0,previous=previous)()
+                d = DDCASPT2(subdirpath,basis_set,name,i,i,0,previous=previous)(run=False)
     
     for idxr, r in enumerate(radius_range):
         # Loop radius

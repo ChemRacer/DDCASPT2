@@ -95,11 +95,9 @@ O {radius*cos(-(float(r)/2)*(pi/180)):>8f} {radius*sin(-(float(r)/2)*(pi/180)):>
 
 
 
-# run('ozone','ANO-RCC-VDZP')
 
-
-
-
+run('ozone','ANO-RCC-MB')
+run('ozone','ANO-RCC-VDZP')
 run('ozone','ANO-RCC-VTZP')
 
 

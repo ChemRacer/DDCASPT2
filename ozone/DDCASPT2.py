@@ -609,7 +609,7 @@ MAXITER
                 pqrsindex_dict = {"p":[p,pidx],"q":[q,qidx],"r":[r,ridx],"s":[s,sidx]}
         
                 # All possible two-index pairs
-                twoidxpairs = [['p','q'],['r','s'],['p','r'],['q','s']]
+                twoidxpairs = [['p','q'],['r','s'],['p','r'],['q','s'],['p','p'],['q','q'],['r','r'],['s','s']]
                 # h_{ij} features
                 for u,v in twoidxpairs:
                     u_item, u_idx = pqrsindex_dict[u]
@@ -664,30 +664,25 @@ MAXITER
         concatdf = pd.concat([h_df,important2e,bindf,caspt2fockdf,allMO_feats,two_el_df,pairenergy_df],axis=1)
         concatdf.to_csv(os.path.join(self.path,f"{self.name}.csv"),compression='zip')    
     
-    def __call__(self):
+    def __call__(self,run=True):
         '''
         Create input, run file, write energies to file, generate feature data, and clean up
         '''
-        self.write_input()
+        if run==True:
+            self.write_input()
+        
         top = os.getcwd()
         os.chdir(self.path)
-        call(['pymolcas','-new','-clean',os.path.join(self.path,f'{self.name}.input'), '-oe', os.path.join(self.path,f'{self.name}.output')])
-        self.write_energies()
+        
+        if run==True:
+            call(['pymolcas','-new','-clean',os.path.join(self.path,f'{self.name}.input'), '-oe', os.path.join(self.path,f'{self.name}.output')])
+            self.write_energies()
+            
         self.gen_feats()
+        
         if self.clean:
             self.del_useless()
         os.chdir(top)
-
-
-# In[ ]:
-
-
-basis_set='ANO-RCC-VDZP'
-top=os.getcwd()
-
-# d = DDCASPT2('./',basis_set,'O3_106.00',4,3,10,previous=None)()
-# d = DDCASPT2('./',basis_set,'H2',2,2,0,previous=None)()
-# d = DDCASPT2('./',basis_set,'988-v',20,13,78,spin=4,UHF=True,charge=2,previous=None)()
 
 
 # In[ ]:
