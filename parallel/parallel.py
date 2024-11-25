@@ -93,6 +93,9 @@ from sklearn.model_selection import train_test_split
 
 class DDCASPT2:
     def __init__(self,path,basis_set,name,electrons,occupied,inactive,previous=None,symmetry=1,spin=0,UHF=False,charge=0,clean=False,n_jobs=None):
+        '''
+        Initialize
+        '''
         self.path=path
         self.basis_set=basis_set
         self.name=name
@@ -105,7 +108,9 @@ class DDCASPT2:
         self.UHF=UHF
         self.charge=charge
         self.clean=clean
-        self.n_jobs=None
+        self.n_jobs=n_jobs
+
+        print(f"Running on {self.n_jobs} cores")
         
         if 'grierjones' in os.getcwd():
             os.environ['MOLCAS']='/home/grierjones/Test/build'
@@ -291,6 +296,9 @@ MAXITER
         self.basis_dict = {v:k for k,v in dict(enumerate(Basis_Indices)).items()}        
 
     def strip(self,lst):   
+        '''
+        Strips preceeding 0s in indexing files
+        '''
         return '_'.join(re.sub(r'(?<!\d)0+(\d+)', r'\1', i) for i in lst.split('_'))
 
 
@@ -441,6 +449,14 @@ MAXITER
         return intdict    
         
     def parallel_feat(self,uniquepair):
+        '''
+        This is a helper function to create the features
+
+        parameters
+        ----------
+        uniquepair: str
+            Unique pair-energy label XX_YY
+        '''
         q,s = uniquepair.split('_')
         qidx = self.basis_dict[q]
         sidx = self.basis_dict[s]
@@ -666,7 +682,7 @@ MAXITER
         if self.n_jobs==None:
             self.pairs = np.vstack([self.gen_pairs(i) for i in tqdm(glob(os.path.join(self.path,"GMJ_e2_*.csv")),desc="Pairs")])    
         else:
-            self.pairs = np.vstack(Parallel(n_jobs=n_jobs)(delayed(self.gen_pairs)(i) for i in tqdm(glob(os.path.join(self.path,"GMJ_e2_*.csv")),desc="Pairs")))  
+            self.pairs = np.vstack(Parallel(n_jobs=self.n_jobs)(delayed(self.gen_pairs)(i) for i in tqdm(glob(os.path.join(self.path,"GMJ_e2_*.csv")),desc="Pairs")))  
         
         # qs pairs!
         uniquepairs = np.unique(self.pairs[:,3])
@@ -688,7 +704,27 @@ MAXITER
                 outpar = self.parallel_feat(i)
             
         else:
-            outpar=Parallel(n_jobs=n_jobs)(delayed(self.parallel_feat)(i) for i in tqdm(self.uniquepairs,desc="Features"))
+            outpar=Parallel(n_jobs=self.n_jobs)(delayed(self.parallel_feat)(i) for i in tqdm(self.uniquepairs,desc="Features"))
+            for i in outpar:
+                self.checkE2 += i[0]
+                self.h_features.append(i[1])
+                self.CASPT2Fockfeatures.append(i[2])
+                self.b4_type.append(i[3])
+                self.binary_feat.append(i[4])
+                self.MO_feat.append(i[5])
+                self.two_el_feats.append(i[6])
+                self.pairenergylist.append(i[7])
+
+  
+            self.h_features = sum(self.h_features,[])
+            self.CASPT2Fockfeatures = sum(self.CASPT2Fockfeatures,[])
+            self.b4_type = sum(self.b4_type,[])
+            self.binary_feat = sum(self.binary_feat,[])
+            self.MO_feat = sum(self.MO_feat,[])
+            self.two_el_feats = sum(self.two_el_feats,[])
+            self.pairenergylist = sum(self.pairenergylist,[])
+        
+
         
         self.gen_df()
         
@@ -712,4 +748,41 @@ MAXITER
         if self.clean:
             self.del_useless()
         os.chdir(top)
+
+
+# In[ ]:
+
+
+TEST=True
+
+
+# In[ ]:
+
+
+if TEST==True:
+    for j in [None,16]:
+        for c in [True,False]:
+            print(f"jobs: {j}\nclean: {c}")    
+            for i in glob("GMJ*csv")+glob("*GMJ*int*csv")+glob('*h5'):
+                os.remove(i)
+            DDCASPT2('./','ANO-RCC-VDZP','H2',2,2,0,previous=None,symmetry=1,spin=0,UHF=False,charge=0,clean=c,n_jobs=j)(run=True)
+            parallelfeat = pd.read_csv('H2.csv',compression='zip',index_col=0)
+            serialfeat = pd.read_csv('../new_DDCASPT2/H2.csv',compression='zip',index_col=0)
+            print(f"H2={(parallelfeat == serialfeat).all().all()}")
+            print((parallelfeat == serialfeat).all()[~(parallelfeat == serialfeat).all()])
+            print(*pd.read_excel('H2_energies.xlsx',index_col=0).loc['E2'].values,parallelfeat['Pair_Energies'].sum())
+        
+            DDCASPT2('./','ANO-RCC-VDZP','O3_106.00',4,3,10,previous=None,symmetry=1,spin=0,UHF=False,charge=0,clean=c,n_jobs=j)(run=True)
+            parallelfeat = pd.read_csv('O3_106.00.csv',compression='zip',index_col=0)
+            # serialfeat = pd.read_csv('../new_DDCASPT2/O3_106.00.csv',compression='zip',index_col=0)
+            # print(f"O3={(parallelfeat == serialfeat).all().all()}")
+            # print((parallelfeat == serialfeat).all()[~(parallelfeat == serialfeat).all()])
+            print(*pd.read_excel('O3_106.00_energies.xlsx',index_col=0).loc['E2'].values,parallelfeat['Pair_Energies'].sum())
+            print()
+
+
+# In[ ]:
+
+
+
 
