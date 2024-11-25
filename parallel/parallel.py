@@ -548,7 +548,34 @@ MAXITER
         pairenergy_df = pd.DataFrame(self.pairenergylist,columns=['index','Pair_Energies']).set_index('index').astype({'Pair_Energies':float})
         # Everything together so far
         concatdf = pd.concat([h_df,important2e,bindf,caspt2fockdf,allMO_feats,two_el_df,pairenergy_df],axis=1)
-        concatdf.to_csv(os.path.join(self.path,f"{self.name}.csv"),compression='zip')          
+        concatdf.to_csv(os.path.join(self.path,f"{self.name}.csv"),compression='zip') 
+
+    def gen_pairs(self,i):
+        '''
+        Generate pairs in a parallel manner
+        '''
+        pairs = []
+        typ = os.path.basename(i).split('.')[0].replace('GMJ_e2_','')
+        # print(typ)
+        
+        IVEC = pd.read_csv(os.path.join(self.path,f'GMJ_IVECW_{typ}.csv'),sep='\s+',header=None,skiprows=[0])
+        RHS = pd.read_csv(os.path.join(self.path,f'GMJ_RHS_{typ}.csv'),sep=',',header=None,index_col=0)
+        RHS.index = list(map(self.strip,RHS.index))
+        RHS = np.array(RHS.index).reshape(IVEC.shape)
+        e2 = np.genfromtxt(os.path.join(self.path,f'GMJ_e2_{typ}.csv'),skip_header=True).reshape(RHS.shape)
+        IVECX = pd.read_csv(os.path.join(self.path,f'GMJ_IVECX_{typ}.csv'),sep='\s+',header=None,skiprows=[0])
+
+        IVECC2 = pd.read_csv(os.path.join(self.path,f'GMJ_IVECC2_{typ}.csv'),sep='\s+',header=None,skiprows=[0])    
+        for idxi,i in enumerate(RHS):
+            for idxj,j in enumerate(i):
+                # Split the index and enforce a standardization of p,q,r,s 
+                split_index = j.split('_')
+                type_idx = self.index_dict[typ]
+                p,q,r,s = split_index[type_idx['p']],split_index[type_idx['q']],split_index[type_idx['r']],split_index[type_idx['s']]
+                # typ, pq,rs,qs,e2
+                pairs.append((typ,'_'.join((p,q)),'_'.join((r,s)),'_'.join((q,s)),e2[idxi,idxj])) 
+        self.pairs = np.array(pairs)
+        return self.pairs
         
     def gen_feats(self):
         '''
@@ -612,7 +639,7 @@ MAXITER
         pair_labels = {i.split('.')[0].replace("GMJ_RHS_",""):['_'.join(re.sub(r'(?<!\d)0+(\d+)', r'\1', j).split('_')[0:2]) for j in pd.read_csv(i,header=None)[0].values] for i in glob(os.path.join(self.path,"GMJ_RHS_*.csv"))}
         
         # CASPT2 E_pq E_rs ordering
-        index_dict = {"A":{"p":0,"q":1,"r":2,"s":3},
+        self.index_dict = {"A":{"p":0,"q":1,"r":2,"s":3},
         "B_P":{"p":2,"q":0,"r":3,"s":1},
         "B_M":{"p":2,"q":0,"r":3,"s":1},
         "C":{"p":2,"q":3,"r":0,"s":1},
@@ -632,37 +659,18 @@ MAXITER
         
         # IVECW and IRHS should have same indices
         # Same as IVECC2, it should all be element wise
-        pairs = []
         
-        for i in glob(os.path.join(self.path,"GMJ_e2_*.csv")):
+        
+        
             
-            typ = os.path.basename(i).split('.')[0].replace('GMJ_e2_','')
-            # print(typ)
-            
-            IVEC = pd.read_csv(os.path.join(self.path,f'GMJ_IVECW_{typ}.csv'),sep='\s+',header=None,skiprows=[0])
-            RHS = pd.read_csv(os.path.join(self.path,f'GMJ_RHS_{typ}.csv'),sep=',',header=None,index_col=0)
-            RHS.index = list(map(self.strip,RHS.index))
-            RHS = np.array(RHS.index).reshape(IVEC.shape)
-            e2 = np.genfromtxt(os.path.join(self.path,f'GMJ_e2_{typ}.csv'),skip_header=True).reshape(RHS.shape)
-            IVECX = pd.read_csv(os.path.join(self.path,f'GMJ_IVECX_{typ}.csv'),sep='\s+',header=None,skiprows=[0])
-
-            IVECC2 = pd.read_csv(os.path.join(self.path,f'GMJ_IVECC2_{typ}.csv'),sep='\s+',header=None,skiprows=[0])    
-            for idxi,i in enumerate(RHS):
-                for idxj,j in enumerate(i):
-                    # Split the index and enforce a standardization of p,q,r,s 
-                    split_index = j.split('_')
-                    type_idx = index_dict[typ]
-                    p,q,r,s = split_index[type_idx['p']],split_index[type_idx['q']],split_index[type_idx['r']],split_index[type_idx['s']]
-                    # typ, pq,rs,qs,e2
-                    pairs.append((typ,'_'.join((p,q)),'_'.join((r,s)),'_'.join((q,s)),e2[idxi,idxj]))
-        
-        pairs = np.array(pairs)
-        
+        if self.n_jobs==None:
+            self.pairs = np.vstack([self.gen_pairs(i) for i in tqdm(glob(os.path.join(self.path,"GMJ_e2_*.csv")),desc="Pairs")])    
+        else:
+            self.pairs = np.vstack(Parallel(n_jobs=n_jobs)(delayed(self.gen_pairs)(i) for i in tqdm(glob(os.path.join(self.path,"GMJ_e2_*.csv")),desc="Pairs")))  
         
         # qs pairs!
-        uniquepairs = np.unique(pairs[:,3])
+        uniquepairs = np.unique(self.pairs[:,3])
         self.uniquepairs = uniquepairs
-        self.pairs = pairs
         self.checkE2=0
 
         
@@ -676,11 +684,11 @@ MAXITER
         
         if self.n_jobs==None:
             out = []
-            for i in tqdm(self.uniquepairs):
+            for i in tqdm(self.uniquepairs,desc="Features"):
                 outpar = self.parallel_feat(i)
             
         else:
-            outpar=Parallel(n_jobs=-1)(delayed(self.parallel_feat)(i) for i in tqdm(self.uniquepairs))
+            outpar=Parallel(n_jobs=n_jobs)(delayed(self.parallel_feat)(i) for i in tqdm(self.uniquepairs,desc="Features"))
         
         self.gen_df()
         
@@ -704,53 +712,4 @@ MAXITER
         if self.clean:
             self.del_useless()
         os.chdir(top)
-
-
-# In[ ]:
-
-
-TEST=True
-
-
-# In[ ]:
-
-
-if TEST==True:
-    for j in [None,-1]:
-        for c in [False,True]:
-            print(f"jobs: {j}\nclean: {c}")    
-            for i in glob("GMJ*csv")+glob("*GMJ*int*csv")+glob('*h5'):
-                os.remove(i)
-            DDCASPT2('./','ANO-RCC-VDZP','H2',2,2,0,previous=None,symmetry=1,spin=0,UHF=False,charge=0,clean=c,n_jobs=j)(run=True)
-            parallelfeat = pd.read_csv('H2.csv',compression='zip',index_col=0)
-            serialfeat = pd.read_csv('../new_DDCASPT2/H2.csv',compression='zip',index_col=0)
-            print(f"H2={(parallelfeat == serialfeat).all().all()}")
-            print((parallelfeat == serialfeat).all()[~(parallelfeat == serialfeat).all()])
-            print(*pd.read_excel('H2_energies.xlsx',index_col=0).loc['E2'].values,parallelfeat['Pair_Energies'].sum())
-        
-            DDCASPT2('./','ANO-RCC-MB','O3_106.00',4,3,10,previous=None,symmetry=1,spin=0,UHF=False,charge=0,clean=c,n_jobs=j)(run=True)
-            parallelfeat = pd.read_csv('O3_106.00.csv',compression='zip',index_col=0)
-            serialfeat = pd.read_csv('../new_DDCASPT2/O3_106.00.csv',compression='zip',index_col=0)
-            print(f"O3={(parallelfeat == serialfeat).all().all()}")
-            print((parallelfeat == serialfeat).all()[~(parallelfeat == serialfeat).all()])
-            print(*pd.read_excel('O3_106.00_energies.xlsx',index_col=0).loc['E2'].values,parallelfeat['Pair_Energies'].sum())
-            print()
-
-
-# In[ ]:
-
-
-parallelfeat.columns[(parallelfeat != serialfeat).all()]
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
 
