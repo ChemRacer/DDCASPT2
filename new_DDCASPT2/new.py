@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[1]:
+# In[ ]:
 
 
 import sys
@@ -35,7 +35,7 @@ import seaborn as sns; sns.set(style="ticks", color_codes=True)
 from sklearn.model_selection import train_test_split
 
 
-# In[2]:
+# In[ ]:
 
 
 #######################################################
@@ -88,14 +88,11 @@ from sklearn.model_selection import train_test_split
 # H_M (II->VV) (M): \ IJAB \ E$_{ai}$ E$_{bj}$ \ pqrs=aibj=2031 \
 # 
 
-# In[3]:
+# In[ ]:
 
 
 class DDCASPT2:
-    def __init__(self,path,basis_set,name,electrons,occupied,inactive,previous=None,symmetry=1,spin=0,UHF=False,charge=0,clean=False,n_jobs=None):
-        '''
-        Initialize
-        '''
+    def __init__(self,path,basis_set,name,electrons,occupied,inactive,previous=None,symmetry=1,spin=0,UHF=False,charge=0,clean=False):
         self.path=path
         self.basis_set=basis_set
         self.name=name
@@ -108,9 +105,6 @@ class DDCASPT2:
         self.UHF=UHF
         self.charge=charge
         self.clean=clean
-        self.n_jobs=n_jobs
-
-        print(f"Running on {self.n_jobs} cores")
         
         if 'grierjones' in os.getcwd():
             os.environ['MOLCAS']='/home/grierjones/Test/build'
@@ -185,17 +179,6 @@ spin
         return string    
     
     
-    def _gen_rasscf(self):
-        start_string="""&RASSCF &END
-Title= RASSCF
-"""
-        if self.previous!=None:
-            fileorb=f"""FileOrb
-{self.previous}
-"""
-        else:
-            fileorb=''
-
         if self.inactive==None:
             end_string=f"""NACTEL
 {self.electrons} 0 0
@@ -319,9 +302,6 @@ MAXITER
         self.basis_dict = {v:k for k,v in dict(enumerate(Basis_Indices)).items()}        
 
     def strip(self,lst):   
-        '''
-        Strips preceeding 0s in indexing files
-        '''
         return '_'.join(re.sub(r'(?<!\d)0+(\d+)', r'\1', i) for i in lst.split('_'))
 
 
@@ -470,156 +450,8 @@ MAXITER
         # Find Krs <rs|sr>
         intdict[r"$(\langle rs \vert sr \rangle)_{"+f"{idx}"+"}$"] = self.Exchange(r,s,integrals)
         return intdict    
-        
-    def parallel_feat(self,uniquepair):
-        '''
-        This is a helper function to create the features
 
-        parameters
-        ----------
-        uniquepair: str
-            Unique pair-energy label XX_YY
-        '''
-        q,s = uniquepair.split('_')
-        qidx = self.basis_dict[q]
-        sidx = self.basis_dict[s]
-    
-        # From same orbital = 1, else 0
-        if q==s:
-            self.binary_feat.append((uniquepair,1))
-        else:
-            self.binary_feat.append((uniquepair,0))
-    
-        # CASPT2 style Fock features
-        if qidx>=sidx:
-            self.CASPT2Fockfeatures.append((uniquepair,dict(zip(self.caspt2_fock_indexing('q','s'),self.pt2fock_stacked[:,2:][(self.pt2fock_stacked[:,0]==qidx)&(self.pt2fock_stacked[:,1]==sidx)].flatten()))))
-        else:
-            self.CASPT2Fockfeatures.append((uniquepair,dict(zip(self.caspt2_fock_indexing('q','s'),self.pt2fock_stacked[:,2:][(self.pt2fock_stacked[:,0]==sidx)&(self.pt2fock_stacked[:,1]==qidx)].flatten()))))
-    
-        # Get the pair-energies that share the same qs
-        subpairs = self.pairs[self.pairs[:,3]==uniquepair]
-    
-        # Grab the largest 4 two-electron contributers
-        best4 = subpairs[np.argsort(abs(subpairs[:,-1].astype(float)))][-4:]
-    
-        # Loop over best four 
-        for b4idx, (typ, pq, rs) in enumerate(best4[:,0:3]):
-            self.b4_type.append((uniquepair,f"typ_{b4idx}",self.typedict[typ]))
-            p,q = pq.split('_')
-            r,s = rs.split('_')
-            pidx = self.basis_dict[p]
-            qidx = self.basis_dict[q]
-            ridx = self.basis_dict[r]
-            sidx = self.basis_dict[s]
-            self.two_el_feats.append((uniquepair,self.find_integrals(b4idx,pidx,qidx,ridx,sidx,self.twostacked)))
-                
-            
-            # MO features for each index
-            pMOdf,qMOdf,rMOdf,sMOdf =  self.MO_df.loc[p].to_frame(), self.MO_df.loc[q].to_frame(), self.MO_df.loc[r].to_frame(), self.MO_df.loc[s].to_frame()
-            
-            pMOdf.rename(index={'MO_ENERGIES_SCF':r'$(F_{p}^{\text{SCF}})_{'+f"{b4idx}"+"}$", 'MO_OCCUPATIONS_SCF':r"$(\omega_{p})_{"+f"{b4idx}"+"}$",'MO_ENERGIES':r"$(F_{p})_{"+f"{b4idx}"+"}$",'MO_OCCUPATIONS':r"$(\eta_{p})_{"+f"{b4idx}"+"}$"},inplace=True)
-            qMOdf.rename(index={'MO_ENERGIES_SCF':r'$(F_{q}^{\text{SCF}})_{'+f"{b4idx}"+"}$", 'MO_OCCUPATIONS_SCF':r"$(\omega_{q})_{"+f"{b4idx}"+"}$",'MO_ENERGIES':r'$(F_{q})_{'+f"{b4idx}"+"}$",'MO_OCCUPATIONS':r"$(\eta_{q})_{"+f"{b4idx}"+"}$"},inplace=True)       
-            rMOdf.rename(index={'MO_ENERGIES_SCF':r'$(F_{r}^{\text{SCF}})_{'+f"{b4idx}"+"}$", 'MO_OCCUPATIONS_SCF':r"$(\omega_{r})_{"+f"{b4idx}"+"}$",'MO_ENERGIES':r'$(F_{r})_{'+f"{b4idx}"+"}$",'MO_OCCUPATIONS':r"$(\eta_{r})_{"+f"{b4idx}"+"}$"},inplace=True) 
-            sMOdf.rename(index={'MO_ENERGIES_SCF':r'$(F_{s}^{\text{SCF}})_{'+f"{b4idx}"+"}$", 'MO_OCCUPATIONS_SCF':r"$(\omega_{s})_{"+f"{b4idx}"+"}$",'MO_ENERGIES':r'$(F_{s})_{'+f"{b4idx}"+"}$",'MO_OCCUPATIONS':r"$(\eta_{s})_{"+f"{b4idx}"+"}$"},inplace=True)
-    
-            self.MO_feat.append((uniquepair,pMOdf,qMOdf,rMOdf,sMOdf))
-            
-            # Set of label index pairs
-            pqrsindex_dict = {"p":[p,pidx],"q":[q,qidx],"r":[r,ridx],"s":[s,sidx]}
-    
-            # All possible two-index pairs
-            twoidxpairs = [['p','q'],['r','s'],['p','r'],['q','s'],['p','p'],['q','q'],['r','r'],['s','s']]
-            # h_{ij} features
-            for u,v in twoidxpairs:
-                u_item, u_idx = pqrsindex_dict[u]
-                v_item, v_idx = pqrsindex_dict[v]
-                if u_idx>=v_idx:
-                    self.h_features.append((uniquepair,"h$_{"+f"{u}{v}"+"}^{"+f"{b4idx}"+"}$",self.h_stacked[(self.oneelint_idx[:,0]==u_idx)&(self.oneelint_idx[:,1]==v_idx)].flatten()[-1]))     
-                else:
-                    self.h_features.append((uniquepair,"h$_{"+f"{u}{v}"+"}^{"+f"{b4idx}"+"}$",self.h_stacked[(self.oneelint_idx[:,0]==v_idx)&(self.oneelint_idx[:,1]==u_idx)].flatten()[-1]))
-                
-    
-        
-        # Pair-energies
-        pairenergy = np.sum(subpairs[:,-1].astype(float))
-        self.pairenergylist.append((uniquepair,pairenergy))
-        self.checkE2 += pairenergy
-
-
-        return self.checkE2, self.h_features, self.CASPT2Fockfeatures, self.b4_type, self.binary_feat, self.MO_feat, self.two_el_feats, self.pairenergylist  
-    
-
-    def gen_df(self):
-        '''
-        Generate feature dataframe
-        '''
-        # IT,IU,F(global index),FI(global index),fa(global index),d(global index
-        caspt2fockdf = pd.concat([pd.DataFrame.from_dict(vals,orient='index',columns=[idx]) for idx, vals in self.CASPT2Fockfeatures],axis=1).T
-        
-        # binary feature df
-        bindf = pd.DataFrame(self.binary_feat).set_index(0).rename(columns={0:'binary'})
-        
-        # one-electron dataframe
-        h_df = pd.DataFrame(self.h_features).pivot(index=0, columns=1)
-        h_df.columns=h_df.columns.droplevel()
-        h_df.drop(columns=["h$_{qs}^{3}$","h$_{qs}^{1}$","h$_{qs}^{2}$"],inplace=True)
-        h_df.rename(columns={"h$_{qs}^{0}$":"h$_{qs}$"},inplace=True)
-        
-        # Important 4 types
-        important2e = pd.DataFrame(self.b4_type).pivot(index=0, columns=1)
-        important2e.columns=important2e.columns.droplevel()
-        
-        
-        # two-electron data frame 
-        two_el_df = pd.concat([pd.concat([pd.DataFrame.from_dict(i[1],orient='index').rename(columns={0:i[0]}) for i in self.two_el_feats if i[0]==j]) for j in self.uniquepairs],axis=1).T
-        
-        
-        listconcatmo = []
-        
-        for i in self.MO_feat:
-        
-            concatMO = pd.concat([j.rename(columns={j.columns[0]:i[0]}) for idx,j in enumerate(i) if idx>0])
-            # print(concatMO)
-            listconcatmo.append(concatMO)
-
-        allMO_feats = pd.concat([pd.concat([i for i in listconcatmo if i.columns[0]==j]) for j in self.uniquepairs],axis=1).T
-
-        pairenergy_df = pd.DataFrame(self.pairenergylist,columns=['index','Pair_Energies']).set_index('index').astype({'Pair_Energies':float})
-        # Everything together so far
-        concatdf = pd.concat([h_df,important2e,bindf,caspt2fockdf,allMO_feats,two_el_df,pairenergy_df],axis=1)
-        concatdf.to_csv(os.path.join(self.path,f"{self.name}.csv"),compression='zip') 
-
-    def gen_pairs(self,i):
-        '''
-        Generate pairs in a parallel manner
-        '''
-        pairs = []
-        typ = os.path.basename(i).split('.')[0].replace('GMJ_e2_','')
-        # print(typ)
-        
-        IVEC = pd.read_csv(os.path.join(self.path,f'GMJ_IVECW_{typ}.csv'),sep='\s+',header=None,skiprows=[0])
-        RHS = pd.read_csv(os.path.join(self.path,f'GMJ_RHS_{typ}.csv'),sep=',',header=None,index_col=0)
-        RHS.index = list(map(self.strip,RHS.index))
-        RHS = np.array(RHS.index).reshape(IVEC.shape)
-        e2 = np.genfromtxt(os.path.join(self.path,f'GMJ_e2_{typ}.csv'),skip_header=True).reshape(RHS.shape)
-        IVECX = pd.read_csv(os.path.join(self.path,f'GMJ_IVECX_{typ}.csv'),sep='\s+',header=None,skiprows=[0])
-
-        IVECC2 = pd.read_csv(os.path.join(self.path,f'GMJ_IVECC2_{typ}.csv'),sep='\s+',header=None,skiprows=[0])    
-        for idxi,i in enumerate(RHS):
-            for idxj,j in enumerate(i):
-                # Split the index and enforce a standardization of p,q,r,s 
-                split_index = j.split('_')
-                type_idx = self.index_dict[typ]
-                p,q,r,s = split_index[type_idx['p']],split_index[type_idx['q']],split_index[type_idx['r']],split_index[type_idx['s']]
-                # typ, pq,rs,qs,e2
-                pairs.append((typ,'_'.join((p,q)),'_'.join((r,s)),'_'.join((q,s)),e2[idxi,idxj])) 
-        self.pairs = np.array(pairs)
-        return self.pairs
-        
     def gen_feats(self):
-        '''
-        Generate features
-        '''
         self.orbitals()
         # Load the PT2 Fock elements
         # Columns are as follows:
@@ -628,7 +460,7 @@ MAXITER
         
         pt2fock_values = np.nan_to_num(np.fromfile(pt2fock,dtype=float).reshape(-1,6)[:,3:])
         pt2fock_idx = np.fromfile(pt2fock,dtype=int).reshape(-1,6)[:,0:3]-1
-        self.pt2fock_stacked = np.hstack([pt2fock_idx,pt2fock_values])
+        pt2fock_stacked = np.hstack([pt2fock_idx,pt2fock_values])
         
         
         # Read CASSCF Fock from file
@@ -636,8 +468,8 @@ MAXITER
         
         # Load one-electron integrals
         oneelint = np.fromfile(os.path.join(self.path,f"{self.name}.GMJ_one_int.csv")).reshape(-1,1)
-        self.oneelint_idx = np.fromfile(os.path.join(self.path,f"{self.name}.GMJ_one_int_indx.csv"),dtype=int).reshape(-1,4)[:,0:2]-1
-        self.h_stacked = np.hstack([self.oneelint_idx,oneelint])
+        oneelint_idx = np.fromfile(os.path.join(self.path,f"{self.name}.GMJ_one_int_indx.csv"),dtype=int).reshape(-1,4)[:,0:2]-1
+        h_stacked = np.hstack([oneelint_idx,oneelint])
         
         # Load two-electron integrals (they're in physicist notation by default!) ijkl are indeed <ik|jl>
         twoelint = np.fromfile(os.path.join(self.path,f"{self.name}.GMJ_two_int.csv")).reshape(-1,1)
@@ -648,7 +480,7 @@ MAXITER
         twoelint_idx_physicist[:,1] = twoelint_idx_chemist[:,2]
         twoelint_idx_physicist[:,2] = twoelint_idx_chemist[:,1]
         
-        self.twostacked = np.hstack([twoelint_idx_physicist,twoelint])
+        twostacked = np.hstack([twoelint_idx_physicist,twoelint])
         
         # Grab rasscf and scf hdf5 data
         rasscf_h5 = h5.File(os.path.join(self.path,f"{self.name}.rasscf.h5"), 'r')
@@ -669,7 +501,7 @@ MAXITER
         MO_df['MO_OCCUPATIONS']=casMO_dict['MO_OCCUPATIONS']
         # MO_df = MO_df.reset_index()
         MO_df.index = self.basis_dict.keys()
-        self.MO_df = MO_df
+        
         
         # Get two-electron indices
         
@@ -678,7 +510,7 @@ MAXITER
         pair_labels = {i.split('.')[0].replace("GMJ_RHS_",""):['_'.join(re.sub(r'(?<!\d)0+(\d+)', r'\1', j).split('_')[0:2]) for j in pd.read_csv(i,header=None)[0].values] for i in glob(os.path.join(self.path,"GMJ_RHS_*.csv"))}
         
         # CASPT2 E_pq E_rs ordering
-        self.index_dict = {"A":{"p":0,"q":1,"r":2,"s":3},
+        index_dict = {"A":{"p":0,"q":1,"r":2,"s":3},
         "B_P":{"p":2,"q":0,"r":3,"s":1},
         "B_M":{"p":2,"q":0,"r":3,"s":1},
         "C":{"p":2,"q":3,"r":0,"s":1},
@@ -692,65 +524,159 @@ MAXITER
         "H_P":{"p":2,"q":0,"r":3,"s":1},
         "H_M":{"p":2,"q":0,"r":3,"s":1}}
         
-        self.typedict = {v:k for k,v in dict(enumerate(["A", "B_P", "B_M", "C", "D", "E_P", "E_M", "F_P", "F_M", "G_P", "G_M", "H_P", "H_M"])).items()}
+        typedict = {v:k for k,v in dict(enumerate(["A", "B_P", "B_M", "C", "D", "E_P", "E_M", "F_P", "F_M", "G_P", "G_M", "H_P", "H_M"])).items()}
         
         
         
         # IVECW and IRHS should have same indices
         # Same as IVECC2, it should all be element wise
+        pairs = []
         
-        
-        
+        for i in glob(os.path.join(self.path,"GMJ_e2_*.csv")):
             
-        if self.n_jobs==None:
-            self.pairs = np.vstack([self.gen_pairs(i) for i in tqdm(glob(os.path.join(self.path,"GMJ_e2_*.csv")),desc="Pairs")])    
-        else:
-            self.pairs = np.vstack(Parallel(n_jobs=self.n_jobs)(delayed(self.gen_pairs)(i) for i in tqdm(glob(os.path.join(self.path,"GMJ_e2_*.csv")),desc="Pairs")))  
+            typ = os.path.basename(i).split('.')[0].replace('GMJ_e2_','')
+            # print(typ)
+            
+            IVEC = pd.read_csv(os.path.join(self.path,f'GMJ_IVECW_{typ}.csv'),sep='\s+',header=None,skiprows=[0])
+            RHS = pd.read_csv(os.path.join(self.path,f'GMJ_RHS_{typ}.csv'),sep=',',header=None,index_col=0)
+            RHS.index = list(map(self.strip,RHS.index))
+            RHS = np.array(RHS.index).reshape(IVEC.shape)
+            e2 = np.genfromtxt(os.path.join(self.path,f'GMJ_e2_{typ}.csv'),skip_header=True).reshape(RHS.shape)
+            IVECX = pd.read_csv(os.path.join(self.path,f'GMJ_IVECX_{typ}.csv'),sep='\s+',header=None,skiprows=[0])
+
+            IVECC2 = pd.read_csv(os.path.join(self.path,f'GMJ_IVECC2_{typ}.csv'),sep='\s+',header=None,skiprows=[0])    
+            for idxi,i in enumerate(RHS):
+                for idxj,j in enumerate(i):
+                    # Split the index and enforce a standardization of p,q,r,s 
+                    split_index = j.split('_')
+                    type_idx = index_dict[typ]
+                    p,q,r,s = split_index[type_idx['p']],split_index[type_idx['q']],split_index[type_idx['r']],split_index[type_idx['s']]
+                    # typ, pq,rs,qs,e2
+                    pairs.append((typ,'_'.join((p,q)),'_'.join((r,s)),'_'.join((q,s)),e2[idxi,idxj]))
+        
+        pairs = np.array(pairs)
+        
         
         # qs pairs!
-        uniquepairs = np.unique(self.pairs[:,3])
-        self.uniquepairs = uniquepairs
-        self.checkE2=0
-
+        uniquepairs = np.unique(pairs[:,3])
         
-        self.h_features = []
-        self.CASPT2Fockfeatures = []
-        self.b4_type = []
-        self.binary_feat = []
-        self.MO_feat = []
-        self.two_el_feats = []
-        self.pairenergylist = []
         
-        if self.n_jobs==None:
-            out = []
-            for i in tqdm(self.uniquepairs,desc="Features"):
-                outpar = self.parallel_feat(i)
+        
+        checkE2=0
+        pairenergy_df = pd.DataFrame(range(len(uniquepairs)),index=uniquepairs,columns=['Pair_Energies']).astype({'Pair_Energies':float})
+        
+        h_features = []
+        CASPT2Fockfeatures = []
+        b4_type = []
+        binary_feat = []
+        MO_feat = []
+        two_el_feats = []
+        
+        for i in tqdm(uniquepairs):
+            q,s = i.split('_')
+            qidx = self.basis_dict[q]
+            sidx = self.basis_dict[s]
+        
+            # From same orbital = 1, else 0
+            if q==s:
+                binary_feat.append((i,1))
+            else:
+                binary_feat.append((i,0))
+        
+            # CASPT2 style Fock features
+            if qidx>=sidx:
+                CASPT2Fockfeatures.append((i,dict(zip(self.caspt2_fock_indexing('q','s'),pt2fock_stacked[:,2:][(pt2fock_stacked[:,0]==qidx)&(pt2fock_stacked[:,1]==sidx)].flatten()))))
+            else:
+                CASPT2Fockfeatures.append((i,dict(zip(self.caspt2_fock_indexing('q','s'),pt2fock_stacked[:,2:][(pt2fock_stacked[:,0]==sidx)&(pt2fock_stacked[:,1]==qidx)].flatten()))))
+        
+            # Get the pair-energies that share the same qs
+            subpairs = pairs[pairs[:,3]==i]
+        
+            # Grab the largest 4 two-electron contributers
+            best4 = subpairs[np.argsort(abs(subpairs[:,-1].astype(float)))][-4:]
+        
+            # Loop over best four 
+            for b4idx, (typ, pq, rs) in enumerate(best4[:,0:3]):
+                b4_type.append((i,f"typ_{b4idx}",typedict[typ]))
+                p,q = pq.split('_')
+                r,s = rs.split('_')
+                pidx = self.basis_dict[p]
+                qidx = self.basis_dict[q]
+                ridx = self.basis_dict[r]
+                sidx = self.basis_dict[s]
+                two_el_feats.append((i,self.find_integrals(b4idx,pidx,qidx,ridx,sidx,twostacked)))
+                    
+                
+                # MO features for each index
+                pMOdf,qMOdf,rMOdf,sMOdf =  MO_df.loc[p].to_frame(), MO_df.loc[q].to_frame(), MO_df.loc[r].to_frame(), MO_df.loc[s].to_frame()
+                
+                pMOdf.rename(index={'MO_ENERGIES_SCF':r'$(F_{p}^{\text{SCF}})_{'+f"{b4idx}"+"}$", 'MO_OCCUPATIONS_SCF':r"$(\omega_{p})_{"+f"{b4idx}"+"}$",'MO_ENERGIES':r"$(F_{p})_{"+f"{b4idx}"+"}$",'MO_OCCUPATIONS':r"$(\eta_{p})_{"+f"{b4idx}"+"}$"},inplace=True)
+                qMOdf.rename(index={'MO_ENERGIES_SCF':r'$(F_{q}^{\text{SCF}})_{'+f"{b4idx}"+"}$", 'MO_OCCUPATIONS_SCF':r"$(\omega_{q})_{"+f"{b4idx}"+"}$",'MO_ENERGIES':r'$(F_{q})_{'+f"{b4idx}"+"}$",'MO_OCCUPATIONS':r"$(\eta_{q})_{"+f"{b4idx}"+"}$"},inplace=True)       
+                rMOdf.rename(index={'MO_ENERGIES_SCF':r'$(F_{r}^{\text{SCF}})_{'+f"{b4idx}"+"}$", 'MO_OCCUPATIONS_SCF':r"$(\omega_{r})_{"+f"{b4idx}"+"}$",'MO_ENERGIES':r'$(F_{r})_{'+f"{b4idx}"+"}$",'MO_OCCUPATIONS':r"$(\eta_{r})_{"+f"{b4idx}"+"}$"},inplace=True) 
+                sMOdf.rename(index={'MO_ENERGIES_SCF':r'$(F_{s}^{\text{SCF}})_{'+f"{b4idx}"+"}$", 'MO_OCCUPATIONS_SCF':r"$(\omega_{s})_{"+f"{b4idx}"+"}$",'MO_ENERGIES':r'$(F_{s})_{'+f"{b4idx}"+"}$",'MO_OCCUPATIONS':r"$(\eta_{s})_{"+f"{b4idx}"+"}$"},inplace=True)
+        
+                MO_feat.append((i,pMOdf,qMOdf,rMOdf,sMOdf))
+                
+                # Set of label index pairs
+                pqrsindex_dict = {"p":[p,pidx],"q":[q,qidx],"r":[r,ridx],"s":[s,sidx]}
+        
+                # All possible two-index pairs
+                twoidxpairs = [['p','q'],['r','s'],['p','r'],['q','s'],['p','p'],['q','q'],['r','r'],['s','s']]
+                # h_{ij} features
+                for u,v in twoidxpairs:
+                    u_item, u_idx = pqrsindex_dict[u]
+                    v_item, v_idx = pqrsindex_dict[v]
+                    if u_idx>=v_idx:
+                        h_features.append((i,"h$_{"+f"{u}{v}"+"}^{"+f"{b4idx}"+"}$",h_stacked[(oneelint_idx[:,0]==u_idx)&(oneelint_idx[:,1]==v_idx)].flatten()[-1]))     
+                    else:
+                        h_features.append((i,"h$_{"+f"{u}{v}"+"}^{"+f"{b4idx}"+"}$",h_stacked[(oneelint_idx[:,0]==v_idx)&(oneelint_idx[:,1]==u_idx)].flatten()[-1]))
+                    
+        
             
-        else:
-            outpar=Parallel(n_jobs=self.n_jobs)(delayed(self.parallel_feat)(i) for i in tqdm(self.uniquepairs,desc="Features"))
-            for i in outpar:
-                self.checkE2 += i[0]
-                self.h_features.append(i[1])
-                self.CASPT2Fockfeatures.append(i[2])
-                self.b4_type.append(i[3])
-                self.binary_feat.append(i[4])
-                self.MO_feat.append(i[5])
-                self.two_el_feats.append(i[6])
-                self.pairenergylist.append(i[7])
+            # Pair-energies
+            pairenergy = np.sum(subpairs[:,-1].astype(float))
+            pairenergy_df.loc[i] = pairenergy
+            checkE2 += pairenergy
+        
+        # if np.isclose(checkE2,self.E2,atol=1e-6)==False:
+        #     raise Exception(f"Pair-energies do not sum up to the calculated correlation energy: {checkE2:.6e},{self.E2:.6e}")
+        
+        
+        # IT,IU,F(global index),FI(global index),fa(global index),d(global index
+        caspt2fockdf = pd.concat([pd.DataFrame.from_dict(vals,orient='index',columns=[idx]) for idx, vals in CASPT2Fockfeatures],axis=1).T
+        
+        # binary feature df
+        bindf = pd.DataFrame(binary_feat).set_index(0).rename(columns={0:'binary'})
+        
+        # one-electron dataframe
+        h_df = pd.DataFrame(h_features).pivot(index=0, columns=1)
+        h_df.columns=h_df.columns.droplevel()
+        h_df.drop(columns=["h$_{qs}^{3}$","h$_{qs}^{1}$","h$_{qs}^{2}$"],inplace=True)
+        h_df.rename(columns={"h$_{qs}^{0}$":"h$_{qs}$"},inplace=True)
+        
+        # Important 4 types
+        important2e = pd.DataFrame(b4_type).pivot(index=0, columns=1)
+        important2e.columns=important2e.columns.droplevel()
+        
+        
+        # two-electron data frame 
+        two_el_df = pd.concat([pd.concat([pd.DataFrame.from_dict(i[1],orient='index').rename(columns={0:i[0]}) for i in two_el_feats if i[0]==j]) for j in uniquepairs],axis=1).T
+        
+        
+        listconcatmo = []
+        
+        for i in MO_feat:
+        
+            concatMO = pd.concat([j.rename(columns={j.columns[0]:i[0]}) for idx,j in enumerate(i) if idx>0])
+            # print(concatMO)
+            listconcatmo.append(concatMO)
 
-  
-            self.h_features = sum(self.h_features,[])
-            self.CASPT2Fockfeatures = sum(self.CASPT2Fockfeatures,[])
-            self.b4_type = sum(self.b4_type,[])
-            self.binary_feat = sum(self.binary_feat,[])
-            self.MO_feat = sum(self.MO_feat,[])
-            self.two_el_feats = sum(self.two_el_feats,[])
-            self.pairenergylist = sum(self.pairenergylist,[])
+        allMO_feats = pd.concat([pd.concat([i for i in listconcatmo if i.columns[0]==j]) for j in uniquepairs],axis=1).T
         
-
         
-        self.gen_df()
-        
+        # Everything together so far
+        concatdf = pd.concat([h_df,important2e,bindf,caspt2fockdf,allMO_feats,two_el_df,pairenergy_df],axis=1)
+        concatdf.to_csv(os.path.join(self.path,f"{self.name}.csv"),compression='zip')    
     
     def __call__(self,run=True):
         '''
@@ -776,47 +702,11 @@ MAXITER
 # In[ ]:
 
 
-# for i in glob("GMJ*csv")+glob("*GMJ*int*csv")+glob('*h5'):
-#     os.remove(i)
-DDCASPT2('./','ANO-RCC-MB','988-v',10,8,None,previous="$CurrDir/988-v.RasOrb",symmetry=1,spin=4,UHF=True,charge=2,clean=True,n_jobs=-1)(run=True)
-parallelfeat = pd.read_csv('988-v.csv',compression='zip',index_col=0)
-# serialfeat = pd.read_csv('../new_DDCASPT2/O3_106.00.csv',compression='zip',index_col=0)
-# print(f"O3={(parallelfeat == serialfeat).all().all()}")
-# print((parallelfeat == serialfeat).all()[~(parallelfeat == serialfeat).all()])
-print(*pd.read_excel('988-v_energies.xlsx',index_col=0).loc['E2'].values,parallelfeat['Pair_Energies'].sum())
-print()
-
-
-# In[ ]:
-
-
 TEST=True
-
-
-# In[ ]:
-
-
 if TEST==True:
-    for j in [None,16]:
-        for c in [True,False]:
-            print(f"jobs: {j}\nclean: {c}")    
-            for i in glob("GMJ*csv")+glob("*GMJ*int*csv")+glob('*h5'):
-                os.remove(i)
-            DDCASPT2('./','ANO-RCC-VDZP','H2',2,2,0,previous=None,symmetry=1,spin=0,UHF=False,charge=0,clean=c,n_jobs=j)(run=True)
-            parallelfeat = pd.read_csv('H2.csv',compression='zip',index_col=0)
-            serialfeat = pd.read_csv('../new_DDCASPT2/H2.csv',compression='zip',index_col=0)
-            print(f"H2={(parallelfeat == serialfeat).all().all()}")
-            print((parallelfeat == serialfeat).all()[~(parallelfeat == serialfeat).all()])
-            print(*pd.read_excel('H2_energies.xlsx',index_col=0).loc['E2'].values,parallelfeat['Pair_Energies'].sum())
-        
-            DDCASPT2('./','ANO-RCC-VDZP','O3_106.00',4,3,10,previous=None,symmetry=1,spin=0,UHF=False,charge=0,clean=c,n_jobs=j)(run=True)
-            parallelfeat = pd.read_csv('O3_106.00.csv',compression='zip',index_col=0)
-            # serialfeat = pd.read_csv('../new_DDCASPT2/O3_106.00.csv',compression='zip',index_col=0)
-            # print(f"O3={(parallelfeat == serialfeat).all().all()}")
-            # print((parallelfeat == serialfeat).all()[~(parallelfeat == serialfeat).all()])
-            print(*pd.read_excel('O3_106.00_energies.xlsx',index_col=0).loc['E2'].values,parallelfeat['Pair_Energies'].sum())
-            print()
-            
+    DDCASPT2('./','ANO-RCC-VDZP','H2',2,2,0,previous=None,symmetry=1,spin=0,UHF=False,charge=0,clean=True)(run=True)
+
+    DDCASPT2('./','ANO-RCC-MB','O3_106.00',4,3,10,previous=None,symmetry=1,spin=0,UHF=False,charge=0,clean=False)(run=True)
 
 
 # In[ ]:
