@@ -759,7 +759,8 @@ MAXITER
             self.write_input()
         
         top = os.getcwd()
-        os.chdir(self.path)
+        if run==True:
+            os.chdir(self.path)
         
         if run==True:
             call(['pymolcas','-new','-clean',os.path.join(self.path,f'{self.name}.input'), '-oe', os.path.join(self.path,f'{self.name}.output')])
@@ -769,16 +770,9 @@ MAXITER
         
         if self.clean:
             self.del_useless()
-        os.chdir(top)
+        if run==True:            
+            os.chdir(top)
 
 
-# In[ ]:
 
-
-# for i in glob("GMJ*csv")+glob("*GMJ*int*csv")+glob('*h5'):
-#     os.remove(i)
-DDCASPT2('./1.00','ANO-RCC-VDZP','1.00',10,14,None,previous=None,symmetry=1,spin=4,UHF=True,charge=2,clean=False,n_jobs=-1)(run=False)
-parallelfeat = pd.read_csv('./1.00/1.00.csv',compression='zip',index_col=0)
-print(*pd.read_excel('./1.00/1.00_energies.xlsx',index_col=0).loc['E2'].values,parallelfeat['Pair_Energies'].sum())
-print()
 
