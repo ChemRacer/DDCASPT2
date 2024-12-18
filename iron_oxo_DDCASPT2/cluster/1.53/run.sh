@@ -4,7 +4,7 @@
 #SBATCH --job-name=ironoxo_1.53		       #The name of the job
 #SBATCH --nodes=1                     # Number of nodes
 #SBATCH --ntasks-per-node=16          # cpus per node
-#SBATCH --partition=condo-kvogiatz            # If not specified then default is "condo-kvogiatz"
+#SBATCH --partition=condo-kvogiatz            # If not specified then default is "campus"
 #SBATCH --qos=condo-kvogiatz
 #SBATCH --time=1-00:00:00             # Wall time (days-hh:mm:ss)
 #SBATCH --error=job.e%J	       # The file where run time errors will be dumped
@@ -21,7 +21,7 @@ pwd
 mkdir $SLURM_SUBMIT_DIR/$SLURM_JOBID
 export WorkDir=$SLURM_SUBMIT_DIR/$SLURM_JOBID
 export MOLCAS_WORKDIR="/lustre/isaac/scratch/gjones39"
-export MOLCAS="/lustre/isaac/proj/UTK0022/GMJ/Test/build"
+export MOLCAS="/lustre/isaac/proj/UTK0022/GMJ/OpenMolcas/build"
 echo $WorkDir
 
 
