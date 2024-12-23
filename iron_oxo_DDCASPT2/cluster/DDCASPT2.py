@@ -92,7 +92,7 @@ from sklearn.model_selection import train_test_split
 
 
 class DDCASPT2:
-    def __init__(self,path,basis_set,name,electrons,occupied,inactive,previous=None,symmetry=1,spin=0,UHF=False,charge=0,clean=False,n_jobs=None):
+    def __init__(self,path,basis_set,name,electrons,occupied,inactive,scf_previous=None,casscf_previous=None,symmetry=1,spin=0,UHF=False,charge=0,clean=False,n_jobs=None):
         '''
         Initialize
         '''
@@ -102,7 +102,8 @@ class DDCASPT2:
         self.electrons=electrons
         self.occupied=occupied
         self.inactive=inactive
-        self.previous=previous
+        self.scf_previous=scf_previous
+        self.casscf_previous=casscf_previous
         self.symmetry=symmetry
         self.spin=spin      
         self.UHF=UHF
@@ -167,6 +168,7 @@ LUMORB
         return string
     
     def _gen_scf(self):
+        
         if self.UHF:
             string=f"""&SCF &END
 UHF
@@ -174,24 +176,30 @@ charge
 {self.charge}
 spin
 {self.spin + 1}            
->>> COPY $WorkDir/{self.name}.scf.h5 $CurrDir/
-
 """            
         else:
             string=f"""&SCF &END
->>> COPY $WorkDir/{self.name}.scf.h5 $CurrDir/
-
 """
-        return string    
+        if self.scf_previous!=None:
+            fileorb=f"""FileOrb
+{self.scf_previous}
+"""
+        else:
+            fileorb=''
+            
+        endstring=f""">>> COPY $WorkDir/{self.name}.scf.h5 $CurrDir/
+        
+"""
+        return string+fileorb+endstring  
     
     
     def _gen_rasscf(self):
         start_string="""&RASSCF &END
 Title= RASSCF
 """
-        if self.previous!=None:
+        if self.casscf_previous!=None:
             fileorb=f"""FileOrb
-{self.previous}
+{self.casscf_previous}
 """
         else:
             fileorb=''
