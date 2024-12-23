@@ -1,0 +1,560 @@
+   This run of MOLCAS is using the pymolcas driver
+
+                             OPE
+                             OPE          NMOL  CASOP  ENMOLC A   SO
+                 OPE        NMOLC        AS  OP EN  MO LC     AS  OP
+                OPENM       OL CA        SO  PE NM  OL CA     SOP EN
+                OP EN      MO   LC       AS  OP ENMOL  CASO   PENMOL
+                OP  EN     MO   LC       AS  OP EN     MO     LC ASO
+               OP   E  NMOL  C  AS       OP  EN MO     LC     AS  OP
+               OP  E   NMO   LC AS        OPEN  MO     LCASOP EN   M
+               O  PEN   MO  LCA  SO
+            OPE   NMO   L   CAS    OP
+        OPENMOL  CASOP     ENMOL   CASOPE
+     OPENMOLCA   SOPENMOLCASOPEN   MOLCASOPE
+    OPENMOLCAS   OP           EN   MOL    CAS
+    OPENMOLCAS       OP  ENM        O     LCA
+    OPENMOLCAS    OPEN  MOLCASO     P  E  NMO
+    OPENMOLCAS     OP               E  N  MOL
+    OPENMOLCA   SO           PENM   O  L  CAS    OPEN    MO    LCAS
+    OPENMOLCA   SOP           ENM   O  L  CAS   OP  EN  MOLC  AS   O
+    OPENMOLCA   SOPE           NM      O  LCA   S      OP  EN MO
+    OPENMOLC                AS         O  PEN   M      OL  CA  SOPE
+    OPENMO        LCASOPE  NMOL        C  ASO   P      ENMOLC     AS
+    OPE     NMO      LCA  SO     P     E   NM   OL  CA SO  PE N   MO
+          OPENMOLCA            SOPE   NMO        LCAS  O    P  ENMO
+     OPENMOLCASOPENMOLCASOPENMOLCASOPENMOLCA
+        OPENMOLCASOPENMOLCASOPENMOLCASOPE
+            OPENMOLCASOPENMOLCASOPENM
+               OPENMOLCASOPENMOLCA        version: ea724fe96-dirty
+                   OPENMOLCASO
+                       OPE                tag:
+
+ OpenMolcas is free software; you can redistribute it and/or modify it
+ under the terms of the GNU Lesser General Public License version 2.1.
+ OpenMolcas is distributed in the hope that it will be useful, but it
+ is provided "as is" and without any express or implied warranties.
+ For more details see the full text of the license in the file
+ LICENSE or in <http://www.gnu.org/licenses/>.
+
+                 Copyright (C) The OpenMolcas Authors
+           For the author list and the recommended citation,
+                   consult the file CONTRIBUTORS.md
+
+           *************************************************
+           * pymolcas version py2.28                       *
+           *   build c4a6d18ded8cb6cad61d2372a9abd97c      *
+           *   (after the EMIL interpreter by V. Veryazov) *
+           *************************************************
+
+configuration info
+------------------
+C Compiler ID: Intel
+C flags: -std=gnu99
+Fortran Compiler ID: Intel
+Fortran flags: -fpp -i8 -r8 -heap-arrays
+Definitions: _MOLCAS_;_I8_;_LINUX_
+Parallel: OFF (GA=OFF)
+
+
+   -------------------------------------------------------------------------------
+  |
+  |              Project: 2.11
+  |       Submitted from: /home/grierjones/DDCASPT2/iron_oxo_DDCASPT2/cluster/2.11
+  |         Scratch area: /tmp/2.11
+  |      Save outputs to: /home/grierjones/DDCASPT2/iron_oxo_DDCASPT2/cluster/2.11
+  |               Molcas: /home/grierjones/Test/build
+  |
+  | Scratch area is empty
+  |
+  |       MOLCAS_DRIVER = /usr/local/pymolcas
+  | MOLCAS_KEEP_WORKDIR = NO
+  |  MOLCAS_NEW_WORKDIR = YES
+  |       MOLCAS_NPROCS = 1
+  |        MOLCAS_PRINT = NORMAL
+  |       MOLCAS_SOURCE = /home/grierjones/Test/build
+  |    MOLCAS_STRUCTURE = 0
+  |
+   -------------------------------------------------------------------------------
+
+++ ---------   Input file   ---------
+
+&GATEWAY
+coord=2.11.xyz
+Basis = ANO-RCC-VDZP
+Group = nosymm
+Expert
+End of Input
+
+&SEWARD
+End of Input
+
+&SCF
+UHF
+charge
+2
+spin
+5
+
+>>> COPY $WorkDir/2.11.scf.h5 $CurrDir/
+
+&RASSCF
+Title= RASSCF
+FileOrb
+/home/grierjones/DDCASPT2/iron_oxo_DDCASPT2/cluster/2.10/2.10.RasOrb
+NACTEL
+10 0 0
+RAS2
+14
+Symmetry
+1
+Spin
+5
+charge
+2
+orblisting
+all
+ITERation
+300 200
+
+>>> COPY $WorkDir/2.11.rasscf.h5 $CurrDir/
+
+>>> COPY $WorkDir/GMJ_Fock_MO.csv $CurrDir/2.11.GMJ_Fock_MO.csv
+
+>>> COPY $WorkDir/GMJ_PT2_Fock_MO.csv $CurrDir/2.11.GMJ_PT2_Fock_MO.csv
+
+&MOTRA
+Frozen=0
+LUMORB
+
+>>> COPY $WorkDir/GMJ_one_int_indx.csv $CurrDir/2.11.GMJ_one_int_indx.csv
+
+>>> COPY $WorkDir/GMJ_one_int.csv $CurrDir/2.11.GMJ_one_int.csv
+
+>>> COPY $WorkDir/GMJ_two_int_indx.csv $CurrDir/2.11.GMJ_two_int_indx.csv
+
+>>> COPY $WorkDir/GMJ_two_int.csv $CurrDir/2.11.GMJ_two_int.csv
+
+&CASPT2
+Frozen
+0
+MAXITER
+50
+
+>>> FOREACH i IN (B,E,F,G,H)
+
+  >>> FOREACH j IN (P,M)
+
+    >>> IF (-FILE GMJ_e2_${i}_${j}.csv)
+
+      >>> COPY $WorkDir/GMJ_RHS_${i}_${j}.csv $CurrDir/GMJ_RHS_${i}_${j}.csv
+
+      >>> COPY $WorkDir/GMJ_IVECW_${i}_${j}.csv $CurrDir/GMJ_IVECW_${i}_${j}.csv
+
+      >>> COPY $WorkDir/GMJ_IVECX_${i}_${j}.csv $CurrDir/GMJ_IVECX_${i}_${j}.csv
+
+      >>> COPY $WorkDir/GMJ_IVECC2_${i}_${j}.csv $CurrDir/GMJ_IVECC2_${i}_${j}.csv
+
+      >>> COPY $WorkDir/GMJ_e2_${i}_${j}.csv $CurrDir/GMJ_e2_${i}_${j}.csv
+
+    >>> END IF
+
+  >>> END FOREACH
+
+>>> END FOREACH
+
+>>> FOREACH i IN (A,C,D)
+
+  >>> IF (-FILE GMJ_e2_$i.csv)
+
+    >>> COPY $WorkDir/GMJ_RHS_$i.csv $CurrDir/GMJ_RHS_$i.csv
+
+    >>> COPY $WorkDir/GMJ_IVECW_$i.csv $CurrDir/GMJ_IVECW_$i.csv
+
+    >>> COPY $WorkDir/GMJ_IVECX_$i.csv $CurrDir/GMJ_IVECX_$i.csv
+
+    >>> COPY $WorkDir/GMJ_IVECC2_$i.csv $CurrDir/GMJ_IVECC2_$i.csv
+
+    >>> COPY $WorkDir/GMJ_e2_$i.csv $CurrDir/GMJ_e2_$i.csv
+
+  >>> END IF
+
+>>> END FOREACH
+
+-- ----------------------------------
+
+--- Start Module: gateway at Sun Dec 22 16:34:40 2024 ---
+ 
+()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()
+
+                                              &GATEWAY
+
+                                   only a single process is used
+                       available to each process: 2.0 GB of memory, 1 thread?
+()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()
+ 
+ ###############################################################################
+ ###############################################################################
+ ###                                                                         ###
+ ###                                                                         ###
+ ###                                                                         ###
+ ###    WARNING: EXPERT option is ON!                                        ###
+ ###                                                                         ###
+ ###                                                                         ###
+ ###############################################################################
+ ###############################################################################
+ 
+++    Symmetry information:
+      ---------------------
+ 
+                    Character Table for C1 
+ 
+                             E  
+                    a        1  x, y, xy, Rz, z, xz, Ry, yz, Rx, I
+--
+ 
+ 
+++    Basis set information:
+      ----------------------
+ 
+ 
+      Basis set label: O.ANO-RCC...3S2P1D.
+ 
+      Electronic valence basis set:
+      ------------------
+      Associated Effective Charge   8.000000 au
+      Associated Actual Charge      8.000000 au
+      Nuclear Model: Point charge
+ 
+      Shell  nPrim  nBasis  Cartesian Spherical Contaminant
+         s      14       3        X                  
+         p       9       2        X                  
+         d       4       1                 X         
+ 
+ 
+      Basis set label: FE.ANO-RCC...5S4P2D1F.
+ 
+      Electronic valence basis set:
+      ------------------
+      Associated Effective Charge  26.000000 au
+      Associated Actual Charge     26.000000 au
+      Nuclear Model: Point charge
+ 
+      Shell  nPrim  nBasis  Cartesian Spherical Contaminant
+         s      21       5        X                  
+         p      15       4        X                  
+         d      10       2                 X         
+         f       6       1                 X         
+--
+ 
+ 
+++    Molecular structure info:
+      -------------------------
+ 
+                    ************************************************ 
+                    **** Cartesian Coordinates / Bohr, Angstrom **** 
+                    ************************************************ 
+ 
+     Center  Label                x              y              z                     x              y              z
+        1      O1               0.000000       0.000000       3.509429              0.000000       0.000000       1.857110
+        2      FE2              0.000000       0.000000      -0.485867              0.000000       0.000000      -0.257110
+--
+ 
+ 
+            Nuclear Potential Energy             52.06121398 au
+ 
+ ###############################################################################
+ ###############################################################################
+ ###                                                                         ###
+ ###                                                                         ###
+ ###    There were warnings during the execution                             ###
+ ###    Please, check the output with care!                                  ###
+ ###                                                                         ###
+ ###                                                                         ###
+ ###############################################################################
+ ###############################################################################
+--- Stop Module: gateway at Sun Dec 22 16:34:40 2024 /rc=_RC_ALL_IS_WELL_ ---
+*** files: xmldump
+    saved to directory /home/grierjones/DDCASPT2/iron_oxo_DDCASPT2/cluster/2.11
+
+--- Start Module: seward at Sun Dec 22 16:34:40 2024 ---
+ 
+()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()
+
+                                              &SEWARD
+
+                                   only a single process is used
+                       available to each process: 2.0 GB of memory, 1 thread?
+()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()
+ 
+ ###############################################################################
+ ###############################################################################
+ ###                                                                         ###
+ ###                                                                         ###
+ ###                                                                         ###
+ ###    WARNING: EXPERT option is ON!                                        ###
+ ###                                                                         ###
+ ###                                                                         ###
+ ###############################################################################
+ ###############################################################################
+               SEWARD will generate:
+                  Multipole Moment integrals up to order  2
+                  Kinetic Energy integrals
+                  Nuclear Attraction integrals (point charge)
+                  One-Electron Hamiltonian integrals
+                  Velocity integrals
+                  Relativistic Douglas-Kroll-Hess integrals:
+                    - Parametrization         : EXP
+                    - DKH order of Hamiltonian: 2
+                    - DKH order of Properties : 0
+                         - multipole moment operators
+                         - electric potential operators
+                         - contact operators
+                  Atomic mean-field integrals
+                  Two-Electron Repulsion integrals
+ 
+                   Integrals are discarded if absolute value <: 0.10E-13
+                   Integral cutoff threshold is set to       <: 0.10E-15
+ 
+            Nuclear Potential Energy             52.06121398 au
+ 
+ 
+      Basis set specifications :
+      Symmetry species         a  
+      Basis functions           48
+ 
+ 
+  Input file to MOLDEN was generated!
+ 
+ ###############################################################################
+ ###############################################################################
+ ###                                                                         ###
+ ###                                                                         ###
+ ###    There were warnings during the execution                             ###
+ ###    Please, check the output with care!                                  ###
+ ###                                                                         ###
+ ###                                                                         ###
+ ###############################################################################
+ ###############################################################################
+--- Stop Module: seward at Sun Dec 22 16:34:41 2024 /rc=_RC_ALL_IS_WELL_ ---
+*** files: 2.11.GssOrb 2.11.guessorb.h5 2.11.guessorb.molden xmldump
+    saved to directory /home/grierjones/DDCASPT2/iron_oxo_DDCASPT2/cluster/2.11
+--- Module seward spent 1 second ---
+
+*** symbolic link created: INPORB -> 2.11.GssOrb
+--- Start Module: scf at Sun Dec 22 16:34:41 2024 ---
+ 
+()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()
+
+                                                &SCF
+
+                                   only a single process is used
+                       available to each process: 2.0 GB of memory, 1 thread?
+()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()
+ 
+ *** Possible bug in opening file
+ *** isFreeUnit resets the unit number
+++    Input section:
+      --------------
+ 
+      Header of the integral files:
+      
+       Integrals generated by seward 4.2.0  , Sun Dec 22 16:34:40 2024
+ 
+ 
+      Cartesian coordinates in Angstrom:
+      -----------------------------------------------------
+      No.  Label        X            Y            Z        
+      -----------------------------------------------------
+       1   O1         0.00000000   0.00000000   1.85711000
+       2   FE2        0.00000000   0.00000000  -0.25711000
+      -----------------------------------------------------
+      Nuclear repulsion energy =   52.06121398
+--
+ 
+++    Orbital specifications:
+      -----------------------
+ 
+      Symmetry species               1
+                                     a
+      Frozen orbitals                0
+      Start temperature = 0.500
+      End temperature   = 0.010
+      Temperature Factor= 0.460
+      Deleted orbitals               0
+      Total number of orbitals      48
+      Number of basis functions     48
+--
+ 
+      Molecular charge                           2.000
+ 
+++    Optimization specifications:
+      ----------------------------
+ 
+      SCF Algorithm: Conventional USCF
+      D(i)-D(i-1) density differences are used
+      Number of density matrices in core                5
+      Maximum number of NDDO SCF iterations           400
+      Maximum number of HF SCF iterations             400
+      Threshold for SCF energy change            0.10E-08
+      Threshold for density matrix               0.10E-03
+      Threshold for Fock matrix                  0.15E-03
+      Threshold for linear dependence            0.10E-08
+      Threshold at which DIIS is turned on       0.15E+00
+      Threshold at which QNR/C2DIIS is turned on 0.75E-01
+      Threshold for Norm(delta) (QNR/C2DIIS)     0.20E-04
+      DIIS extrapolation of the SCF procedure
+      All orbitals punched on: UHFORB
+--
+ 
+      Input vectors read from INPORB
+      Orbital file label: *Guess orbitals
+ 
+ 
+++ Convergence information
+                               UHF SCF        iterations: Energy and convergence statistics
+ 
+Iter     Tot. SCF        One-elec.       Two-elec.     Energy      Max Dij or  Max Fij      DNorm      TNorm      AccCon     Time
+         Energy          Energy          Energy        Change      Delta Norm                                                in Sec.
+ 
+ The total and one-electron energies are shifted by a value of      1000. a.u.
+ 
+   1  -343.111550270  -933.264512854   538.091748605   0.00E+00    0.15E+00*   0.89E+00*    0.76E+01   0.19E+03   None         0.
+   2  -343.457199928  -929.800006069   534.281592161  -0.35E+00*   0.21E+00*   0.27E+00*    0.12E+01   0.19E+03   EDIIS        0.
+   3  -341.879257188  -975.025388274   581.084917106   0.16E+01*   0.94E-01*   0.21E+00*    0.20E+01   0.19E+03   EDIIS        0.
+   4  -343.757677382  -923.159598332   527.340706971  -0.19E+01*   0.22E+00*   0.15E+00*    0.16E+01   0.18E+03   EDIIS        0.
+   5  -344.571026859  -947.897747598   551.265506760  -0.81E+00*   0.48E+00*   0.15E+00*    0.16E+01   0.19E+03   EDIIS        0.
+   6  -344.869060068  -931.994672861   535.064398814  -0.30E+00*   0.42E+00*   0.33E+00*    0.13E+01   0.19E+03   EDIIS        0.
+   7  -344.870982394  -945.838466441   548.906270067  -0.19E-02*   0.17E+00*   0.13E+00*    0.11E+01   0.19E+03   EDIIS        0.
+   8  -345.045452928  -937.382292504   540.275625597  -0.17E+00*   0.94E-01*   0.45E-01*    0.36E+00   0.19E+03   EDIIS        0.
+   9  -345.054360265  -938.521081366   541.405507122  -0.89E-02*   0.24E+00*   0.52E-01*    0.32E+00   0.19E+03   EDIIS        0.
+  10  -345.058991491  -936.054670433   538.934464963  -0.46E-02*   0.12E+00*   0.46E-01*    0.45E+00   0.19E+03   EDIIS        0.
+  11  -345.093473380  -937.540214640   540.385527281  -0.34E-01*   0.22E+00*   0.56E-01*    0.60E+00   0.19E+03   EDIIS        0.
+  12  -345.211088523  -936.219815919   538.947513417  -0.12E+00*   0.23E+00*   0.11E+00*    0.87E+00   0.19E+03   EDIIS        0.
+  13  -345.221286871  -938.389034843   541.106533993  -0.10E-01*   0.16E+00*   0.64E-01*    0.56E+00   0.19E+03   EDIIS        0.
+  14  -345.233801247  -936.622321622   539.327306396  -0.13E-01*   0.15E+00*   0.46E-01*    0.39E+00   0.19E+03   EDIIS        0.
+  15  -345.241914335  -938.183456355   540.880328041  -0.81E-02*   0.11E+00*   0.45E-01*    0.35E+00   0.19E+03   EDIIS        0.
+ 
+       Fermi aufbau procedure completed!
+      nOcc(alpha)=   18
+      nOcc(beta) =   14
+ 
+  16  -345.245877068  -937.138657809   539.831566762  -0.40E-02*   0.10E+00*   0.22E-01*    0.26E+00   0.19E+03   EDIIS        0.
+  17  -345.249868125  -938.346315335   541.035233230  -0.40E-02*   0.86E-01*   0.22E-01*    0.24E+00   0.19E+03   EDIIS        0.
+  18  -345.252267821  -937.646892052   540.333410251  -0.24E-02*   0.13E+00*   0.25E-01*    0.19E+00   0.19E+03   EDIIS        0.
+  19  -345.254800123  -938.878234290   541.562220188  -0.25E-02*   0.88E-01*   0.19E-01*    0.23E+00   0.19E+03   EDIIS        0.
+  20  -345.258184726  -938.217097660   540.897698955  -0.34E-02*   0.71E-01*   0.64E-02*    0.20E+00   0.19E+03   c2DIIS       0.
+  21  -345.259957148  -938.478843235   541.157672108  -0.18E-02*   0.18E+00*   0.32E-01*    0.17E+00   0.19E+03   QNRc2DIIS    0.
+  22  -345.265854040  -939.615020257   542.287952238  -0.59E-02*   0.13E+01*   0.24E-01*    0.21E+00   0.19E+03   QNRc2DIIS    0.
+  23  -345.303204771  -944.433249110   547.068830359  -0.37E-01*   0.68E+00*   0.62E-01*    0.15E+01   0.19E+03   QNRc2DIIS    0.
+  24  -345.306158959  -943.457946970   546.090574032  -0.30E-02*   0.17E+01*   0.77E-01*    0.94E+00   0.19E+03   QNRc2DIIS    0.
+  25  -345.277663909  -940.463532941   543.124655053   0.28E-01*   0.38E-01*   0.33E-01*    0.21E+01   0.19E+03   QNRc2DIIS    0.
+  26  -345.279304274  -940.593131692   543.252613439  -0.16E-02*   0.29E+00*   0.34E-01*    0.48E-01   0.19E+03   QNRc2DIIS    0.
+  27  -345.297119363  -941.462196482   544.103863139  -0.18E-01*   0.42E+00*   0.42E-01*    0.34E+00   0.19E+03   QNRc2DIIS    0.
+  28  -345.272399879  -939.854439841   542.520825982   0.25E-01*   0.11E+01*   0.31E-01*    0.47E+00   0.19E+03   QNRc2DIIS    0.
+  29  -345.245686119  -937.434318381   540.127418282   0.27E-01*   0.16E+00*   0.32E-01*    0.12E+01   0.19E+03   QNRc2DIIS    0.
+  30  -345.242347732  -937.529225136   540.225663424   0.33E-02*   0.10E+01*   0.40E-01*    0.21E+00   0.19E+03   QNRc2DIIS    0.
+  31  -345.263708084  -939.178441299   541.853519236  -0.21E-01*   0.31E+00*   0.26E-01*    0.12E+01   0.19E+03   QNRc2DIIS    0.
+  32  -345.278423609  -940.125021021   542.785383433  -0.15E-01*   0.63E+00*   0.38E-01*    0.35E+00   0.19E+03   QNRc2DIIS    0.
+  33  -345.254387012  -938.279058560   540.963457568   0.24E-01*   0.18E-01*   0.15E-01*    0.71E+00   0.19E+03   QNRc2DIIS    0.
+  34  -345.254185684  -938.230520905   540.915121241   0.20E-03*   0.37E-01*   0.15E-01*    0.24E-01   0.19E+03   QNRc2DIIS    0.
+  35  -345.253298536  -938.159589326   540.845076811   0.89E-03*   0.57E+00*   0.15E-01*    0.44E-01   0.19E+03   QNRc2DIIS    0.
+  36  -345.243246622  -937.477601090   540.173140488   0.10E-01*   0.88E+00*   0.54E-01*    0.69E+00   0.19E+03   QNRc2DIIS    0.
+  37  -345.261398339  -938.907404852   541.584792534  -0.18E-01*   0.13E+01*   0.29E-01*    0.10E+01   0.19E+03   QNRc2DIIS    0.
+  38  -345.196975815  -938.054964714   540.796774920   0.64E-01*   0.11E+01*   0.96E-01*    0.15E+01   0.19E+03   QNRc2DIIS    0.
+  39  -345.256157443  -938.481734288   541.164362866  -0.59E-01*   0.55E-01*   0.16E-01*    0.13E+01   0.19E+03   QNRc2DIIS    0.
+  40  -345.256789250  -938.574014461   541.256011232  -0.63E-03*   0.15E+00*   0.14E-01*    0.67E-01   0.19E+03   QNRc2DIIS    0.
+  41  -345.257009075  -938.625860987   541.307637933  -0.22E-03*   0.39E+00*   0.12E-01*    0.20E+00   0.19E+03   QNRc2DIIS    0.
+  42  -345.259196660  -938.907764010   541.587353370  -0.22E-02*   0.25E+00*   0.23E-01*    0.52E+00   0.19E+03   QNRc2DIIS    0.
+  43  -345.255337099  -938.283144347   540.966593268   0.39E-02*   0.43E+00*   0.17E-01*    0.33E+00   0.19E+03   QNRc2DIIS    0.
+  44  -345.255950096  -937.971583536   540.654419460  -0.61E-03*   0.69E+00*   0.64E-02*    0.57E+00   0.19E+03   QNRc2DIIS    0.
+  45  -345.256996364  -938.490874919   541.172664575  -0.10E-02*   0.52E+00*   0.31E-01*    0.90E+00   0.19E+03   QNRc2DIIS    0.
+  46  -345.255567429  -938.063541758   540.746760350   0.14E-02*   0.89E-01*   0.54E-02*    0.67E+00   0.19E+03   QNRc2DIIS    0.
+  47  -345.255219474  -937.914241465   540.597808012   0.35E-03*   0.12E+00*   0.83E-02*    0.11E+00   0.19E+03   QNRc2DIIS    0.
+  48  -345.255793866  -937.833367429   540.516359583  -0.57E-03*   0.33E+00*   0.13E-01*    0.15E+00   0.19E+03   QNRc2DIIS    0.
+  49  -345.255375641  -938.191771578   540.875181958   0.42E-03*   0.63E+00*   0.17E-01*    0.42E+00   0.19E+03   QNRc2DIIS    0.
+  50  -345.255235430  -937.656315507   540.339866098   0.14E-03*   0.11E+01*   0.33E-01*    0.79E+00   0.19E+03   QNRc2DIIS    0.
+  51  -345.253347795  -938.881655092   541.567093318   0.19E-02*   0.24E+01*   0.46E-01*    0.13E+01   0.19E+03   QNRc2DIIS    0.
+  52  -345.234183001  -936.667225902   539.371828922   0.19E-01*   0.13E+01*   0.92E-01*    0.26E+01   0.19E+03   QNRc2DIIS    0.
+  53  -345.256029213  -937.650553819   540.333310627  -0.22E-01*   0.20E+00*   0.29E-01*    0.18E+01   0.19E+03   QNRc2DIIS    0.
+  54  -345.254660702  -937.460531262   540.144656581   0.14E-02*   0.39E+00*   0.39E-01*    0.26E+00   0.19E+03   QNRc2DIIS    0.
+  55  -345.262775958  -937.109209451   539.785219514  -0.81E-02*   0.21E+01*   0.49E-01*    0.52E+00   0.19E+03   QNRc2DIIS    0.
+  56  -345.243217601  -939.734666240   542.430234660   0.20E-01*   0.56E+01*   0.62E-01*    0.23E+01   0.19E+03   QNRc2DIIS    0.
+  57  -344.717541559  -948.273343595   551.494588057   0.53E+00*   0.79E+01*   0.27E+00*    0.39E+01   0.19E+03   QNRc2DIIS    0.
+  58  -345.040726041  -942.727650279   545.625710259  -0.32E+00*   0.36E+00*   0.20E+00*    0.28E+01   0.19E+03   QNRc2DIIS    0.
+  59  -345.048615871  -944.479600432   547.369770582  -0.79E-02*   0.55E+01*   0.23E+00*    0.51E+00   0.19E+03   QNRc2DIIS    0.
+  60  -345.075942360  -935.286829282   538.149672943  -0.27E-01*   0.32E+01*   0.15E+00*    0.35E+01   0.19E+03   QNRc2DIIS    0.
+  61  -344.382649772  -924.344059885   527.900196134   0.69E+00*   0.61E+02*   0.27E+00*    0.35E+01   0.18E+03   QNRc2DIIS    0.
+  62  -328.285474379  -912.741301527   532.394613169   0.16E+02*   0.24E+02*   0.19E+01*    0.80E+01   0.19E+03   QNRc2DIIS    0.
+  63  -333.922906376  -947.795192474   561.811072118  -0.56E+01*   0.12E+03*   0.13E+01*    0.63E+01   0.19E+03   QNRc2DIIS    0.
+  64  -302.398205652  -806.720708766   452.261289134   0.32E+02*   0.96E+02*   0.32E+01*    0.97E+01   0.17E+03   QNRc2DIIS    0.
+  65  -338.693838710  -935.379862981   544.624810292  -0.36E+02*   0.12E+03*   0.82E+00*    0.10E+02   0.19E+03   QNRc2DIIS    0.
+  66  -316.624270112  -841.879071721   473.193587630   0.22E+02*   0.65E+03*   0.19E+01*    0.11E+02   0.18E+03   QNRc2DIIS    0.
+  67  -293.680261258  -816.801564526   471.060089288   0.23E+02*   0.71E+03*   0.79E+01*    0.12E+02   0.18E+03   QNRc2DIIS    0.
+  68  -285.573075935  -806.751073921   469.116784006   0.81E+01*   0.20E+04*   0.82E+01*    0.12E+02   0.17E+03   QNRc2DIIS    0.
+  69  -290.861591323  -809.836119162   466.913313859  -0.53E+01*   0.10E+04*   0.45E+01*    0.13E+02   0.17E+03   QNRc2DIIS    0.
+  70  -245.878076187  -735.982917124   438.043626957   0.45E+02*   0.13E+04*   0.90E+01*    0.20E+02   0.17E+03   QNRc2DIIS    0.
+  71  -211.847694671  -654.167265785   390.258357134   0.34E+02*   0.49E+04*   0.11E+02*    0.17E+02   0.16E+03   QNRc2DIIS    0.
+  72  -159.311412518  -577.691959935   366.319333438   0.53E+02*   0.37E+04*   0.12E+02*    0.14E+02   0.15E+03   QNRc2DIIS    0.
+  73  -116.762377015  -493.890007819   325.066416824   0.43E+02*   0.27E+05*   0.13E+02*    0.14E+02   0.14E+03   QNRc2DIIS    0.
+  74  -111.689790675  -487.176192546   323.425187892   0.51E+01*   0.38E+05*   0.26E+02*    0.15E+02   0.14E+03   QNRc2DIIS    0.
+  75  -173.648286758  -606.752071364   381.042570627  -0.62E+02*   0.36E+05*   0.31E+02*    0.13E+02   0.16E+03   QNRc2DIIS    0.
+  76  -151.739413164  -570.787210772   366.986583629   0.22E+02*   0.37E+05*   0.26E+02*    0.12E+02   0.15E+03   QNRc2DIIS    0.
+  77  -139.668165405  -532.056291312   340.326911928   0.12E+02*   0.22E+05*   0.21E+02*    0.12E+02   0.15E+03   QNRc2DIIS    0.
+  78   -90.299096760  -455.045147197   312.684836458   0.49E+02*   0.18E+06*   0.37E+02*    0.17E+02   0.14E+03   QNRc2DIIS    0.
+  79   138.183995498  -192.671140926   278.793922445   0.23E+03*   0.27E+06*   0.10E+03*    0.18E+02   0.13E+03   QNRc2DIIS    0.
+  80   268.095315452   -40.852991213   256.887092685   0.13E+03*   0.25E+07*   0.93E+02*    0.15E+02   0.13E+03   QNRc2DIIS    0.
+  81   190.279180823  -151.164738376   289.382705219  -0.78E+02*   0.26E+07*   0.56E+02*    0.16E+02   0.14E+03   QNRc2DIIS    0.
+  82   157.552067884  -169.473490993   274.964344898  -0.33E+02*   0.37E+07*   0.67E+02*    0.16E+02   0.13E+03   QNRc2DIIS    0.
+  83   181.707691254  -154.229891646   283.876368921   0.24E+02*   0.10E+07*   0.74E+02*    0.14E+02   0.13E+03   QNRc2DIIS    0.
+  84   209.688969126  -149.396180662   307.023935809   0.28E+02*   0.13E+08*   0.73E+02*    0.14E+02   0.14E+03   QNRc2DIIS    0.
+  85   232.853159484   -98.577192595   279.369138099   0.23E+02*   0.15E+08*   0.80E+02*    0.17E+02   0.13E+03   QNRc2DIIS    0.
+  86   264.241215135   -59.979712925   272.159714080   0.31E+02*   0.10E+08*   0.63E+02*    0.16E+02   0.13E+03   QNRc2DIIS    0.
+  87   278.956380311   -30.568619879   257.463786211   0.15E+02*   0.20E+07*   0.71E+02*    0.15E+02   0.13E+03   QNRc2DIIS    0.
+  88   331.747449841    15.519076075   264.167159786   0.53E+02*   0.20E+08*   0.58E+02*    0.15E+02   0.13E+03   QNRc2DIIS    0.
+  89   231.700749009   -90.907788137   270.547323168  -0.10E+03*   0.10E+08*   0.47E+02*    0.17E+02   0.13E+03   QNRc2DIIS    0.
+  90   321.723074534    22.718331110   246.943529444   0.90E+02*   0.31E+08*   0.69E+02*    0.14E+02   0.12E+03   QNRc2DIIS    0.
+  91   230.994894372   -94.512524602   273.446204995  -0.91E+02*   0.28E+08*   0.77E+02*    0.14E+02   0.13E+03   QNRc2DIIS    0.
+  92   194.420896881  -130.237732189   272.597415091  -0.37E+02*   0.30E+07*   0.56E+02*    0.16E+02   0.13E+03   QNRc2DIIS    0.
+  93   252.173132948   -86.422526102   286.534445071   0.58E+02*   0.13E+09*   0.56E+02*    0.16E+02   0.13E+03   QNRc2DIIS    0.
+  94   138.030466604  -193.471610918   279.440863542  -0.11E+03*   0.51E+09*   0.62E+02*    0.16E+02   0.13E+03   QNRc2DIIS    0.
+  95   276.919824423   -47.989435146   272.848045590   0.14E+03*   0.49E+09*   0.67E+02*    0.17E+02   0.13E+03   QNRc2DIIS    0.
+  96   203.197330062  -139.622501569   290.758617652  -0.74E+02*   0.99E+09*   0.65E+02*    0.15E+02   0.14E+03   QNRc2DIIS    0.
+  97    80.088913402  -284.084301324   312.112000747  -0.12E+03*   0.86E+09*   0.69E+02*    0.14E+02   0.14E+03   QNRc2DIIS    0.
+  98   219.996324819   -99.121304752   267.056415592   0.14E+03*   0.14E+10*   0.46E+02*    0.15E+02   0.13E+03   QNRc2DIIS    0.
+  99   165.776973511  -185.412381233   299.128140765  -0.54E+02*   0.42E+10*   0.55E+02*    0.12E+02   0.14E+03   QNRc2DIIS    0.
+ 100   284.378990853   -55.832824877   288.150601751   0.12E+03*   0.25E+10*   0.49E+02*    0.13E+02   0.13E+03   QNRc2DIIS    0.
+ 101   258.065167156   -84.843593501   290.847546678  -0.26E+02*   0.15E+10*   0.75E+02*    0.14E+02   0.13E+03   QNRc2DIIS    0.
+ 102   335.833265603    10.949801279   272.822250344   0.78E+02*   0.18E+10*   0.41E+02*    0.12E+02   0.13E+03   QNRc2DIIS    0.
+ 103   322.359876182    16.652527722   253.646134480  -0.13E+02*   0.19E+10*   0.66E+02*    0.14E+02   0.12E+03   QNRc2DIIS    0.
+ 104    96.227596080  -254.189237258   298.355619359  -0.23E+03*   0.11E+10*   0.44E+02*    0.13E+02   0.14E+03   QNRc2DIIS    0.
+ 105   259.602675702   -68.729092113   276.270553836   0.16E+03*   0.74E+09*   0.72E+02*    0.14E+02   0.13E+03   QNRc2DIIS    0.
+ 106   251.226600688   -64.842748070   264.008134779  -0.84E+01*   0.12E+10*   0.61E+02*    0.15E+02   0.13E+03   QNRc2DIIS    0.
+ 107   237.700114549   -85.476295302   271.115195872  -0.14E+02*   0.47E+09*   0.47E+02*    0.15E+02   0.13E+03   QNRc2DIIS    0.
+ 108   203.084523748  -127.714409986   278.737719754  -0.35E+02*   0.12E+10*   0.50E+02*    0.16E+02   0.13E+03   QNRc2DIIS    0.
+ 109   277.154841857   -49.515123615   274.608751492   0.74E+02*   0.16E+10*   0.62E+02*    0.13E+02   0.13E+03   QNRc2DIIS    0.
+ 110   254.561116497   -62.282582527   264.782485045  -0.23E+02*   0.60E+09*   0.71E+02*    0.14E+02   0.13E+03   QNRc2DIIS    0.
+ 111    80.504472906  -279.333016882   307.776275809  -0.17E+03*   0.64E+08*   0.47E+02*    0.14E+02   0.14E+03   QNRc2DIIS    0.
+ 112   226.452904721   -79.949254721   254.340945463   0.15E+03*   0.88E+09*   0.53E+02*    0.16E+02   0.13E+03   QNRc2DIIS    0.
+ 113   179.717408403  -143.440788713   271.096983136  -0.47E+02*   0.71E+10*   0.58E+02*    0.11E+02   0.13E+03   QNRc2DIIS    0.
+ 114   268.490481275   -46.671869578   263.101136874   0.89E+02*   0.61E+10*   0.47E+02*    0.15E+02   0.13E+03   QNRc2DIIS    0.
+ 
+  ***** Orthogonality violated *****
+  iSym =                     1
+  diag element most different from 1.0: [                    48 ,
+                    48 ] =    1.00000001811924     
+[ process      0]: xquit (rc =    128): _INTERNAL_ERROR_
+abort: �
+--- Stop Module: scf at Sun Dec 22 16:34:43 2024 /rc=_RC_FLOATING_EXCEPTION_ ---
+*** files: 2.11.scf.h5 2.11.UhfOrb xmldump
+    saved to directory /home/grierjones/DDCASPT2/iron_oxo_DDCASPT2/cluster/2.11
+--- Module scf spent 1 second ---
+
+.########################.
+.# Non-zero return code #.
+.########################.
+
+    Timing: Wall=2.82 User=2.43 System=0.38
+************************************
+*** WorkDir at /tmp/2.11 cleaned ***
+************************************
