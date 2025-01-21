@@ -16,6 +16,7 @@ from tqdm.notebook import tqdm
 from AaronTools.geometry import Geometry
 from tqdm import tqdm
 from time import perf_counter
+import seaborn as sns
 
 
 # Take [Fe$^{IV}$(O)(H$_2$O)$_4$]$^{+2}$ from Phys. Chem. Chem. Phys., 2018,20, 28786-28795
@@ -23,7 +24,51 @@ from time import perf_counter
 # In[ ]:
 
 
-radius_range=np.linspace(1,3,100)
+
+
+
+# In[ ]:
+
+
+# radius_range_dirs = []
+# for i in glob('*.*'):
+#     try:
+#         radstr = float(i)
+#         if radstr>=1.4:
+#             radius_range_dirs.append(i)
+#     except:
+#         continue
+
+# radius_range = sorted(radius_range_dirs)
+
+# train_ind,test_ind=radius_range[0::2],radius_range[1::2]
+
+# print(len(train_ind),len(test_ind))
+# with open('train_ind.pickle', 'wb') as handle:
+#     pickle.dump(train_ind, handle, protocol=pickle.HIGHEST_PROTOCOL)
+
+# with open('test_ind.pickle', 'wb') as handle:
+#     pickle.dump(test_ind, handle, protocol=pickle.HIGHEST_PROTOCOL)
+
+# with open('test_ind.pickle', 'rb') as handle:
+#     test_ind = pickle.load(handle)
+
+# with open('train_ind.pickle', 'rb') as handle:
+#     train_ind = pickle.load(handle)
+    
+# print(len(train_ind),len(test_ind))    
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+radius_range=np.linspace(1.4,8,660)
 
 
 
@@ -110,35 +155,57 @@ topdir = os.getcwd()
 # In[ ]:
 
 
-t0 = perf_counter()
-geom = Geometry('structure.xyz')
-oxo, iron = geom.atoms[0],geom.atoms[1]
+# t0 = perf_counter()
+# geom = Geometry('FeO.xyz')
+# oxo, iron = geom.atoms[0],geom.atoms[1]
 
-for idxr, r in tqdm(enumerate(radius_range)):
+# for idxr, r in tqdm(enumerate(radius_range)):
 
-# Create radius subdirectory
-    radstr = f"{r:.2f}"
-    rad_dir = os.path.join(os.getcwd(),radstr)
-    if os.path.exists(rad_dir)==False:
-        os.mkdir(rad_dir)
+# # Create radius subdirectory
+#     radstr = f"{r:.2f}"
+#     rad_dir = os.path.join(os.getcwd(),radstr)
+#     if os.path.exists(rad_dir)==False:
+#         os.mkdir(rad_dir)
     
         
-    # Write xyz
-    geom.change_distance(iron,oxo,r)
-    geom.write(os.path.join(rad_dir,radstr))
-    if idxr==0:
-        d = DDCASPT2(rad_dir,'ANO-RCC-VDZP',radstr,10,8,33,previous=None,symmetry=1,spin=4,UHF=True,charge=2,clean=False)()
-    else:            
-        
-        previous=os.path.join(topdir,f"{radius_range[idxr-1]:.2f}",f"{radius_range[idxr-1]:.2f}.RasOrb")
-        d = DDCASPT2(rad_dir,'ANO-RCC-VDZP',radstr,10,8,33,previous=previous,symmetry=1,spin=4,UHF=True,charge=2,clean=False)()
+#     # Write xyz
+#     geom.change_distance(iron,oxo,r)
+#     geom.write(os.path.join(rad_dir,radstr))
+#     if idxr==0:
+#         d = DDCASPT2(rad_dir,'ANO-RCC-VDZP',radstr,10,14,None,scf_previous=None,casscf_previous=None,symmetry=1,spin=4,UHF=True,charge=2,clean=False)(run=False)
+#     else:            
+#         scfprevious=os.path.join(topdir,f"{radius_range[idxr-1]:.2f}",f"{radius_range[idxr-1]:.2f}.UhfOrb")        
+#         print(scfprevious)
+#         previous=os.path.join(topdir,f"{radius_range[idxr-1]:.2f}",f"{radius_range[idxr-1]:.2f}.RasOrb")
+#         print(previous)
+#         d = DDCASPT2(rad_dir,'ANO-RCC-VDZP',radstr,10,14,None,scf_previous=scfprevious,casscf_previous=previous,symmetry=1,spin=4,UHF=True,charge=2,clean=False)(run=False)
     
-    gen_run(radstr,rad_dir)
-print(perf_counter()-t0)
+#     gen_run(radstr,rad_dir)
+# print(perf_counter()-t0)
 
 
 # In[ ]:
 
 
+t0 = perf_counter()
+geom = Geometry('FeO.xyz')
+oxo, iron = geom.atoms[0],geom.atoms[1]
 
+for idxr, r in tqdm(enumerate(radius_range)):
+    radstr = f"{r:.2f}"
+    rad_dir = os.path.join(os.getcwd(),radstr)
+    if os.path.exists(os.path.join(rad_dir,"GMJ_IVECC2_A.csv"))==False:
+        print(r)
+        
+        # Write xyz
+        geom.change_distance(iron,oxo,r)
+        geom.write(os.path.join(rad_dir,radstr))
+        scfprevious=os.path.join(topdir,f"{radius_range[idxr-1]:.2f}",f"{radius_range[idxr-1]:.2f}.UhfOrb")        
+        print(scfprevious)
+        previous=os.path.join(topdir,f"{radius_range[idxr-1]:.2f}",f"{radius_range[idxr-1]:.2f}.RasOrb")
+        print(previous)
+        d = DDCASPT2(rad_dir,'ANO-RCC-VDZP',radstr,10,14,None,scf_previous=scfprevious,casscf_previous=previous,symmetry=1,spin=4,UHF=True,charge=2,clean=False)(run=True)
+        gen_run(radstr,rad_dir)
+        
+print(perf_counter()-t0)
 

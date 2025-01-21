@@ -767,18 +767,18 @@ MAXITER
         # if run==True:
         self.write_input()
         
-        # top = os.getcwd()
-        # os.chdir(self.path)
+        top = os.getcwd()
+        os.chdir(self.path)
         
-        # if run==True:
-        #     call(['pymolcas','-new','-clean',os.path.join(self.path,f'{self.name}.input'), '-oe', os.path.join(self.path,f'{self.name}.output')])
-        #  self.write_energies()
-            
-        # self.gen_feats()
+        if run==True:
+            call(['pymolcas','-new','-clean',os.path.join(self.path,f'{self.name}.input'), '-oe', os.path.join(self.path,f'{self.name}.output')])
+            self.write_energies()
+          
+        self.gen_feats()
         
-        # if self.clean:
-        #     self.del_useless()
-        # os.chdir(top)
+        if self.clean:
+            self.del_useless()
+        os.chdir(top)
 
 
 
