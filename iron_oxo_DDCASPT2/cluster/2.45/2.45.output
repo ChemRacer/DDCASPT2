@@ -1,0 +1,2440 @@
+   This run of MOLCAS is using the pymolcas driver
+
+                             OPE
+                             OPE          NMOL  CASOP  ENMOLC A   SO
+                 OPE        NMOLC        AS  OP EN  MO LC     AS  OP
+                OPENM       OL CA        SO  PE NM  OL CA     SOP EN
+                OP EN      MO   LC       AS  OP ENMOL  CASO   PENMOL
+                OP  EN     MO   LC       AS  OP EN     MO     LC ASO
+               OP   E  NMOL  C  AS       OP  EN MO     LC     AS  OP
+               OP  E   NMO   LC AS        OPEN  MO     LCASOP EN   M
+               O  PEN   MO  LCA  SO
+            OPE   NMO   L   CAS    OP
+        OPENMOL  CASOP     ENMOL   CASOPE
+     OPENMOLCA   SOPENMOLCASOPEN   MOLCASOPE
+    OPENMOLCAS   OP           EN   MOL    CAS
+    OPENMOLCAS       OP  ENM        O     LCA
+    OPENMOLCAS    OPEN  MOLCASO     P  E  NMO
+    OPENMOLCAS     OP               E  N  MOL
+    OPENMOLCA   SO           PENM   O  L  CAS    OPEN    MO    LCAS
+    OPENMOLCA   SOP           ENM   O  L  CAS   OP  EN  MOLC  AS   O
+    OPENMOLCA   SOPE           NM      O  LCA   S      OP  EN MO
+    OPENMOLC                AS         O  PEN   M      OL  CA  SOPE
+    OPENMO        LCASOPE  NMOL        C  ASO   P      ENMOLC     AS
+    OPE     NMO      LCA  SO     P     E   NM   OL  CA SO  PE N   MO
+          OPENMOLCA            SOPE   NMO        LCAS  O    P  ENMO
+     OPENMOLCASOPENMOLCASOPENMOLCASOPENMOLCA
+        OPENMOLCASOPENMOLCASOPENMOLCASOPE
+            OPENMOLCASOPENMOLCASOPENM
+               OPENMOLCASOPENMOLCA        version: 1d1d16313-dirty
+                   OPENMOLCASO
+                       OPE                tag:
+
+ OpenMolcas is free software; you can redistribute it and/or modify it
+ under the terms of the GNU Lesser General Public License version 2.1.
+ OpenMolcas is distributed in the hope that it will be useful, but it
+ is provided "as is" and without any express or implied warranties.
+ For more details see the full text of the license in the file
+ LICENSE or in <http://www.gnu.org/licenses/>.
+
+                 Copyright (C) The OpenMolcas Authors
+           For the author list and the recommended citation,
+                   consult the file CONTRIBUTORS.md
+
+           *************************************************
+           * pymolcas version py2.28                       *
+           *   build c4a6d18ded8cb6cad61d2372a9abd97c      *
+           *   (after the EMIL interpreter by V. Veryazov) *
+           *************************************************
+
+configuration info
+------------------
+C Compiler ID: IntelLLVM
+C flags: -std=gnu99
+Fortran Compiler ID: IntelLLVM
+Fortran flags: -standard-semantics -fltconsistency -fpp -i8 -heap-arrays
+Definitions: _MOLCAS_;_I8_;_LINUX_
+Parallel: OFF (GA=OFF)
+
+
+   -------------------------------------------------------------------------------
+  |
+  |              Project: 2.45
+  |       Submitted from: /home/grierjones/DDCASPT2/iron_oxo_DDCASPT2/cluster/2.45
+  |         Scratch area: /tmp/2.45
+  |      Save outputs to: /home/grierjones/DDCASPT2/iron_oxo_DDCASPT2/cluster/2.45
+  |               Molcas: /home/grierjones/Test/build
+  |
+  | Scratch area is empty
+  |
+  |       MOLCAS_DRIVER = /usr/local/pymolcas
+  | MOLCAS_KEEP_WORKDIR = NO
+  |  MOLCAS_NEW_WORKDIR = YES
+  |       MOLCAS_NPROCS = 1
+  |        MOLCAS_PRINT = NORMAL
+  |       MOLCAS_SOURCE = /home/grierjones/Test
+  |    MOLCAS_STRUCTURE = 0
+  |
+   -------------------------------------------------------------------------------
+
+++ ---------   Input file   ---------
+
+&GATEWAY
+coord=2.45.xyz
+Basis = ANO-RCC-VDZP
+Group = nosymm
+Expert
+End of Input
+
+&SEWARD
+End of Input
+
+&SCF
+UHF
+charge
+2
+spin
+5
+FileOrb
+/home/grierjones/DDCASPT2/iron_oxo_DDCASPT2/cluster/2.44/2.44.UhfOrb
+
+>>> COPY $WorkDir/2.45.scf.h5 $CurrDir/
+
+&RASSCF
+Title= RASSCF
+FileOrb
+/home/grierjones/DDCASPT2/iron_oxo_DDCASPT2/cluster/2.44/2.44.RasOrb
+NACTEL
+10 0 0
+RAS2
+14
+Symmetry
+1
+Spin
+5
+charge
+2
+orblisting
+all
+ITERation
+300 200
+
+>>> COPY $WorkDir/2.45.rasscf.h5 $CurrDir/
+
+>>> COPY $WorkDir/GMJ_Fock_MO.csv $CurrDir/2.45.GMJ_Fock_MO.csv
+
+>>> COPY $WorkDir/GMJ_PT2_Fock_MO.csv $CurrDir/2.45.GMJ_PT2_Fock_MO.csv
+
+&MOTRA
+Frozen=0
+LUMORB
+
+>>> COPY $WorkDir/GMJ_one_int_indx.csv $CurrDir/2.45.GMJ_one_int_indx.csv
+
+>>> COPY $WorkDir/GMJ_one_int.csv $CurrDir/2.45.GMJ_one_int.csv
+
+>>> COPY $WorkDir/GMJ_two_int_indx.csv $CurrDir/2.45.GMJ_two_int_indx.csv
+
+>>> COPY $WorkDir/GMJ_two_int.csv $CurrDir/2.45.GMJ_two_int.csv
+
+&CASPT2
+Frozen
+0
+MAXITER
+50
+
+>>> FOREACH i IN (B,E,F,G,H)
+
+  >>> FOREACH j IN (P,M)
+
+    >>> IF (-FILE GMJ_e2_${i}_${j}.csv)
+
+      >>> COPY $WorkDir/GMJ_RHS_${i}_${j}.csv $CurrDir/GMJ_RHS_${i}_${j}.csv
+
+      >>> COPY $WorkDir/GMJ_IVECW_${i}_${j}.csv $CurrDir/GMJ_IVECW_${i}_${j}.csv
+
+      >>> COPY $WorkDir/GMJ_IVECX_${i}_${j}.csv $CurrDir/GMJ_IVECX_${i}_${j}.csv
+
+      >>> COPY $WorkDir/GMJ_IVECC2_${i}_${j}.csv $CurrDir/GMJ_IVECC2_${i}_${j}.csv
+
+      >>> COPY $WorkDir/GMJ_e2_${i}_${j}.csv $CurrDir/GMJ_e2_${i}_${j}.csv
+
+    >>> END IF
+
+  >>> END FOREACH
+
+>>> END FOREACH
+
+>>> FOREACH i IN (A,C,D)
+
+  >>> IF (-FILE GMJ_e2_$i.csv)
+
+    >>> COPY $WorkDir/GMJ_RHS_$i.csv $CurrDir/GMJ_RHS_$i.csv
+
+    >>> COPY $WorkDir/GMJ_IVECW_$i.csv $CurrDir/GMJ_IVECW_$i.csv
+
+    >>> COPY $WorkDir/GMJ_IVECX_$i.csv $CurrDir/GMJ_IVECX_$i.csv
+
+    >>> COPY $WorkDir/GMJ_IVECC2_$i.csv $CurrDir/GMJ_IVECC2_$i.csv
+
+    >>> COPY $WorkDir/GMJ_e2_$i.csv $CurrDir/GMJ_e2_$i.csv
+
+  >>> END IF
+
+>>> END FOREACH
+
+-- ----------------------------------
+
+--- Start Module: gateway at Wed Jan 22 01:50:37 2025 ---
+ 
+()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()
+
+                                              &GATEWAY
+
+                                   only a single process is used
+                       available to each process: 2.0 GB of memory, 1 thread?
+()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()
+ 
+ ###############################################################################
+ ###############################################################################
+ ###                                                                         ###
+ ###                                                                         ###
+ ###                                                                         ###
+ ###    WARNING: EXPERT option is ON!                                        ###
+ ###                                                                         ###
+ ###                                                                         ###
+ ###############################################################################
+ ###############################################################################
+ 
+++    Symmetry information:
+      ---------------------
+ 
+                    Character Table for C1 
+ 
+                             E  
+                    a        1  x, y, xy, Rz, z, xz, Ry, yz, Rx, I
+--
+ 
+ 
+++    Basis set information:
+      ----------------------
+ 
+ 
+      Basis set label: O.ANO-RCC...3S2P1D.
+ 
+      Electronic valence basis set:
+      ------------------
+      Associated Effective Charge   8.000000 au
+      Associated Actual Charge      8.000000 au
+      Nuclear Model: Point charge
+ 
+      Shell  nPrim  nBasis  Cartesian Spherical Contaminant
+         s      14       3        X                  
+         p       9       2        X                  
+         d       4       1                 X         
+ 
+ 
+      Basis set label: FE.ANO-RCC...5S4P2D1F.
+ 
+      Electronic valence basis set:
+      ------------------
+      Associated Effective Charge  26.000000 au
+      Associated Actual Charge     26.000000 au
+      Nuclear Model: Point charge
+ 
+      Shell  nPrim  nBasis  Cartesian Spherical Contaminant
+         s      21       5        X                  
+         p      15       4        X                  
+         d      10       2                 X         
+         f       6       1                 X         
+--
+ 
+ 
+++    Molecular structure info:
+      -------------------------
+ 
+                    ************************************************ 
+                    **** Cartesian Coordinates / Bohr, Angstrom **** 
+                    ************************************************ 
+ 
+     Center  Label                x              y              z                     x              y              z
+        1      O1               0.000000       0.000000       3.828207              0.000000       0.000000       2.025800
+        2      FE2              0.000000       0.000000      -0.804645              0.000000       0.000000      -0.425800
+--
+ 
+ 
+            Nuclear Potential Energy             44.89674491 au
+ 
+ ###############################################################################
+ ###############################################################################
+ ###                                                                         ###
+ ###                                                                         ###
+ ###    There were warnings during the execution                             ###
+ ###    Please, check the output with care!                                  ###
+ ###                                                                         ###
+ ###                                                                         ###
+ ###############################################################################
+ ###############################################################################
+--- Stop Module: gateway at Wed Jan 22 01:50:37 2025 /rc=_RC_ALL_IS_WELL_ ---
+*** files: xmldump
+    saved to directory /home/grierjones/DDCASPT2/iron_oxo_DDCASPT2/cluster/2.45
+
+--- Start Module: seward at Wed Jan 22 01:50:37 2025 ---
+ 
+()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()
+
+                                              &SEWARD
+
+                                   only a single process is used
+                       available to each process: 2.0 GB of memory, 1 thread?
+()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()
+ 
+ ###############################################################################
+ ###############################################################################
+ ###                                                                         ###
+ ###                                                                         ###
+ ###                                                                         ###
+ ###    WARNING: EXPERT option is ON!                                        ###
+ ###                                                                         ###
+ ###                                                                         ###
+ ###############################################################################
+ ###############################################################################
+               SEWARD will generate:
+                  Multipole Moment integrals up to order  2
+                  Kinetic Energy integrals
+                  Nuclear Attraction integrals (point charge)
+                  One-Electron Hamiltonian integrals
+                  Velocity integrals
+                  Relativistic Douglas-Kroll-Hess integrals:
+                    - Parametrization         : EXP
+                    - DKH order of Hamiltonian: 2
+                    - DKH order of Properties : 0
+                         - multipole moment operators
+                         - electric potential operators
+                         - contact operators
+                  Atomic mean-field integrals
+                  Two-Electron Repulsion integrals
+ 
+                   Integrals are discarded if absolute value <: 0.10E-13
+                   Integral cutoff threshold is set to       <: 0.10E-15
+ 
+            Nuclear Potential Energy             44.89674491 au
+ 
+ 
+      Basis set specifications :
+      Symmetry species         a  
+      Basis functions           48
+ 
+ 
+  Input file to MOLDEN was generated!
+ 
+ ###############################################################################
+ ###############################################################################
+ ###                                                                         ###
+ ###                                                                         ###
+ ###    There were warnings during the execution                             ###
+ ###    Please, check the output with care!                                  ###
+ ###                                                                         ###
+ ###                                                                         ###
+ ###############################################################################
+ ###############################################################################
+forrtl: warning (525): IEEE_DIVIDE_BY_ZERO is signaling
+forrtl: warning (526): IEEE_INVALID is signaling
+forrtl: warning (528): IEEE_UNDERFLOW is signaling
+--- Stop Module: seward at Wed Jan 22 01:50:38 2025 /rc=_RC_ALL_IS_WELL_ ---
+*** files: 2.45.GssOrb 2.45.guessorb.h5 2.45.guessorb.molden xmldump
+    saved to directory /home/grierjones/DDCASPT2/iron_oxo_DDCASPT2/cluster/2.45
+--- Module seward spent 1 second ---
+
+*** symbolic link created: INPORB -> 2.45.GssOrb
+--- Start Module: scf at Wed Jan 22 01:50:38 2025 ---
+ 
+()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()
+
+                                                &SCF
+
+                                   only a single process is used
+                       available to each process: 2.0 GB of memory, 1 thread?
+()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()
+ 
+ *** Possible bug in opening file
+ *** isFreeUnit resets the unit number
+++    Input section:
+      --------------
+ 
+      Header of the integral files:
+      
+       Integrals generated by seward 4.2.0  , Wed Jan 22 01:50:37 2025
+ 
+ 
+      Cartesian coordinates in Angstrom:
+      -----------------------------------------------------
+      No.  Label        X            Y            Z        
+      -----------------------------------------------------
+       1   O1         0.00000000   0.00000000   2.02580000
+       2   FE2        0.00000000   0.00000000  -0.42580000
+      -----------------------------------------------------
+      Nuclear repulsion energy =   44.89674491
+--
+ 
+++    Orbital specifications:
+      -----------------------
+ 
+      Symmetry species               1
+                                     a
+      Frozen orbitals                0
+      Occupied orbitals alpha       18
+      Occupied orbitals beta        14
+      Secondary orbitals alpha      30
+      Secondary orbitals beta       34
+      Deleted orbitals               0
+      Total number of orbitals      48
+      Number of basis functions     48
+--
+ 
+      Molecular charge                           2.000
+ 
+++    Optimization specifications:
+      ----------------------------
+ 
+      SCF Algorithm: Conventional USCF
+      D(i)-D(i-1) density differences are used
+      Number of density matrices in core                5
+      Maximum number of NDDO SCF iterations           400
+      Maximum number of HF SCF iterations             400
+      Threshold for SCF energy change            0.10E-08
+      Threshold for density matrix               0.10E-03
+      Threshold for Fock matrix                  0.15E-03
+      Threshold for linear dependence            0.10E-08
+      Threshold at which DIIS is turned on       0.15E+00
+      Threshold at which QNR/C2DIIS is turned on 0.75E-01
+      Threshold for Norm(delta) (QNR/C2DIIS)     0.20E-04
+      DIIS extrapolation of the SCF procedure
+      All orbitals punched on: UHFORB
+--
+ 
+      Input vectors read from INPORB
+      Orbital file label: * UHF orbitals
+ 
+ 
+++ Convergence information
+                               UHF SCF        iterations: Energy and convergence statistics
+ 
+Iter     Tot. SCF        One-elec.       Two-elec.     Energy      Max Dij or  Max Fij      DNorm      TNorm      AccCon     Time
+         Energy          Energy          Energy        Change      Delta Norm                                                in Sec.
+ 
+ The total and one-electron energies are shifted by a value of      1000. a.u.
+ 
+   1  -345.183130899  -931.177575460   541.097699652   0.00E+00    0.29E-02*   0.38E-03*    0.81E+01   0.19E+03   None         0.
+   2  -345.183132584  -931.203607073   541.123729579  -0.17E-05*   0.64E-03*   0.41E-03*    0.51E-02   0.19E+03   EDIIS        0.
+   3  -345.183132835  -931.169677167   541.089799422  -0.25E-06*   0.45E-03*   0.12E-03     0.26E-02   0.19E+03   c2DIIS       0.
+   4  -345.183133673  -931.188080337   541.108201756  -0.84E-06*   0.23E-02*   0.21E-03*    0.16E-02   0.19E+03   QNRc2DIIS    0.
+   5  -345.183133940  -931.211285870   541.131407021  -0.27E-06*   0.15E-02*   0.32E-03*    0.26E-02   0.19E+03   QNRc2DIIS    0.
+   6  -345.183134481  -931.208345430   541.128466040  -0.54E-06*   0.32E-02*   0.14E-03     0.18E-02   0.19E+03   QNRc2DIIS    0.
+   7  -345.183134822  -931.214078443   541.134198711  -0.34E-06*   0.26E-03*   0.38E-04     0.38E-02   0.19E+03   QNRc2DIIS    0.
+   8  -345.183134831  -931.214466963   541.134587223  -0.83E-08*   0.28E-03*   0.24E-04     0.32E-03   0.19E+03   QNRc2DIIS    0.
+   9  -345.183134837  -931.215156633   541.135276887  -0.62E-08*   0.24E-03*   0.16E-04     0.37E-03   0.19E+03   QNRc2DIIS    0.
+  10  -345.183134842  -931.215537642   541.135657891  -0.53E-08*   0.40E-03*   0.37E-04     0.31E-03   0.19E+03   QNRc2DIIS    0.
+  11  -345.183134835  -931.215028257   541.135148513   0.70E-08*   0.21E-04*   0.43E-05     0.53E-03   0.19E+03   QNRc2DIIS    0.
+  12  -345.183134835  -931.215047436   541.135167691  -0.85E-10    0.40E-04*   0.24E-05     0.31E-04   0.19E+03   QNRc2DIIS    0.
+  13  -345.183134835  -931.215041575   541.135161831  -0.12E-09    0.22E-04*   0.14E-05     0.60E-04   0.19E+03   QNRc2DIIS    0.
+  14  -345.183134835  -931.215043394   541.135163650  -0.68E-10    0.11E-04    0.16E-05     0.32E-04   0.19E+03   QNRc2DIIS    0.
+ 
+       Convergence after 14 Macro Iterations
+--
+ 
+ *****************************************************************************************************************************
+ *                                                                                                                           *
+ *                                             SCF/KS-DFT Program, Final results                                             *
+ *                                                                                                                           *
+ *                                                                                                                           *
+ *                                                                                                                           *
+ *                                                       Final Results                                                       *
+ *                                                                                                                           *
+ *****************************************************************************************************************************
+ 
+::    Total SCF energy                              -1345.1831348354
+      One-electron energy                           -1931.2150433942
+      Two-electron energy                             541.1351636496
+      Nuclear repulsion energy                         44.8967449092
+      Kinetic energy (interpolated)                  1399.4307048979
+      Virial theorem                                    0.9612359727
+      Total spin, S(S+1)                                7.0737201877
+      Total spin, S                                     2.2062372748
+      Max non-diagonal density matrix element           0.0000072201
+      Max non-diagonal Fock matrix element              0.0000024215
+ 
+ 
+      All orbitals with orbital energies smaller than  E(LUMO)+0.5 are printed
+ 
+++    Molecular orbitals:
+      -------------------
+ 
+      Title: UHF orbitals (alpha)
+
+      Molecular orbitals for symmetry species 1: a  
+ 
+          Orbital            1         2         3         4         5         6         7         8         9        10    
+          Energy         -264.1617  -32.9637  -28.0430  -28.0430  -28.0217  -21.4095   -4.8922   -3.4624   -3.4624   -3.4110
+          Occ. No.          1.0000    1.0000    1.0000    1.0000    1.0000    1.0000    1.0000    1.0000    1.0000    1.0000
+ 
+        1 O1     1s         0.0000   -0.0000   -0.0000    0.0000   -0.0000    1.0000   -0.0001    0.0000   -0.0000   -0.0000
+        2 O1     2s         0.0000   -0.0001   -0.0000    0.0000   -0.0001    0.0000   -0.0006    0.0000   -0.0000    0.0014
+        3 O1     3s        -0.0000   -0.0001    0.0000   -0.0000   -0.0000   -0.0012   -0.0006    0.0000   -0.0000    0.0001
+        4 O1     2px       -0.0000   -0.0000   -0.0000   -0.0000    0.0000   -0.0000   -0.0000    0.0002    0.0004   -0.0000
+        5 O1     3px        0.0000   -0.0000   -0.0000   -0.0001   -0.0000   -0.0000   -0.0000    0.0003    0.0006   -0.0000
+        6 O1     2py        0.0000    0.0000   -0.0000    0.0000   -0.0000    0.0000    0.0000    0.0004   -0.0002    0.0000
+        7 O1     3py       -0.0000    0.0000   -0.0001    0.0000    0.0000    0.0000    0.0000    0.0006   -0.0003    0.0000
+        8 O1     2pz        0.0000   -0.0000   -0.0000    0.0000   -0.0000    0.0001    0.0003   -0.0000    0.0000   -0.0010
+        9 O1     3pz        0.0000   -0.0000   -0.0000    0.0000   -0.0001    0.0003    0.0003   -0.0000    0.0000    0.0001
+       10 O1     3d2-      -0.0000   -0.0000   -0.0000   -0.0000    0.0000    0.0000   -0.0000    0.0000    0.0000    0.0000
+       11 O1     3d1-      -0.0000   -0.0000   -0.0000    0.0000    0.0000   -0.0000   -0.0000   -0.0002    0.0001   -0.0000
+       12 O1     3d0       -0.0000    0.0000    0.0000   -0.0000    0.0000   -0.0015   -0.0000    0.0000   -0.0000    0.0001
+       13 O1     3d1+       0.0000    0.0000   -0.0000   -0.0000   -0.0000    0.0000    0.0000   -0.0001   -0.0002    0.0000
+       14 O1     3d2+       0.0000    0.0000    0.0000   -0.0000   -0.0000    0.0000    0.0000   -0.0000    0.0000   -0.0000
+       15 FE2    1s         1.0000   -0.0000    0.0000   -0.0000   -0.0000    0.0000   -0.0000   -0.0000    0.0000   -0.0000
+       16 FE2    2s         0.0000    1.0000   -0.0000    0.0000   -0.0009    0.0000   -0.0027   -0.0000    0.0000   -0.0000
+       17 FE2    3s         0.0000    0.0027    0.0000   -0.0000    0.0000    0.0001    1.0000   -0.0000    0.0000   -0.0045
+       18 FE2    4s         0.0000   -0.0002   -0.0000    0.0000   -0.0000    0.0003    0.0030   -0.0000    0.0000    0.0005
+       19 FE2    5s         0.0000    0.0002    0.0000   -0.0000    0.0000   -0.0001   -0.0010    0.0000   -0.0000   -0.0004
+       20 FE2    2px        0.0000   -0.0000    0.5148    0.8573    0.0000    0.0000    0.0000   -0.0013   -0.0022   -0.0000
+       21 FE2    3px        0.0000   -0.0000    0.0013    0.0022    0.0000    0.0000    0.0000    0.5071    0.8618    0.0000
+       22 FE2    4px        0.0000    0.0000   -0.0002   -0.0003   -0.0000    0.0000    0.0000   -0.0025   -0.0042    0.0000
+       23 FE2    5px       -0.0000   -0.0000    0.0005    0.0008    0.0000    0.0000   -0.0000    0.0009    0.0015   -0.0000
+       24 FE2    2py       -0.0000    0.0000    0.8573   -0.5148   -0.0000   -0.0000   -0.0000   -0.0022    0.0013    0.0000
+       25 FE2    3py       -0.0000    0.0000    0.0022   -0.0013   -0.0000   -0.0000   -0.0000    0.8618   -0.5071   -0.0000
+       26 FE2    4py       -0.0000   -0.0000   -0.0003    0.0002    0.0000   -0.0000   -0.0000   -0.0042    0.0025   -0.0000
+       27 FE2    5py        0.0000    0.0000    0.0008   -0.0005   -0.0000   -0.0000    0.0000    0.0015   -0.0009    0.0000
+       28 FE2    2pz        0.0000    0.0009    0.0000   -0.0000    1.0000    0.0000   -0.0000   -0.0000    0.0000   -0.0022
+       29 FE2    3pz       -0.0000    0.0000    0.0000   -0.0000    0.0022    0.0001    0.0045    0.0000   -0.0000    0.9999
+       30 FE2    4pz        0.0000    0.0000   -0.0000    0.0000   -0.0002    0.0003    0.0005   -0.0000    0.0000   -0.0023
+       31 FE2    5pz       -0.0000    0.0001    0.0000   -0.0000    0.0007   -0.0000    0.0003    0.0000   -0.0000    0.0002
+       32 FE2    3d2-       0.0000    0.0000    0.0000    0.0000    0.0000   -0.0000    0.0000   -0.0000   -0.0000    0.0000
+       33 FE2    4d2-       0.0000    0.0000   -0.0000   -0.0000   -0.0000   -0.0000    0.0000   -0.0000   -0.0000   -0.0000
+       34 FE2    3d1-       0.0000    0.0000    0.0001   -0.0000    0.0000   -0.0000    0.0000    0.0020   -0.0012    0.0000
+       35 FE2    4d1-      -0.0000   -0.0000   -0.0000    0.0000   -0.0000   -0.0000   -0.0000   -0.0008    0.0005   -0.0000
+       36 FE2    3d0       -0.0000   -0.0003    0.0000   -0.0000    0.0001    0.0001   -0.0090    0.0000   -0.0000    0.0018
+       37 FE2    4d0        0.0000    0.0003   -0.0000    0.0000   -0.0000    0.0002    0.0037   -0.0000    0.0000    0.0002
+       38 FE2    3d1+      -0.0000   -0.0000    0.0000    0.0001   -0.0000    0.0000   -0.0000    0.0012    0.0020   -0.0000
+       39 FE2    4d1+       0.0000    0.0000   -0.0000   -0.0000    0.0000    0.0000    0.0000   -0.0005   -0.0008    0.0000
+       40 FE2    3d2+      -0.0000   -0.0000   -0.0000    0.0000    0.0000   -0.0000   -0.0000    0.0000   -0.0000    0.0000
+       41 FE2    4d2+      -0.0000   -0.0000    0.0000   -0.0000   -0.0000    0.0000   -0.0000    0.0000   -0.0000   -0.0000
+       42 FE2    4f3-      -0.0000    0.0000   -0.0000   -0.0000   -0.0000    0.0000    0.0000   -0.0000   -0.0000   -0.0000
+       43 FE2    4f2-       0.0000    0.0000    0.0000    0.0000   -0.0000   -0.0000   -0.0000    0.0000    0.0000   -0.0000
+       44 FE2    4f1-      -0.0000    0.0000   -0.0002    0.0001    0.0000   -0.0000    0.0000   -0.0049    0.0029   -0.0000
+       45 FE2    4f0        0.0000   -0.0000   -0.0000    0.0000   -0.0001    0.0001   -0.0001   -0.0000    0.0000   -0.0012
+       46 FE2    4f1+       0.0000   -0.0000   -0.0001   -0.0002   -0.0000    0.0000   -0.0000   -0.0029   -0.0049    0.0000
+       47 FE2    4f2+      -0.0000    0.0000   -0.0000    0.0000    0.0000   -0.0000    0.0000   -0.0000    0.0000    0.0000
+       48 FE2    4f3+      -0.0000    0.0000    0.0000   -0.0000   -0.0000    0.0000    0.0000    0.0000   -0.0000   -0.0000
+ 
+          Orbital           11        12        13        14        15        16        17        18        19        20    
+          Energy           -1.9424   -1.3171   -1.3171   -1.1797   -1.1797   -1.1508   -1.1271   -1.1271   -0.5615   -0.4422
+          Occ. No.          1.0000    1.0000    1.0000    1.0000    1.0000    1.0000    1.0000    1.0000    0.0000    0.0000
+ 
+        1 O1     1s        -0.0000   -0.0000   -0.0000    0.0000   -0.0000   -0.0052   -0.0000    0.0000    0.0082   -0.0104
+        2 O1     2s         0.9995   -0.0000   -0.0000    0.0000   -0.0000   -0.0722   -0.0000    0.0000    0.1173   -0.0982
+        3 O1     3s        -0.0471    0.0000    0.0000    0.0000   -0.0000   -0.0143   -0.0000    0.0000    0.0007   -0.0146
+        4 O1     2px       -0.0000   -0.7432    0.6560   -0.0000    0.0000    0.0000   -0.0346   -0.0543   -0.0000   -0.0000
+        5 O1     3px        0.0000    0.0840   -0.0742    0.0000   -0.0000   -0.0000   -0.0028   -0.0044   -0.0000   -0.0000
+        6 O1     2py        0.0000    0.6560    0.7432    0.0000    0.0000   -0.0000   -0.0543    0.0346    0.0002    0.0001
+        7 O1     3py       -0.0000   -0.0742   -0.0840   -0.0000   -0.0000    0.0000   -0.0044    0.0028    0.0000    0.0000
+        8 O1     2pz       -0.0428   -0.0002   -0.0001    0.0000   -0.0000   -0.0362    0.0000   -0.0000    0.8139    0.4959
+        9 O1     3pz       -0.0066    0.0000    0.0000   -0.0000    0.0000    0.0086   -0.0000    0.0000    0.1057    0.0864
+       10 O1     3d2-       0.0000    0.0000   -0.0000   -0.0000    0.0000   -0.0000    0.0000    0.0000    0.0000    0.0000
+       11 O1     3d1-      -0.0000   -0.0072   -0.0082    0.0000    0.0000    0.0000   -0.0000    0.0000   -0.0000   -0.0000
+       12 O1     3d0       -0.0422    0.0000    0.0000   -0.0000    0.0000    0.0054    0.0000   -0.0000   -0.0175   -0.0019
+       13 O1     3d1+       0.0000    0.0082   -0.0072   -0.0000    0.0000   -0.0000   -0.0000   -0.0000    0.0000    0.0000
+       14 O1     3d2+      -0.0000    0.0000    0.0000   -0.0000   -0.0000    0.0000   -0.0000    0.0000    0.0000   -0.0000
+       15 FE2    1s        -0.0001   -0.0000   -0.0000   -0.0000    0.0000    0.0000    0.0000   -0.0000    0.0009    0.0007
+       16 FE2    2s        -0.0008   -0.0000   -0.0000   -0.0000    0.0000    0.0005    0.0000   -0.0000    0.0068    0.0052
+       17 FE2    3s        -0.0061   -0.0000   -0.0000   -0.0000    0.0000    0.0102    0.0000   -0.0000    0.0384    0.0246
+       18 FE2    4s        -0.0056    0.0000    0.0000   -0.0000    0.0000    0.0199   -0.0000    0.0000   -0.3597    0.9687
+       19 FE2    5s        -0.0036   -0.0000   -0.0000    0.0000   -0.0000   -0.0016    0.0000   -0.0000    0.0807   -0.0939
+       20 FE2    2px        0.0000    0.0001   -0.0001   -0.0000    0.0000   -0.0000   -0.0000   -0.0000    0.0000    0.0000
+       21 FE2    3px        0.0000    0.0023   -0.0020    0.0000   -0.0000   -0.0000   -0.0010   -0.0016    0.0000    0.0000
+       22 FE2    4px        0.0000   -0.0040    0.0036   -0.0000    0.0000    0.0000    0.0050    0.0079   -0.0000   -0.0000
+       23 FE2    5px        0.0000   -0.0000    0.0000    0.0000   -0.0000    0.0000    0.0009    0.0015   -0.0000   -0.0000
+       24 FE2    2py       -0.0000   -0.0001   -0.0001    0.0000    0.0000    0.0000   -0.0000    0.0000   -0.0000   -0.0000
+       25 FE2    3py       -0.0000   -0.0020   -0.0023   -0.0000   -0.0000    0.0000   -0.0016    0.0010   -0.0000   -0.0000
+       26 FE2    4py       -0.0000    0.0036    0.0040    0.0000    0.0000   -0.0000    0.0079   -0.0050    0.0000    0.0000
+       27 FE2    5py       -0.0000    0.0000    0.0000   -0.0000   -0.0000   -0.0000    0.0015   -0.0009    0.0000    0.0000
+       28 FE2    2pz       -0.0002   -0.0000   -0.0000   -0.0000   -0.0000   -0.0000   -0.0000    0.0000    0.0012    0.0009
+       29 FE2    3pz       -0.0099   -0.0000   -0.0000   -0.0000   -0.0000   -0.0011   -0.0000    0.0000    0.0288    0.0201
+       30 FE2    4pz       -0.0044    0.0000    0.0000   -0.0000    0.0000    0.0275   -0.0000    0.0000   -0.1334   -0.1135
+       31 FE2    5pz       -0.0024   -0.0000   -0.0000   -0.0000    0.0000    0.0018    0.0000   -0.0000   -0.0059   -0.0049
+       32 FE2    3d2-      -0.0000   -0.0000    0.0000    0.7017   -0.7109    0.0000   -0.0000   -0.0000   -0.0000    0.0000
+       33 FE2    4d2-      -0.0000    0.0000   -0.0000   -0.0332    0.0336   -0.0000   -0.0000   -0.0000   -0.0000    0.0000
+       34 FE2    3d1-      -0.0000    0.0257    0.0291   -0.0000   -0.0000   -0.0002    0.8431   -0.5375   -0.0000    0.0000
+       35 FE2    4d1-      -0.0000    0.0007    0.0008    0.0000    0.0000    0.0000   -0.0250    0.0160    0.0000   -0.0000
+       36 FE2    3d0        0.0123    0.0000    0.0000   -0.0000    0.0000    0.9991    0.0001   -0.0001    0.0916    0.0470
+       37 FE2    4d0       -0.0013    0.0000    0.0000    0.0000    0.0000   -0.0298   -0.0000    0.0000   -0.0148   -0.0230
+       38 FE2    3d1+       0.0000   -0.0291    0.0257    0.0000   -0.0000    0.0000    0.5375    0.8431    0.0000   -0.0000
+       39 FE2    4d1+       0.0000   -0.0008    0.0007   -0.0000    0.0000   -0.0000   -0.0160   -0.0250   -0.0000    0.0000
+       40 FE2    3d2+       0.0000   -0.0000   -0.0000    0.7109    0.7017   -0.0000    0.0000   -0.0000    0.0000    0.0000
+       41 FE2    4d2+       0.0000    0.0000    0.0000   -0.0336   -0.0332    0.0000    0.0000   -0.0000    0.0000   -0.0000
+       42 FE2    4f3-       0.0000   -0.0000    0.0000   -0.0000   -0.0000   -0.0000   -0.0000    0.0000    0.0000   -0.0000
+       43 FE2    4f2-       0.0000    0.0000   -0.0000    0.0009   -0.0009    0.0000   -0.0000   -0.0000    0.0000   -0.0000
+       44 FE2    4f1-      -0.0000    0.0006    0.0007   -0.0000   -0.0000   -0.0000    0.0014   -0.0009    0.0000    0.0000
+       45 FE2    4f0        0.0007    0.0000    0.0000   -0.0000    0.0000    0.0023    0.0000   -0.0000   -0.0029   -0.0017
+       46 FE2    4f1+       0.0000   -0.0007    0.0006    0.0000   -0.0000    0.0000    0.0009    0.0014   -0.0000   -0.0000
+       47 FE2    4f2+      -0.0000    0.0000    0.0000    0.0009    0.0009   -0.0000    0.0000   -0.0000    0.0000   -0.0000
+       48 FE2    4f3+       0.0000   -0.0000   -0.0000    0.0000   -0.0000   -0.0000   -0.0000   -0.0000    0.0000   -0.0000
+ 
+          Orbital           21        22        23        24    
+          Energy           -0.3187   -0.3187   -0.2656   -0.1841
+          Occ. No.          0.0000    0.0000    0.0000    0.0000
+ 
+        1 O1     1s         0.0000   -0.0000   -0.0350   -0.0137
+        2 O1     2s         0.0000   -0.0000   -0.3209   -0.1110
+        3 O1     3s         0.0000   -0.0000   -0.0267   -0.0307
+        4 O1     2px       -0.0343   -0.0703   -0.0000    0.0000
+        5 O1     3px        0.0195    0.0399   -0.0000    0.0000
+        6 O1     2py       -0.0703    0.0343    0.0000   -0.0000
+        7 O1     3py        0.0399   -0.0195    0.0000   -0.0000
+        8 O1     2pz       -0.0000    0.0000    0.4031   -0.1676
+        9 O1     3pz       -0.0000    0.0000    0.1275    0.0035
+       10 O1     3d2-       0.0000    0.0000   -0.0000   -0.0000
+       11 O1     3d1-      -0.0082    0.0040    0.0000    0.0000
+       12 O1     3d0        0.0000   -0.0000    0.0035   -0.0101
+       13 O1     3d1+      -0.0040   -0.0082   -0.0000   -0.0000
+       14 O1     3d2+      -0.0000    0.0000   -0.0000    0.0000
+       15 FE2    1s        -0.0000    0.0000    0.0008   -0.0001
+       16 FE2    2s        -0.0000    0.0000    0.0059   -0.0006
+       17 FE2    3s        -0.0000    0.0000    0.0312   -0.0015
+       18 FE2    4s        -0.0000    0.0000    0.2233    0.1199
+       19 FE2    5s        -0.0000    0.0000    0.0902    0.9996
+       20 FE2    2px        0.0001    0.0002    0.0000   -0.0000
+       21 FE2    3px        0.0016    0.0033    0.0000   -0.0000
+       22 FE2    4px        0.4323    0.8859   -0.0000   -0.0000
+       23 FE2    5px        0.0395    0.0810   -0.0000   -0.0000
+       24 FE2    2py        0.0002   -0.0001   -0.0000    0.0000
+       25 FE2    3py        0.0033   -0.0016   -0.0000    0.0000
+       26 FE2    4py        0.8859   -0.4323    0.0000    0.0000
+       27 FE2    5py        0.0810   -0.0395    0.0000    0.0000
+       28 FE2    2pz       -0.0000    0.0000    0.0013   -0.0001
+       29 FE2    3pz       -0.0000    0.0000    0.0261   -0.0016
+       30 FE2    4pz       -0.0000    0.0000    1.0806   -0.0733
+       31 FE2    5pz       -0.0000    0.0000    0.1082   -0.0026
+       32 FE2    3d2-       0.0000    0.0000   -0.0000   -0.0000
+       33 FE2    4d2-      -0.0000   -0.0000   -0.0000   -0.0000
+       34 FE2    3d1-      -0.0053    0.0026    0.0000   -0.0000
+       35 FE2    4d1-       0.0100   -0.0049   -0.0000   -0.0000
+       36 FE2    3d0       -0.0000    0.0000    0.0365   -0.0007
+       37 FE2    4d0        0.0000   -0.0000   -0.0222    0.0135
+       38 FE2    3d1+      -0.0026   -0.0053   -0.0000    0.0000
+       39 FE2    4d1+       0.0049    0.0100    0.0000    0.0000
+       40 FE2    3d2+      -0.0000    0.0000    0.0000   -0.0000
+       41 FE2    4d2+       0.0000   -0.0000   -0.0000    0.0000
+       42 FE2    4f3-      -0.0000    0.0000   -0.0000    0.0000
+       43 FE2    4f2-      -0.0000   -0.0000   -0.0000    0.0000
+       44 FE2    4f1-       0.0003   -0.0001   -0.0000    0.0000
+       45 FE2    4f0        0.0000   -0.0000   -0.0025   -0.0000
+       46 FE2    4f1+       0.0001    0.0003    0.0000   -0.0000
+       47 FE2    4f2+       0.0000   -0.0000   -0.0000    0.0000
+       48 FE2    4f3+      -0.0000   -0.0000   -0.0000    0.0000
+--
+ 
+ 
+  Input file to MOLDEN was generated!
+ 
+ 
+++    Static properties:
+      ------------------
+ 
+ 
+      LoProp Charges per center
+ 
+
+                   O1       FE2   
+      Nuclear      8.0000  26.0000
+      Electronic  -7.4263 -24.5737
+ 
+      Total        0.5737   1.4263
+--
+ 
+ 
+      All orbitals with orbital energies smaller than  E(LUMO)+0.5 are printed
+ 
+++    Molecular orbitals:
+      -------------------
+ 
+      Title: UHF orbitals (beta)
+
+      Molecular orbitals for symmetry species 1: a  
+ 
+          Orbital            1         2         3         4         5         6         7         8         9        10    
+          Energy         -264.1593  -32.8511  -27.9235  -27.9234  -27.9234  -21.3740   -4.5776   -3.0913   -3.0530   -3.0530
+          Occ. No.          1.0000    1.0000    1.0000    1.0000    1.0000    1.0000    1.0000    1.0000    1.0000    1.0000
+ 
+        1 O1     1s         0.0000   -0.0000    0.0000   -0.0000   -0.0000    1.0000   -0.0001   -0.0001    0.0000   -0.0000
+        2 O1     2s         0.0000   -0.0001    0.0002   -0.0000   -0.0000   -0.0011   -0.0006    0.0039    0.0000   -0.0000
+        3 O1     3s         0.0000   -0.0001    0.0002   -0.0000   -0.0000    0.0003   -0.0010   -0.0002    0.0000   -0.0000
+        4 O1     2px        0.0000   -0.0000   -0.0000    0.0001   -0.0000   -0.0000    0.0000    0.0000    0.0026    0.0015
+        5 O1     3px        0.0000   -0.0000   -0.0000    0.0001   -0.0000    0.0000    0.0000    0.0000    0.0001    0.0000
+        6 O1     2py       -0.0000    0.0000    0.0000    0.0000    0.0001    0.0000   -0.0000   -0.0000   -0.0015    0.0026
+        7 O1     3py       -0.0000    0.0000    0.0000    0.0000    0.0001   -0.0000   -0.0000   -0.0000   -0.0000    0.0001
+        8 O1     2pz        0.0000    0.0001   -0.0000    0.0000    0.0000   -0.0002    0.0009   -0.0024    0.0000   -0.0000
+        9 O1     3pz       -0.0000    0.0001   -0.0000    0.0000    0.0000   -0.0004    0.0014    0.0011   -0.0000    0.0000
+       10 O1     3d2-      -0.0000   -0.0000   -0.0000    0.0000   -0.0000   -0.0000   -0.0000   -0.0000    0.0000    0.0000
+       11 O1     3d1-       0.0000   -0.0000    0.0000    0.0000    0.0000    0.0000   -0.0000   -0.0000    0.0002   -0.0004
+       12 O1     3d0       -0.0000   -0.0000   -0.0000    0.0000    0.0000    0.0014   -0.0004    0.0002   -0.0000    0.0000
+       13 O1     3d1+      -0.0000    0.0000   -0.0000    0.0000   -0.0000   -0.0000    0.0000    0.0000   -0.0004   -0.0002
+       14 O1     3d2+       0.0000    0.0000    0.0000   -0.0000   -0.0000    0.0000    0.0000    0.0000    0.0000   -0.0000
+       15 FE2    1s         1.0000    0.0000   -0.0000    0.0000    0.0000   -0.0000    0.0000    0.0000   -0.0000    0.0000
+       16 FE2    2s        -0.0000    1.0000   -0.0009    0.0000    0.0000   -0.0000    0.0005    0.0000   -0.0000    0.0000
+       17 FE2    3s         0.0000   -0.0004   -0.0001    0.0000    0.0000   -0.0001    1.0002   -0.0020   -0.0000    0.0000
+       18 FE2    4s         0.0000    0.0002   -0.0001    0.0000    0.0000   -0.0005    0.0069    0.0040   -0.0000    0.0000
+       19 FE2    5s         0.0000   -0.0002   -0.0001    0.0000    0.0000    0.0000   -0.0041   -0.0017    0.0000   -0.0000
+       20 FE2    2px       -0.0000   -0.0000   -0.0008    0.9541   -0.2996   -0.0000   -0.0000    0.0000    0.0020    0.0012
+       21 FE2    3px       -0.0000    0.0000    0.0000   -0.0022    0.0007   -0.0000    0.0000    0.0000    0.8621    0.5065
+       22 FE2    4px       -0.0000   -0.0000   -0.0000    0.0003   -0.0001   -0.0000   -0.0000   -0.0000    0.0035    0.0021
+       23 FE2    5px       -0.0000    0.0000    0.0000   -0.0009    0.0003   -0.0000   -0.0000    0.0000   -0.0059   -0.0035
+       24 FE2    2py        0.0000    0.0000    0.0030    0.2996    0.9541    0.0000    0.0000   -0.0000   -0.0012    0.0020
+       25 FE2    3py        0.0000   -0.0000   -0.0000   -0.0007   -0.0022    0.0000   -0.0000   -0.0001   -0.5065    0.8621
+       26 FE2    4py        0.0000    0.0000    0.0000    0.0001    0.0003    0.0000    0.0000    0.0000   -0.0021    0.0035
+       27 FE2    5py        0.0000   -0.0000   -0.0000   -0.0003   -0.0009    0.0000    0.0000   -0.0000    0.0035   -0.0059
+       28 FE2    2pz        0.0000    0.0009    1.0000   -0.0001   -0.0031   -0.0000    0.0001    0.0016   -0.0000    0.0000
+       29 FE2    3pz       -0.0000    0.0000   -0.0017    0.0000    0.0000   -0.0001    0.0021    0.9998   -0.0001    0.0001
+       30 FE2    4pz       -0.0000    0.0001    0.0002   -0.0000   -0.0000   -0.0005    0.0020    0.0079   -0.0000    0.0000
+       31 FE2    5pz       -0.0000    0.0000   -0.0009    0.0000    0.0000   -0.0001   -0.0001   -0.0078    0.0000   -0.0000
+       32 FE2    3d2-       0.0000    0.0000    0.0000   -0.0000    0.0000    0.0000    0.0000    0.0000   -0.0000   -0.0000
+       33 FE2    4d2-       0.0000    0.0000    0.0000   -0.0000    0.0000    0.0000    0.0000   -0.0000   -0.0000   -0.0000
+       34 FE2    3d1-       0.0000    0.0000    0.0000    0.0000    0.0000    0.0000   -0.0000   -0.0000    0.0006   -0.0010
+       35 FE2    4d1-      -0.0000   -0.0000   -0.0000   -0.0000   -0.0001    0.0000    0.0000    0.0000   -0.0010    0.0017
+       36 FE2    3d0        0.0000    0.0001    0.0001   -0.0000   -0.0000   -0.0001    0.0016    0.0038    0.0000   -0.0000
+       37 FE2    4d0       -0.0000    0.0001   -0.0002    0.0000    0.0000   -0.0003    0.0011   -0.0002   -0.0000    0.0000
+       38 FE2    3d1+      -0.0000   -0.0000   -0.0000    0.0000   -0.0000   -0.0000    0.0000    0.0000   -0.0010   -0.0006
+       39 FE2    4d1+       0.0000    0.0000    0.0000   -0.0001    0.0000   -0.0000   -0.0000   -0.0000    0.0017    0.0010
+       40 FE2    3d2+      -0.0000   -0.0000   -0.0000    0.0000    0.0000    0.0000   -0.0000   -0.0000   -0.0000    0.0000
+       41 FE2    4d2+      -0.0000   -0.0000    0.0000    0.0000    0.0000   -0.0000   -0.0000    0.0000   -0.0000    0.0000
+       42 FE2    4f3-       0.0000   -0.0000    0.0000   -0.0000    0.0000    0.0000   -0.0000    0.0000   -0.0000   -0.0000
+       43 FE2    4f2-      -0.0000    0.0000    0.0000   -0.0000    0.0000   -0.0000    0.0000    0.0000   -0.0000   -0.0000
+       44 FE2    4f1-       0.0000   -0.0000    0.0000    0.0002    0.0005    0.0000   -0.0000    0.0000   -0.0049    0.0084
+       45 FE2    4f0       -0.0000    0.0000   -0.0008    0.0000    0.0000   -0.0001    0.0005   -0.0151   -0.0000    0.0000
+       46 FE2    4f1+      -0.0000    0.0000   -0.0000    0.0005   -0.0002   -0.0000    0.0000   -0.0000    0.0084    0.0049
+       47 FE2    4f2+       0.0000   -0.0000    0.0000    0.0000    0.0000    0.0000   -0.0000   -0.0000   -0.0000    0.0000
+       48 FE2    4f3+       0.0000   -0.0000    0.0000    0.0000    0.0000    0.0000   -0.0000    0.0000   -0.0000    0.0000
+ 
+          Orbital           11        12        13        14        15        16        17        18        19        20    
+          Energy           -1.8234   -1.3098   -0.8352   -0.8352   -0.5720   -0.5720   -0.4460   -0.2945   -0.2945   -0.2748
+          Occ. No.          1.0000    1.0000    1.0000    1.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000
+ 
+        1 O1     1s         0.0014    0.0015    0.0000   -0.0000    0.0000   -0.0000   -0.0167    0.0000   -0.0000   -0.0291
+        2 O1     2s         0.9986    0.0457    0.0000   -0.0000    0.0000   -0.0000   -0.1885    0.0000   -0.0000   -0.2885
+        3 O1     3s        -0.0222   -0.0172    0.0000   -0.0000   -0.0000    0.0000   -0.0218   -0.0000    0.0000   -0.0302
+        4 O1     2px        0.0000   -0.0001    0.3453    0.2558   -0.6203   -0.6279    0.0000   -0.1070   -0.1836    0.0000
+        5 O1     3px        0.0000    0.0000    0.0320    0.0237   -0.0857   -0.0867    0.0000   -0.0034   -0.0059    0.0000
+        6 O1     2py       -0.0000    0.0002   -0.2558    0.3453   -0.6280    0.6203   -0.0000   -0.1836    0.1070   -0.0000
+        7 O1     3py       -0.0000   -0.0000   -0.0237    0.0320   -0.0867    0.0857   -0.0000   -0.0059    0.0034   -0.0000
+        8 O1     2pz       -0.0321    0.9834    0.0000   -0.0000    0.0001   -0.0001    0.1548    0.0000   -0.0000    0.1853
+        9 O1     3pz       -0.0186   -0.0912    0.0000   -0.0000    0.0000   -0.0000   -0.0046    0.0000   -0.0000    0.0360
+       10 O1     3d2-      -0.0000    0.0000   -0.0000   -0.0000   -0.0000   -0.0000    0.0000   -0.0000   -0.0000    0.0000
+       11 O1     3d1-       0.0000   -0.0000    0.0086   -0.0117    0.0042   -0.0041    0.0000   -0.0086    0.0050   -0.0000
+       12 O1     3d0        0.0531   -0.0087   -0.0000    0.0000   -0.0000    0.0000    0.0001   -0.0000    0.0000   -0.0062
+       13 O1     3d1+      -0.0000    0.0000   -0.0117   -0.0086    0.0041    0.0042   -0.0000   -0.0050   -0.0086    0.0000
+       14 O1     3d2+       0.0000   -0.0000   -0.0000    0.0000    0.0000   -0.0000    0.0000    0.0000   -0.0000    0.0000
+       15 FE2    1s        -0.0002    0.0003    0.0000   -0.0000    0.0000   -0.0000    0.0001    0.0000   -0.0000    0.0003
+       16 FE2    2s        -0.0016    0.0025    0.0000   -0.0000    0.0000   -0.0000    0.0008    0.0000   -0.0000    0.0024
+       17 FE2    3s        -0.0110    0.0172    0.0000   -0.0000    0.0000   -0.0000   -0.0002    0.0000   -0.0000    0.0127
+       18 FE2    4s        -0.0045   -0.0252   -0.0001    0.0001    0.0000   -0.0000    1.0312    0.0000   -0.0000    0.0511
+       19 FE2    5s        -0.0038    0.0087    0.0000   -0.0000   -0.0000    0.0000   -0.0672    0.0000   -0.0000    0.0180
+       20 FE2    2px       -0.0000    0.0000   -0.0002   -0.0002    0.0003    0.0003   -0.0000   -0.0001   -0.0002   -0.0000
+       21 FE2    3px        0.0000    0.0000   -0.0041   -0.0030    0.0088    0.0089   -0.0000   -0.0008   -0.0014    0.0000
+       22 FE2    4px       -0.0000   -0.0000    0.0617    0.0457   -0.0174   -0.0176    0.0000    0.5014    0.8603   -0.0000
+       23 FE2    5px       -0.0000   -0.0000    0.0010    0.0008   -0.0015   -0.0016    0.0000    0.0549    0.0942   -0.0000
+       24 FE2    2py        0.0000   -0.0000    0.0002   -0.0002    0.0003   -0.0003    0.0000   -0.0002    0.0001    0.0000
+       25 FE2    3py       -0.0000   -0.0000    0.0030   -0.0041    0.0089   -0.0088    0.0000   -0.0014    0.0008   -0.0000
+       26 FE2    4py        0.0000    0.0000   -0.0457    0.0617   -0.0176    0.0174   -0.0000    0.8603   -0.5014    0.0000
+       27 FE2    5py        0.0000    0.0000   -0.0008    0.0010   -0.0016    0.0015   -0.0000    0.0942   -0.0549    0.0000
+       28 FE2    2pz       -0.0005    0.0008    0.0000   -0.0000    0.0000   -0.0000    0.0002    0.0000   -0.0000    0.0002
+       29 FE2    3pz       -0.0178    0.0238    0.0000   -0.0000    0.0000   -0.0000    0.0029    0.0000   -0.0000    0.0058
+       30 FE2    4pz       -0.0005   -0.0269   -0.0000    0.0000   -0.0000    0.0000    0.0573   -0.0000    0.0000    1.0518
+       31 FE2    5pz       -0.0022    0.0005   -0.0000    0.0000   -0.0000    0.0000    0.0065   -0.0000    0.0000    0.1147
+       32 FE2    3d2-      -0.0000   -0.0000   -0.0000   -0.0000   -0.0000   -0.0000   -0.0000   -0.0000   -0.0000    0.0000
+       33 FE2    4d2-      -0.0000    0.0000   -0.0000   -0.0000   -0.0000   -0.0000    0.0000   -0.0000   -0.0000    0.0000
+       34 FE2    3d1-       0.0000   -0.0000   -0.5136    0.6934    0.3555   -0.3512   -0.0001   -0.0362    0.0211    0.0000
+       35 FE2    4d1-       0.0000    0.0000   -0.0547    0.0739    0.0286   -0.0283   -0.0000    0.0014   -0.0008    0.0000
+       36 FE2    3d0        0.0062   -0.0245   -0.0001    0.0001    0.0000   -0.0000   -0.0223   -0.0000    0.0000   -0.1848
+       37 FE2    4d0        0.0017   -0.0130   -0.0000    0.0000   -0.0000    0.0000   -0.0106   -0.0000    0.0000   -0.0546
+       38 FE2    3d1+      -0.0000    0.0000    0.6934    0.5136    0.3512    0.3555    0.0000   -0.0211   -0.0362   -0.0000
+       39 FE2    4d1+      -0.0000   -0.0000    0.0739    0.0547    0.0283    0.0286    0.0000    0.0008    0.0014   -0.0000
+       40 FE2    3d2+       0.0000   -0.0000   -0.0000    0.0000    0.0000   -0.0000   -0.0000    0.0000   -0.0000    0.0000
+       41 FE2    4d2+       0.0000   -0.0000   -0.0000    0.0000    0.0000   -0.0000   -0.0000    0.0000   -0.0000    0.0000
+       42 FE2    4f3-       0.0000   -0.0000    0.0000    0.0000   -0.0000    0.0000    0.0000    0.0000    0.0000    0.0000
+       43 FE2    4f2-      -0.0000    0.0000   -0.0000   -0.0000   -0.0000   -0.0000    0.0000    0.0000    0.0000    0.0000
+       44 FE2    4f1-       0.0000    0.0000   -0.0029    0.0039   -0.0019    0.0018   -0.0000    0.0009   -0.0005    0.0000
+       45 FE2    4f0        0.0006   -0.0020   -0.0000    0.0000   -0.0000    0.0000   -0.0018   -0.0000    0.0000   -0.0034
+       46 FE2    4f1+      -0.0000   -0.0000    0.0039    0.0029   -0.0018   -0.0019    0.0000    0.0005    0.0009   -0.0000
+       47 FE2    4f2+       0.0000   -0.0000   -0.0000    0.0000    0.0000   -0.0000    0.0000   -0.0000    0.0000    0.0000
+       48 FE2    4f3+       0.0000   -0.0000    0.0000   -0.0000   -0.0000   -0.0000    0.0000   -0.0000    0.0000    0.0000
+ 
+          Orbital           21        22        23        24    
+          Energy           -0.2563   -0.2563   -0.2116   -0.1758
+          Occ. No.          0.0000    0.0000    0.0000    0.0000
+ 
+        1 O1     1s         0.0000   -0.0000   -0.0168   -0.0197
+        2 O1     2s         0.0000   -0.0000   -0.1810   -0.1604
+        3 O1     3s         0.0000   -0.0000    0.0162   -0.0290
+        4 O1     2px       -0.0000    0.0000    0.0000   -0.0000
+        5 O1     3px        0.0000   -0.0000    0.0000   -0.0000
+        6 O1     2py        0.0000    0.0000   -0.0000    0.0000
+        7 O1     3py       -0.0000   -0.0000   -0.0000    0.0000
+        8 O1     2pz       -0.0000    0.0000    0.1687   -0.0256
+        9 O1     3pz       -0.0000   -0.0000   -0.0392    0.0845
+       10 O1     3d2-       0.0039   -0.0012    0.0000    0.0000
+       11 O1     3d1-       0.0000    0.0000    0.0000   -0.0000
+       12 O1     3d0       -0.0000    0.0000    0.0155   -0.0144
+       13 O1     3d1+      -0.0000    0.0000   -0.0000    0.0000
+       14 O1     3d2+       0.0012    0.0039    0.0000    0.0000
+       15 FE2    1s        -0.0000   -0.0000   -0.0000    0.0003
+       16 FE2    2s        -0.0000    0.0000   -0.0003    0.0027
+       17 FE2    3s        -0.0000    0.0000   -0.0023    0.0159
+       18 FE2    4s        -0.0000    0.0000    0.0373    0.1387
+       19 FE2    5s         0.0000   -0.0000   -0.1387    0.9838
+       20 FE2    2px       -0.0000    0.0000   -0.0000    0.0000
+       21 FE2    3px        0.0000   -0.0000   -0.0000    0.0000
+       22 FE2    4px        0.0000   -0.0000   -0.0000    0.0000
+       23 FE2    5px        0.0000   -0.0000   -0.0000    0.0000
+       24 FE2    2py        0.0000    0.0000    0.0000   -0.0000
+       25 FE2    3py       -0.0000   -0.0000    0.0000   -0.0000
+       26 FE2    4py       -0.0000   -0.0000    0.0000   -0.0000
+       27 FE2    5py       -0.0000   -0.0000    0.0000   -0.0000
+       28 FE2    2pz       -0.0000   -0.0000   -0.0001    0.0004
+       29 FE2    3pz       -0.0000   -0.0000   -0.0026    0.0090
+       30 FE2    4pz       -0.0000    0.0000    0.2469    0.0787
+       31 FE2    5pz       -0.0000    0.0000    0.0210    0.0152
+       32 FE2    3d2-       0.9225   -0.2893    0.0000    0.0000
+       33 FE2    4d2-       0.2434   -0.0763    0.0000    0.0000
+       34 FE2    3d1-      -0.0000   -0.0000   -0.0001    0.0000
+       35 FE2    4d1-      -0.0000   -0.0000   -0.0000    0.0000
+       36 FE2    3d0       -0.0000    0.0000    0.9407    0.1589
+       37 FE2    4d0       -0.0000    0.0000    0.2464    0.0451
+       38 FE2    3d1+       0.0000   -0.0000    0.0000   -0.0000
+       39 FE2    4d1+       0.0000   -0.0000    0.0000   -0.0000
+       40 FE2    3d2+       0.2893    0.9225   -0.0000   -0.0000
+       41 FE2    4d2+       0.0763    0.2434   -0.0000   -0.0000
+       42 FE2    4f3-      -0.0000   -0.0000    0.0000   -0.0000
+       43 FE2    4f2-       0.0016   -0.0005    0.0000    0.0000
+       44 FE2    4f1-      -0.0000   -0.0000   -0.0000   -0.0000
+       45 FE2    4f0        0.0000   -0.0000    0.0002    0.0001
+       46 FE2    4f1+       0.0000   -0.0000    0.0000    0.0000
+       47 FE2    4f2+       0.0005    0.0016   -0.0000   -0.0000
+       48 FE2    4f3+       0.0000   -0.0000    0.0000   -0.0000
+--
+ 
+ 
+++    Molecular charges:
+      ------------------
+ 
+      Mulliken charges per centre and basis function type
+      ---------------------------------------------------
+ 
+                            O1                      FE2   
+                     alpha        beta       alpha        beta
+      1s           1.0000      1.0000      1.0000      1.0000
+      2s           0.9971      0.9975      1.0000      1.0000
+      2px          0.9868      0.2067      1.0000      1.0000
+      2pz          0.0054      0.9794      1.0000      1.0000
+      2py          0.9868      0.2067      1.0000      1.0000
+      3s           0.0015      0.0011      1.0001      1.0002
+      3px          0.0117      0.0061      0.9999      0.9998
+      3pz         -0.0005      0.0069      1.0000      0.9998
+      3py          0.0117      0.0061      0.9999      0.9998
+      4s           0.0000      0.0000     -0.0008      0.0026
+      3d2+        -0.0000      0.0000      0.9978      0.0000
+      3d1+         0.0001      0.0009      0.9996      0.7607
+      3d0          0.0021      0.0029      0.9959      0.0023
+      3d1-         0.0001      0.0009      0.9996      0.7607
+      3d2-        -0.0000      0.0000      0.9978      0.0000
+      4px          0.0000      0.0000      0.0005      0.0105
+      4pz          0.0000      0.0000     -0.0009      0.0048
+      4py          0.0000      0.0000      0.0005      0.0105
+      5s           0.0000      0.0000     -0.0003      0.0004
+      4d2+         0.0000      0.0000      0.0022      0.0000
+      4d1+         0.0000      0.0000      0.0013      0.0150
+      4d0          0.0000      0.0000      0.0011      0.0020
+      4d1-         0.0000      0.0000      0.0013      0.0150
+      4d2-         0.0000      0.0000      0.0022      0.0000
+      5px          0.0000      0.0000      0.0000      0.0001
+      5pz          0.0000      0.0000     -0.0004     -0.0003
+      5py          0.0000      0.0000      0.0000      0.0001
+      4f3+         0.0000      0.0000      0.0000      0.0000
+      4f2+         0.0000      0.0000      0.0000      0.0000
+      4f1+         0.0000      0.0000      0.0001      0.0002
+      4f0          0.0000      0.0000      0.0000      0.0003
+      4f1-         0.0000      0.0000      0.0001      0.0002
+      4f2-         0.0000      0.0000      0.0000      0.0000
+      4f3-         0.0000      0.0000      0.0000      0.0000
+      Total        4.0027      3.4154     13.9973     10.5846
+      Total              7.4181                 24.5819
+ 
+      Charge            0.5819                  1.4181
+ 
+      Total electronic charge=   32.000000
+ 
+      Total            charge=    2.000000
+--
+ 
+ 
+  Input file to MOLDEN was generated!
+ 
+ 
+++    Static properties:
+      ------------------
+ 
+ 
+      LoProp Charges per center
+ 
+
+                   O1       FE2   
+      Nuclear      8.0000  26.0000
+      Electronic  -7.4263 -24.5737
+ 
+      Total        0.5737   1.4263
+--
+ 
+ 
+++    Natural Bond Order analysis
+      ---------------------------
+      Based on LoProp computed density
+      -------------------------------------------------------------------------------------
+      Atom A       Atom B       Bond Order
+        O1           FE2            1.981
+      -------------------------------------------------------------------------------------
+      NBO located     19.999 core electrons.
+      NBO located      1.999 lone pair electrons.
+      NBO located      3.961 electrons involved in    1 bonds.
+      NBO located      0.991 non-bonded electrons on atom O1        
+      NBO located      1.000 non-bonded electrons on atom FE2       
+      NBO located      1.000 non-bonded electrons on atom FE2       
+      NBO located      1.000 non-bonded electrons on atom FE2       
+      The remaining    2.049 electrons are to be considered as diffuse
+--
+ 
+ 
+++    Molecular orbitals:
+      -------------------
+ 
+      Title: Natural orbitals
+
+      Molecular orbitals for symmetry species 1: a  
+ 
+          Orbital            1         2         3         4         5         6         7         8         9        10    
+          Energy         -264.1605  -32.5432  -21.7875  -27.3565  -27.7944  -27.7941   -5.1459   -3.4081   -3.4435   -3.4438
+          Occ. No.          2.0000    2.0000    2.0000    2.0000    2.0000    2.0000    2.0000    1.9998    1.9998    1.9998
+ 
+        1 O1     1s        -0.0002    0.0042    0.9621    0.2658   -0.0001    0.0000   -0.0512   -0.0141   -0.0001   -0.0002
+        2 O1     2s         0.0000   -0.0002   -0.0278   -0.0070    0.0000   -0.0000   -0.0010   -0.0206   -0.0002   -0.0002
+        3 O1     3s        -0.0000    0.0000    0.0005    0.0002   -0.0000    0.0000   -0.0008    0.0007    0.0000    0.0000
+        4 O1     2px       -0.0000   -0.0000   -0.0000   -0.0000    0.0001    0.0002    0.0000   -0.0000   -0.0055    0.0086
+        5 O1     3px        0.0000   -0.0000    0.0000    0.0000   -0.0000   -0.0000   -0.0000    0.0000    0.0003   -0.0004
+        6 O1     2py        0.0000    0.0000    0.0000    0.0000    0.0002   -0.0001   -0.0000    0.0001   -0.0086   -0.0055
+        7 O1     3py       -0.0000    0.0000   -0.0000   -0.0000   -0.0000    0.0000    0.0000   -0.0000    0.0004    0.0003
+        8 O1     2pz       -0.0000   -0.0000    0.0011    0.0003   -0.0000    0.0000    0.0003    0.0008    0.0000    0.0000
+        9 O1     3pz       -0.0000   -0.0001    0.0004    0.0000   -0.0000   -0.0000    0.0009    0.0008    0.0000    0.0000
+       10 O1     3d2-       0.0000    0.0000   -0.0000   -0.0000   -0.0000   -0.0000   -0.0000   -0.0000    0.0000   -0.0000
+       11 O1     3d1-      -0.0000   -0.0000   -0.0000    0.0000    0.0000   -0.0000    0.0000    0.0000   -0.0000   -0.0000
+       12 O1     3d0       -0.0000    0.0000   -0.0002   -0.0000    0.0000    0.0000   -0.0002   -0.0001   -0.0000   -0.0000
+       13 O1     3d1+       0.0000    0.0000    0.0000    0.0000    0.0000    0.0000   -0.0000   -0.0000   -0.0000    0.0000
+       14 O1     3d2+      -0.0000   -0.0000    0.0000    0.0000    0.0000   -0.0000    0.0000    0.0000   -0.0000   -0.0000
+       15 FE2    1s         1.0000   -0.0000    0.0003   -0.0000   -0.0000    0.0000   -0.0000    0.0000    0.0000    0.0000
+       16 FE2    2s         0.0000    0.9936    0.0041   -0.0084    0.0000   -0.0000    0.1126    0.0042    0.0000    0.0000
+       17 FE2    3s         0.0000   -0.1125    0.0461    0.0283   -0.0000    0.0000    0.9912    0.0481    0.0005    0.0005
+       18 FE2    4s         0.0000   -0.0005    0.0004   -0.0000    0.0000    0.0000    0.0049    0.0026    0.0000    0.0000
+       19 FE2    5s         0.0000    0.0003   -0.0001    0.0000    0.0000   -0.0000   -0.0025   -0.0011   -0.0000   -0.0000
+       20 FE2    2px       -0.0000    0.0000    0.0000    0.0001    0.5128    0.8540   -0.0000    0.0004    0.0472   -0.0734
+       21 FE2    3px        0.0000   -0.0000    0.0000   -0.0000   -0.0449   -0.0748   -0.0000    0.0043    0.5392   -0.8371
+       22 FE2    4px       -0.0000   -0.0000   -0.0000    0.0000    0.0001    0.0001    0.0000   -0.0000   -0.0010    0.0015
+       23 FE2    5px       -0.0000    0.0000   -0.0000    0.0000    0.0001    0.0002    0.0000   -0.0000   -0.0014    0.0022
+       24 FE2    2py        0.0000   -0.0000   -0.0001    0.0005    0.8540   -0.5128    0.0000   -0.0014    0.0733    0.0473
+       25 FE2    3py       -0.0000    0.0000    0.0000   -0.0000   -0.0748    0.0449    0.0000   -0.0156    0.8371    0.5391
+       26 FE2    4py        0.0000    0.0000   -0.0000    0.0000    0.0001   -0.0001   -0.0000    0.0000   -0.0015   -0.0010
+       27 FE2    5py        0.0000   -0.0000   -0.0000    0.0000    0.0002   -0.0001   -0.0000    0.0000   -0.0022   -0.0014
+       28 FE2    2pz        0.0001    0.0109   -0.2653    0.9608   -0.0005    0.0001   -0.0177    0.0777    0.0008    0.0009
+       29 FE2    3pz       -0.0000    0.0004    0.0317   -0.0726    0.0000   -0.0000   -0.0474    0.9956    0.0108    0.0120
+       30 FE2    4pz        0.0000   -0.0001    0.0002   -0.0002    0.0000   -0.0000    0.0013    0.0029    0.0000    0.0000
+       31 FE2    5pz       -0.0000    0.0000   -0.0001    0.0002   -0.0000    0.0000    0.0003   -0.0037   -0.0000   -0.0000
+       32 FE2    3d2-       0.0000   -0.0000    0.0000    0.0000   -0.0000   -0.0000    0.0000    0.0000    0.0000   -0.0000
+       33 FE2    4d2-       0.0000   -0.0000    0.0000    0.0000    0.0000    0.0000    0.0000   -0.0000   -0.0000    0.0000
+       34 FE2    3d1-       0.0000    0.0000   -0.0000    0.0000    0.0010   -0.0006   -0.0000    0.0004   -0.0240   -0.0154
+       35 FE2    4d1-       0.0000   -0.0000    0.0000   -0.0000   -0.0001    0.0000   -0.0000    0.0000   -0.0004   -0.0003
+       36 FE2    3d0        0.0000   -0.0001   -0.0001   -0.0002    0.0000   -0.0000    0.0014    0.0035    0.0000    0.0000
+       37 FE2    4d0        0.0000   -0.0001    0.0001   -0.0000   -0.0000    0.0000    0.0022    0.0001    0.0000    0.0000
+       38 FE2    3d1+      -0.0000   -0.0000    0.0000   -0.0000    0.0006    0.0010    0.0000   -0.0001   -0.0154    0.0240
+       39 FE2    4d1+      -0.0000    0.0000   -0.0000   -0.0000   -0.0000   -0.0001    0.0000   -0.0000   -0.0003    0.0004
+       40 FE2    3d2+      -0.0000    0.0000   -0.0000    0.0000    0.0000   -0.0000   -0.0000    0.0000   -0.0000   -0.0000
+       41 FE2    4d2+      -0.0000    0.0000   -0.0000   -0.0000   -0.0000    0.0000   -0.0000   -0.0000    0.0000    0.0000
+       42 FE2    4f3-       0.0000    0.0000    0.0000   -0.0000    0.0000    0.0000   -0.0000    0.0000   -0.0000    0.0000
+       43 FE2    4f2-      -0.0000   -0.0000    0.0000    0.0000    0.0000    0.0000   -0.0000    0.0000   -0.0000    0.0000
+       44 FE2    4f1-       0.0000    0.0000    0.0000    0.0000    0.0000   -0.0000   -0.0000   -0.0000    0.0016    0.0011
+       45 FE2    4f0        0.0000   -0.0000   -0.0002    0.0002   -0.0000    0.0000    0.0006   -0.0082   -0.0001   -0.0001
+       46 FE2    4f1+      -0.0000   -0.0000   -0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0011   -0.0016
+       47 FE2    4f2+       0.0000    0.0000    0.0000   -0.0000   -0.0000    0.0000    0.0000   -0.0000    0.0000    0.0000
+       48 FE2    4f3+       0.0000    0.0000    0.0000   -0.0000   -0.0000    0.0000   -0.0000    0.0000    0.0000    0.0000
+ 
+          Orbital           11        12        13        14        15        16        17        18        19        20    
+          Energy           -1.8905   -0.9970   -0.9970   -0.8276   -0.9025   -0.9025   -0.6761   -0.6761   -0.7197    0.0976
+          Occ. No.          1.9949    1.9807    1.9807    1.1181    1.0000    1.0000    1.0000    1.0000    0.8819    0.0193
+ 
+        1 O1     1s         0.0285   -0.0000   -0.0000   -0.0046   -0.0000    0.0000   -0.0000    0.0000    0.0029    0.0000
+        2 O1     2s         0.9994    0.0000    0.0000   -0.0854   -0.0000    0.0000    0.0000   -0.0000    0.0143    0.0001
+        3 O1     3s        -0.0346   -0.0000   -0.0000    0.0021    0.0000   -0.0000   -0.0000    0.0000    0.0238    0.0000
+        4 O1     2px        0.0000    0.2362   -0.3707    0.0000   -0.6646   -0.5888   -0.0000    0.0000    0.0000   -0.0676
+        5 O1     3px       -0.0000   -0.0057    0.0090   -0.0000    0.0704    0.0624    0.0000   -0.0000   -0.0000    0.4330
+        6 O1     2py       -0.0000    0.3707    0.2362   -0.0001    0.5888   -0.6646    0.0000    0.0000   -0.0001    0.0431
+        7 O1     3py        0.0000   -0.0090   -0.0057    0.0000   -0.0624    0.0704   -0.0000   -0.0000    0.0000   -0.2759
+        8 O1     2pz       -0.0418   -0.0000   -0.0001   -0.6816   -0.0001    0.0001    0.0000   -0.0000   -0.7130   -0.0001
+        9 O1     3pz       -0.0122   -0.0000   -0.0000    0.0669    0.0000   -0.0000    0.0000   -0.0000    0.0623    0.0001
+       10 O1     3d2-      -0.0000   -0.0000    0.0000   -0.0000    0.0000    0.0000   -0.0000    0.0000    0.0000   -0.0000
+       11 O1     3d1-       0.0000   -0.0085   -0.0054    0.0000   -0.0062    0.0071   -0.0000    0.0000   -0.0000    0.0246
+       12 O1     3d0        0.0055    0.0000    0.0000    0.0091    0.0000   -0.0000   -0.0000    0.0000    0.0021   -0.0000
+       13 O1     3d1+      -0.0000   -0.0054    0.0085   -0.0000    0.0071    0.0062    0.0000    0.0000    0.0000   -0.0385
+       14 O1     3d2+       0.0000    0.0000    0.0000    0.0000    0.0000   -0.0000   -0.0000   -0.0000   -0.0000   -0.0000
+       15 FE2    1s        -0.0002   -0.0000   -0.0000   -0.0002   -0.0000    0.0000    0.0000   -0.0000   -0.0003    0.0000
+       16 FE2    2s        -0.0009    0.0000    0.0000   -0.0016   -0.0000    0.0000    0.0000   -0.0000   -0.0020    0.0000
+       17 FE2    3s        -0.0062    0.0000    0.0000   -0.0119   -0.0000    0.0000   -0.0000    0.0000   -0.0127    0.0000
+       18 FE2    4s        -0.0049    0.0000    0.0000    0.0301    0.0000   -0.0000   -0.0000    0.0000    0.0041   -0.0004
+       19 FE2    5s        -0.0038   -0.0000   -0.0000   -0.0069   -0.0000    0.0000    0.0000   -0.0000   -0.0053    0.0001
+       20 FE2    2px        0.0000    0.0008   -0.0012   -0.0000    0.0001    0.0001   -0.0000    0.0000   -0.0000   -0.0006
+       21 FE2    3px        0.0000    0.0151   -0.0237   -0.0000    0.0048    0.0043    0.0000   -0.0000   -0.0000   -0.0122
+       22 FE2    4px        0.0000    0.0236   -0.0371    0.0000    0.0000    0.0000   -0.0000    0.0000    0.0000    0.2846
+       23 FE2    5px        0.0000    0.0007   -0.0011    0.0000    0.0006    0.0006    0.0000   -0.0000   -0.0000   -0.0022
+       24 FE2    2py       -0.0000    0.0012    0.0008    0.0000   -0.0001    0.0001    0.0000    0.0000    0.0000    0.0004
+       25 FE2    3py       -0.0000    0.0237    0.0151    0.0000   -0.0043    0.0048   -0.0000   -0.0000    0.0000    0.0078
+       26 FE2    4py       -0.0000    0.0371    0.0236   -0.0000   -0.0000    0.0000    0.0000    0.0000   -0.0000   -0.1814
+       27 FE2    5py       -0.0000    0.0011    0.0007   -0.0000   -0.0006    0.0006   -0.0000   -0.0000    0.0000    0.0014
+       28 FE2    2pz        0.0007    0.0000    0.0000   -0.0005   -0.0000    0.0000   -0.0000    0.0000   -0.0005    0.0000
+       29 FE2    3pz        0.0096    0.0000    0.0000   -0.0157   -0.0000    0.0000   -0.0000    0.0000   -0.0133    0.0000
+       30 FE2    4pz       -0.0022    0.0000    0.0000    0.0364    0.0000   -0.0000    0.0000   -0.0000   -0.0004   -0.0001
+       31 FE2    5pz       -0.0024    0.0000    0.0000    0.0009   -0.0000    0.0000    0.0000   -0.0000   -0.0017   -0.0000
+       32 FE2    3d2-      -0.0000   -0.0000    0.0000   -0.0000   -0.0000   -0.0000    0.7018   -0.7108    0.0000    0.0000
+       33 FE2    4d2-      -0.0000   -0.0000    0.0000   -0.0000    0.0000    0.0000   -0.0332    0.0336    0.0000   -0.0000
+       34 FE2    3d1-      -0.0001    0.7391    0.4710   -0.0001   -0.3128    0.3531   -0.0000   -0.0000    0.0001    0.0534
+       35 FE2    4d1-      -0.0000    0.0283    0.0181    0.0000    0.0106   -0.0120    0.0000    0.0000   -0.0000   -0.3199
+       36 FE2    3d0        0.0100    0.0001    0.0001    0.6845   -0.0000    0.0000    0.0000   -0.0000   -0.7338    0.0000
+       37 FE2    4d0        0.0002    0.0000    0.0000   -0.0113    0.0000   -0.0000   -0.0000    0.0000    0.0323   -0.0001
+       38 FE2    3d1+       0.0000    0.4710   -0.7391    0.0000    0.3531    0.3128    0.0000   -0.0000   -0.0000   -0.0838
+       39 FE2    4d1+       0.0000    0.0181   -0.0283   -0.0000   -0.0120   -0.0106   -0.0000    0.0000    0.0000    0.5021
+       40 FE2    3d2+      -0.0000    0.0000    0.0000    0.0000   -0.0000    0.0000    0.7108    0.7018   -0.0000    0.0000
+       41 FE2    4d2+       0.0000    0.0000    0.0000    0.0000    0.0000   -0.0000   -0.0336   -0.0332   -0.0000   -0.0000
+       42 FE2    4f3-       0.0000   -0.0000    0.0000    0.0000   -0.0000   -0.0000   -0.0000   -0.0000    0.0000    0.0000
+       43 FE2    4f2-      -0.0000   -0.0000    0.0000   -0.0000   -0.0000   -0.0000    0.0009   -0.0009   -0.0000    0.0000
+       44 FE2    4f1-      -0.0000    0.0029    0.0018   -0.0000   -0.0000    0.0000   -0.0000   -0.0000    0.0000   -0.0092
+       45 FE2    4f0        0.0005    0.0000    0.0000    0.0028    0.0000   -0.0000    0.0000   -0.0000   -0.0002    0.0000
+       46 FE2    4f1+       0.0000    0.0018   -0.0029    0.0000    0.0000    0.0000    0.0000   -0.0000   -0.0000    0.0145
+       47 FE2    4f2+       0.0000    0.0000    0.0000    0.0000   -0.0000    0.0000    0.0009    0.0009    0.0000    0.0000
+       48 FE2    4f3+       0.0000    0.0000    0.0000    0.0000   -0.0000    0.0000    0.0000   -0.0000    0.0000    0.0000
+ 
+          Orbital           21        22        23        24        25        26        27        28        29        30    
+          Energy            0.0976    1.3594    2.6245    2.6245    2.2297    0.1029    2.1696    2.1696    1.7435    1.5643
+          Occ. No.          0.0193    0.0051    0.0002    0.0002    0.0002    0.0000    0.0000    0.0000    0.0000    0.0000
+ 
+        1 O1     1s        -0.0000   -0.0016   -0.0001    0.0000    0.0039    0.0040   -0.0000    0.0000   -0.0461    0.0605
+        2 O1     2s        -0.0001   -0.0118   -0.0008    0.0005    0.0611   -0.0038   -0.0000    0.0000   -0.4189    0.6043
+        3 O1     3s        -0.0000    0.2493   -0.0006    0.0004    0.0424   -0.0557   -0.0000    0.0000   -0.4337    0.8976
+        4 O1     2px       -0.0431   -0.0000   -0.0131   -0.0400    0.0002    0.0000   -0.0791   -0.0520    0.0000    0.0000
+        5 O1     3px        0.2759    0.0000   -0.0554   -0.1688    0.0007    0.0001   -0.2022   -0.1329    0.0000    0.0000
+        6 O1     2py       -0.0676    0.0000   -0.0400    0.0131   -0.0006   -0.0000    0.0520   -0.0791   -0.0000   -0.0000
+        7 O1     3py        0.4329   -0.0001   -0.1688    0.0554   -0.0026   -0.0004    0.1329   -0.2022   -0.0001   -0.0001
+        8 O1     2pz        0.0001    0.0223    0.0013   -0.0009   -0.0977    0.1354   -0.0000    0.0000    0.1740   -0.4169
+        9 O1     3pz       -0.0001   -0.1116    0.0008   -0.0005   -0.0556    0.1996   -0.0000    0.0000    0.0824   -0.3950
+       10 O1     3d2-      -0.0000   -0.0000   -0.0000   -0.0000   -0.0000    0.0000   -0.0000   -0.0000   -0.0000    0.0000
+       11 O1     3d1-      -0.0385    0.0003    0.0039   -0.0013    0.0001    0.0000    0.0061   -0.0093   -0.0000    0.0000
+       12 O1     3d0        0.0000    0.9499   -0.0016    0.0011    0.1188   -0.1056   -0.0000    0.0000   -0.0630    0.2080
+       13 O1     3d1+      -0.0246   -0.0001    0.0013    0.0039   -0.0000   -0.0000   -0.0093   -0.0061    0.0000   -0.0000
+       14 O1     3d2+       0.0000    0.0000    0.0000   -0.0000    0.0000   -0.0000   -0.0000    0.0000    0.0000   -0.0000
+       15 FE2    1s        -0.0000   -0.0010    0.0000   -0.0000   -0.0004    0.0009   -0.0000    0.0000    0.0009   -0.0027
+       16 FE2    2s        -0.0000   -0.0075    0.0000   -0.0000   -0.0027    0.0069   -0.0000    0.0000    0.0063   -0.0195
+       17 FE2    3s        -0.0000   -0.0433    0.0002   -0.0001   -0.0136    0.0310   -0.0000    0.0000    0.0344   -0.1019
+       18 FE2    4s         0.0003    0.0139    0.0023   -0.0015   -0.1819    0.7175    0.0000   -0.0000    0.3971   -0.7171
+       19 FE2    5s        -0.0001   -0.0031   -0.0010    0.0006    0.0743   -0.6022    0.0000   -0.0000    0.0364   -0.0233
+       20 FE2    2px       -0.0004   -0.0000    0.0000    0.0001   -0.0000   -0.0000    0.0002    0.0001   -0.0000   -0.0000
+       21 FE2    3px       -0.0078   -0.0000    0.0008    0.0024   -0.0000   -0.0000    0.0069    0.0045   -0.0000   -0.0000
+       22 FE2    4px        0.1814    0.0000    0.1137    0.3468   -0.0016    0.0000    0.0410    0.0269   -0.0000   -0.0000
+       23 FE2    5px       -0.0014   -0.0000   -0.1428   -0.4353    0.0020    0.0000    0.7400    0.4864   -0.0000   -0.0000
+       24 FE2    2py       -0.0006    0.0000    0.0001   -0.0000    0.0000    0.0000   -0.0001    0.0002    0.0000    0.0000
+       25 FE2    3py       -0.0122    0.0000    0.0024   -0.0008    0.0000    0.0000   -0.0045    0.0069    0.0000    0.0000
+       26 FE2    4py        0.2846   -0.0000    0.3467   -0.1137    0.0057   -0.0001   -0.0269    0.0410    0.0000    0.0001
+       27 FE2    5py       -0.0022    0.0000   -0.4353    0.1427   -0.0071   -0.0001   -0.4864    0.7400    0.0001    0.0000
+       28 FE2    2pz       -0.0000   -0.0017    0.0000   -0.0000   -0.0001    0.0012   -0.0000    0.0000    0.0013   -0.0040
+       29 FE2    3pz       -0.0000   -0.0407    0.0000   -0.0000   -0.0025    0.0228   -0.0000    0.0000    0.0320   -0.0849
+       30 FE2    4pz        0.0001    0.0428    0.0072   -0.0048   -0.5305    0.1326   -0.0000    0.0000    0.4917   -0.9382
+       31 FE2    5pz        0.0000    0.0005   -0.0058    0.0039    0.4280   -0.0058    0.0001   -0.0001    0.9566    0.0603
+       32 FE2    3d2-       0.0000    0.0000    0.0000    0.0000   -0.0000   -0.0000   -0.0000   -0.0000    0.0000   -0.0000
+       33 FE2    4d2-      -0.0000   -0.0000    0.0000    0.0000    0.0000   -0.0000    0.0000    0.0000    0.0000   -0.0000
+       34 FE2    3d1-      -0.0838    0.0000    0.0070   -0.0023    0.0001    0.0000   -0.0108    0.0164    0.0000    0.0000
+       35 FE2    4d1-       0.5021   -0.0001   -0.0426    0.0140   -0.0006   -0.0000   -0.0593    0.0902   -0.0001    0.0002
+       36 FE2    3d0       -0.0000   -0.0701    0.0001   -0.0001   -0.0088    0.0001    0.0000   -0.0000    0.0667   -0.1519
+       37 FE2    4d0        0.0001    0.0309   -0.0004    0.0003    0.0322   -0.4441    0.0000   -0.0000    0.2715   -0.8796
+       38 FE2    3d1+      -0.0534   -0.0000    0.0023    0.0070   -0.0000   -0.0000    0.0164    0.0108   -0.0000   -0.0000
+       39 FE2    4d1+       0.3200    0.0000   -0.0140   -0.0426    0.0002    0.0000    0.0902    0.0593    0.0000   -0.0001
+       40 FE2    3d2+      -0.0000   -0.0000   -0.0000    0.0000   -0.0000    0.0000   -0.0000    0.0000   -0.0000    0.0000
+       41 FE2    4d2+       0.0000    0.0000   -0.0000    0.0000   -0.0000    0.0000    0.0000   -0.0000   -0.0000    0.0000
+       42 FE2    4f3-       0.0000    0.0000   -0.0000    0.0000   -0.0000   -0.0000    0.0000    0.0000    0.0000    0.0000
+       43 FE2    4f2-       0.0000   -0.0000   -0.0000   -0.0001   -0.0000   -0.0000   -0.0000   -0.0000    0.0000    0.0000
+       44 FE2    4f1-       0.0145   -0.0000    0.7619   -0.2499    0.0123    0.0000   -0.2750    0.4185    0.0002    0.0001
+       45 FE2    4f0       -0.0000   -0.0048   -0.0097    0.0065    0.7346    0.2440   -0.0001    0.0001   -0.2975   -0.4323
+       46 FE2    4f1+       0.0092    0.0000    0.2499    0.7620   -0.0034   -0.0000    0.4185    0.2750   -0.0000   -0.0000
+       47 FE2    4f2+      -0.0000    0.0000    0.0001   -0.0000    0.0000    0.0000   -0.0000    0.0000   -0.0000   -0.0000
+       48 FE2    4f3+      -0.0000    0.0000   -0.0000   -0.0000   -0.0000   -0.0000    0.0000   -0.0000    0.0000    0.0000
+ 
+          Orbital           31        32        33        34        35        36        37        38        39        40    
+          Energy            0.2817   -0.1906    0.1832    0.1853    0.3808    0.4603    0.5563    0.5582    0.5116    0.5113
+          Occ. No.          0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000
+ 
+        1 O1     1s         0.0138   -0.0045   -0.0000    0.0000    0.0220    0.0080    0.0000    0.0000    0.0000    0.0000
+        2 O1     2s         0.1332   -0.0303   -0.0001    0.0000    0.2211    0.0450    0.0000    0.0000    0.0000    0.0000
+        3 O1     3s         0.1532    0.1818   -0.0001    0.0001    0.5028   -0.7901    0.0000   -0.0001   -0.0000   -0.0000
+        4 O1     2px       -0.0000   -0.0000   -0.0258   -0.0564    0.0000    0.0000   -0.2081   -0.0150    0.0002   -0.0005
+        5 O1     3px       -0.0002    0.0000   -0.1011   -0.2228    0.0001    0.0000   -0.9061   -0.0643    0.0006   -0.0026
+        6 O1     2py        0.0001    0.0000   -0.0505    0.0264    0.0000    0.0000    0.0135   -0.2086    0.0217   -0.0026
+        7 O1     3py        0.0006   -0.0001   -0.1973    0.1036   -0.0000    0.0002    0.0591   -0.9071    0.0948   -0.0110
+        8 O1     2pz        0.0051   -0.0536    0.0000   -0.0000   -0.2209   -0.1324   -0.0000   -0.0000   -0.0000   -0.0000
+        9 O1     3pz       -0.0075   -0.2496    0.0002   -0.0001   -1.1579   -0.3796   -0.0000   -0.0002   -0.0001   -0.0001
+       10 O1     3d2-       0.0000   -0.0000    0.0001    0.0000    0.0001    0.0001   -0.0048    0.0032    0.0331    0.0091
+       11 O1     3d1-      -0.0001   -0.0000    0.0161   -0.0075   -0.0001    0.0000    0.0057   -0.0744    0.0134    0.0066
+       12 O1     3d0       -0.0233   -0.0564    0.0000   -0.0000   -0.0996    0.2688   -0.0000    0.0001    0.0000    0.0000
+       13 O1     3d1+       0.0000    0.0001    0.0076    0.0141    0.0000   -0.0001   -0.0788    0.0099   -0.0067   -0.0051
+       14 O1     3d2+      -0.0000    0.0000   -0.0000   -0.0000   -0.0000   -0.0000   -0.0006   -0.0003    0.0164   -0.0317
+       15 FE2    1s        -0.0002   -0.0011    0.0000   -0.0000   -0.0049   -0.0010   -0.0000   -0.0000   -0.0000   -0.0000
+       16 FE2    2s        -0.0012   -0.0080    0.0000   -0.0000   -0.0355   -0.0070   -0.0000   -0.0000   -0.0000   -0.0000
+       17 FE2    3s        -0.0090   -0.0414    0.0000   -0.0000   -0.1762   -0.0298   -0.0000   -0.0000   -0.0000   -0.0000
+       18 FE2    4s        -0.0803    0.5689    0.0002   -0.0001   -0.6526   -0.0067   -0.0000   -0.0001   -0.0000   -0.0001
+       19 FE2    5s        -0.6611    0.5046    0.0002   -0.0001   -0.0774    0.1426    0.0001   -0.0003    0.0000   -0.0000
+       20 FE2    2px        0.0000   -0.0000    0.0002    0.0003   -0.0000   -0.0000    0.0013    0.0001   -0.0000    0.0000
+       21 FE2    3px        0.0000   -0.0000    0.0037    0.0081   -0.0000   -0.0000    0.0256    0.0019   -0.0001    0.0000
+       22 FE2    4px       -0.0000   -0.0000    0.3930    0.7996    0.0000   -0.0000    0.2878    0.0264   -0.0013    0.0003
+       23 FE2    5px       -0.0000   -0.0000    0.0935    0.1894    0.0000   -0.0000    0.0264    0.0036   -0.0004   -0.0001
+       24 FE2    2py       -0.0000    0.0000    0.0003   -0.0002    0.0000   -0.0000   -0.0001    0.0013   -0.0001    0.0000
+       25 FE2    3py       -0.0000    0.0000    0.0073   -0.0038    0.0000   -0.0000   -0.0017    0.0257   -0.0026    0.0004
+       26 FE2    4py        0.0001   -0.0001    0.7912   -0.3938    0.0001   -0.0000   -0.0127    0.3084   -0.0318    0.0045
+       27 FE2    5py        0.0001   -0.0000    0.1886   -0.0936    0.0000    0.0000   -0.0002    0.0316   -0.0031    0.0007
+       28 FE2    2pz       -0.0004   -0.0013    0.0000   -0.0000   -0.0056   -0.0007   -0.0000   -0.0000   -0.0000   -0.0000
+       29 FE2    3pz       -0.0086   -0.0257    0.0000   -0.0000   -0.1071   -0.0095   -0.0000   -0.0000   -0.0000   -0.0000
+       30 FE2    4pz       -0.5369   -0.4838    0.0001   -0.0002   -0.2492   -0.2067    0.0001   -0.0004    0.0000   -0.0000
+       31 FE2    5pz       -0.0660   -0.0966   -0.0000    0.0000   -0.0333    0.0043    0.0000   -0.0001    0.0000   -0.0000
+       32 FE2    3d2-       0.0000    0.0000    0.0000    0.0000   -0.0000   -0.0000   -0.0003    0.0041    0.0415    0.0215
+       33 FE2    4d2-       0.0000    0.0000    0.0001    0.0001   -0.0001   -0.0001   -0.0075    0.0873    0.8819    0.4569
+       34 FE2    3d1-      -0.0001    0.0000   -0.0012    0.0001   -0.0000   -0.0000   -0.0054    0.0803   -0.0082    0.0013
+       35 FE2    4d1-      -0.0008   -0.0002   -0.3254    0.1562   -0.0002   -0.0001   -0.0543    0.7581   -0.0786    0.0101
+       36 FE2    3d0        0.0103   -0.0139    0.0000   -0.0000   -0.1106   -0.0005   -0.0000    0.0000   -0.0000   -0.0000
+       37 FE2    4d0        0.4985    0.1599   -0.0002    0.0002   -0.1186   -0.1653   -0.0002    0.0006   -0.0001   -0.0000
+       38 FE2    3d1+       0.0000    0.0000   -0.0003    0.0010   -0.0000   -0.0000    0.0806    0.0062   -0.0003    0.0000
+       39 FE2    4d1+       0.0002    0.0001   -0.1584   -0.3039   -0.0000   -0.0000    0.7703    0.0533   -0.0009    0.0017
+       40 FE2    3d2+      -0.0000   -0.0000    0.0000   -0.0000    0.0000    0.0000   -0.0000    0.0027    0.0213   -0.0417
+       41 FE2    4d2+      -0.0000   -0.0000    0.0001   -0.0002    0.0001    0.0001   -0.0009    0.0576    0.4529   -0.8862
+       42 FE2    4f3-       0.0000   -0.0000    0.0000    0.0000    0.0000    0.0000    0.0000   -0.0000   -0.0000    0.0000
+       43 FE2    4f2-       0.0000    0.0000    0.0000    0.0000   -0.0000   -0.0000   -0.0026   -0.0031   -0.0027    0.0075
+       44 FE2    4f1-       0.0001    0.0002   -0.2602    0.1299   -0.0001    0.0001    0.0078   -0.1544    0.0165   -0.0015
+       45 FE2    4f0       -0.2811   -0.1178    0.0001   -0.0001    0.1429   -0.1561    0.0001   -0.0002    0.0000   -0.0000
+       46 FE2    4f1+      -0.0000   -0.0000   -0.1295   -0.2645    0.0000   -0.0000   -0.1481   -0.0111   -0.0001   -0.0007
+       47 FE2    4f2+      -0.0000   -0.0000   -0.0000    0.0000    0.0000    0.0000    0.0013    0.0016    0.0017   -0.0041
+       48 FE2    4f3+       0.0000   -0.0000   -0.0000   -0.0000    0.0000    0.0000   -0.0000   -0.0000    0.0000    0.0000
+ 
+          Orbital           41        42        43        44        45        46        47    
+          Energy            1.6190    1.6675    1.5289    3.1005    3.4862    3.4862    3.4705
+          Occ. No.          0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000
+ 
+        1 O1     1s        -0.0000   -0.0000    0.0000    0.0000    0.0000    0.0000    0.0000
+        2 O1     2s        -0.0000   -0.0000    0.0000    0.0000    0.0000    0.0000    0.0000
+        3 O1     3s         0.0000   -0.0000    0.0000   -0.0000    0.0000    0.0000   -0.0000
+        4 O1     2px        0.0317   -0.0235    0.0032   -0.0026   -0.0000   -0.0000    0.0000
+        5 O1     3px        0.0953   -0.0720    0.0091   -0.0081   -0.0000   -0.0000    0.0001
+        6 O1     2py       -0.0223   -0.0117    0.0018   -0.0057   -0.0000    0.0000   -0.0001
+        7 O1     3py       -0.0706   -0.0328    0.0044   -0.0175   -0.0000    0.0000   -0.0003
+        8 O1     2pz        0.0000    0.0000   -0.0000   -0.0000   -0.0000   -0.0000   -0.0000
+        9 O1     3pz       -0.0001    0.0000   -0.0000   -0.0001   -0.0000   -0.0000   -0.0000
+       10 O1     3d2-       0.3198    0.7043    0.2324   -0.4274    0.0000   -0.0000   -0.0201
+       11 O1     3d1-       0.4938    0.3375   -0.0650    0.1324   -0.0000    0.0000    0.0023
+       12 O1     3d0       -0.0002   -0.0000    0.0000   -0.0000   -0.0000   -0.0000   -0.0000
+       13 O1     3d1+      -0.7943    0.5634   -0.0896    0.0604   -0.0000   -0.0000   -0.0005
+       14 O1     3d2+      -0.1238   -0.1088    0.9651    0.0750    0.0000    0.0000   -0.0206
+       15 FE2    1s        -0.0000    0.0000   -0.0000   -0.0000   -0.0000   -0.0000   -0.0000
+       16 FE2    2s        -0.0000    0.0000   -0.0000   -0.0000   -0.0000   -0.0000   -0.0000
+       17 FE2    3s        -0.0000    0.0000   -0.0000   -0.0000   -0.0000   -0.0000   -0.0000
+       18 FE2    4s         0.0000   -0.0000   -0.0000   -0.0000   -0.0000   -0.0000   -0.0000
+       19 FE2    5s        -0.0000   -0.0000    0.0000   -0.0000   -0.0000   -0.0000   -0.0000
+       20 FE2    2px       -0.0004    0.0003   -0.0000    0.0000    0.0000    0.0000   -0.0000
+       21 FE2    3px       -0.0091    0.0065   -0.0010    0.0007    0.0000    0.0000   -0.0000
+       22 FE2    4px       -0.0999    0.0722   -0.0107    0.0079    0.0000    0.0000   -0.0001
+       23 FE2    5px       -0.0337    0.0240   -0.0037    0.0026    0.0000    0.0000   -0.0000
+       24 FE2    2py        0.0002    0.0001   -0.0000    0.0001    0.0000   -0.0000    0.0000
+       25 FE2    3py        0.0060    0.0036   -0.0006    0.0016    0.0000   -0.0000    0.0000
+       26 FE2    4py        0.0660    0.0399   -0.0070    0.0173    0.0000   -0.0000    0.0003
+       27 FE2    5py        0.0213    0.0140   -0.0026    0.0057    0.0000   -0.0000    0.0001
+       28 FE2    2pz       -0.0000    0.0000   -0.0000   -0.0000   -0.0000   -0.0000   -0.0000
+       29 FE2    3pz        0.0000    0.0000   -0.0000   -0.0000   -0.0000   -0.0000   -0.0000
+       30 FE2    4pz       -0.0001    0.0000   -0.0000   -0.0000   -0.0000   -0.0000   -0.0000
+       31 FE2    5pz       -0.0000    0.0000   -0.0000   -0.0000   -0.0000   -0.0000   -0.0000
+       32 FE2    3d2-      -0.0040   -0.0077   -0.0025    0.0035   -0.0000    0.0000   -0.0004
+       33 FE2    4d2-      -0.0317   -0.0480   -0.0162    0.0279   -0.0000    0.0000    0.0011
+       34 FE2    3d1-       0.0266    0.0168   -0.0030    0.0070    0.0000   -0.0000    0.0001
+       35 FE2    4d1-       0.1185    0.0679   -0.0114    0.0306   -0.0000    0.0000    0.0006
+       36 FE2    3d0        0.0000    0.0000   -0.0000   -0.0000   -0.0000   -0.0000   -0.0000
+       37 FE2    4d0        0.0001    0.0000   -0.0000   -0.0000   -0.0000   -0.0000   -0.0000
+       38 FE2    3d1+      -0.0411    0.0295   -0.0045    0.0032    0.0000    0.0000   -0.0000
+       39 FE2    4d1+      -0.1752    0.1281   -0.0184    0.0141   -0.0000   -0.0000   -0.0001
+       40 FE2    3d2+       0.0015    0.0012   -0.0104    0.0003   -0.0000   -0.0000   -0.0009
+       41 FE2    4d2+       0.0115    0.0053   -0.0699    0.0064   -0.0000   -0.0000    0.0010
+       42 FE2    4f3-       0.0000    0.0000    0.0000    0.0000   -0.8004   -0.5995   -0.0000
+       43 FE2    4f2-       0.1253    0.2275    0.0498    0.7883   -0.0000    0.0000    0.4663
+       44 FE2    4f1-       0.0158    0.0133   -0.0029    0.0045    0.0000   -0.0000   -0.0000
+       45 FE2    4f0       -0.0000   -0.0000    0.0000   -0.0000   -0.0000   -0.0000   -0.0000
+       46 FE2    4f1+      -0.0284    0.0195   -0.0035    0.0021    0.0000    0.0000   -0.0000
+       47 FE2    4f2+      -0.0639   -0.1101   -0.0112   -0.4220   -0.0000   -0.0000    0.8845
+       48 FE2    4f3+       0.0000    0.0000    0.0000    0.0000    0.5995   -0.8004    0.0000
+--
+ 
+ 
+++    Molecular properties:
+      ---------------------
+ 
+      Charge (e):
+                      =    2.0000
+      Dipole Moment (Debye):
+      Origin of the operator (Ang)=    0.0000    0.0000    0.0000
+                   X=  3.7628E-05               Y= -1.3554E-04               Z=  2.3493E+00           Total=  2.3493E+00
+      Center of Charge (Ang)
+                     X=    0.00000392               Y=   -0.00001411               Z=    0.24455407
+      Quadrupole Moment (Debye*Ang):
+      Origin of the operator (Ang)=    0.0000    0.0000    0.1194
+                  XX= -1.2706E+01              XY=  3.0130E-07              XZ=  3.3530E-05              YY= -1.2706E+01
+                  YZ= -1.2078E-04              ZZ=  1.2939E+00
+      In traceless form (Debye*Ang)
+                  XX= -7.0001E+00              XY=  4.5195E-07              XZ=  5.0295E-05              YY= -7.0001E+00
+                  YZ= -1.8116E-04              ZZ=  1.4000E+01
+--
+ 
+ 
+  Input file to MOLDEN was generated!
+ 
+ ###############################################################################
+ ###############################################################################
+ ###                                                                         ###
+ ###                                                                         ###
+ ###    RunFile label nBas                                                   ###
+ ###    was used       86 times                                              ###
+ ###                                                                         ###
+ ###                                                                         ###
+ ###############################################################################
+ ###############################################################################
+forrtl: warning (528): IEEE_UNDERFLOW is signaling
+--- Stop Module: scf at Wed Jan 22 01:50:39 2025 /rc=_RC_ALL_IS_WELL_ ---
+*** files: 2.45.LprOrb 2.45.LoProp.molden 2.45.scf.molden 2.45.scf.h5 2.45.UhfOrb 2.45.UnaOrb xmldump
+    saved to directory /home/grierjones/DDCASPT2/iron_oxo_DDCASPT2/cluster/2.45
+
+>>> COPY /tmp/2.45/2.45.scf.h5 /home/grierjones/DDCASPT2/iron_oxo_DDCASPT2/cluster/2.45/
+
+*** symbolic link created: INPORB -> 2.45.UnaOrb
+--- Start Module: rasscf at Wed Jan 22 01:50:39 2025 ---
+ 
+()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()
+
+                                              &RASSCF
+
+                                   only a single process is used
+                       available to each process: 2.0 GB of memory, 1 thread?
+()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()
+ 
+ 
+ *************** WARNING ****************
+ ###############################################################################
+ ###############################################################################
+ ###                                                                         ###
+ ###                                                                         ###
+ ###    Too many macro-iterations.                                           ###
+ ###                                                                         ###
+ ###                                                                         ###
+ ###############################################################################
+ ###############################################################################
+ Too many macro-iterations requested.
+ Reset to maximum, new MAXIT=     200
+ ****************************************
+ 
+ *************** WARNING ****************
+ ###############################################################################
+ ###############################################################################
+ ###                                                                         ###
+ ###                                                                         ###
+ ###    Too many SX-iterations.                                              ###
+ ###                                                                         ###
+ ###                                                                         ###
+ ###############################################################################
+ ###############################################################################
+ Too many SX-iterations requested.
+ Reset to maximum, new ITMAX=     100
+ ****************************************
+ 
+      Header of the ONEINT file:
+      --------------------------
+      
+      Integrals generated by seward 4.2.0  , Wed Jan 22 01:50:37 2025
+ 
+ 
+      OrdInt status: non-squared
+ 
+ 
+      Cartesian coordinates in Angstrom:
+      -----------------------------------------------------
+      No.  Label        X            Y            Z        
+      -----------------------------------------------------
+       1   O1         0.00000000   0.00000000   2.02580000
+       2   FE2        0.00000000   0.00000000  -0.42580000
+      -----------------------------------------------------
+      Nuclear repulsion energy =   44.89674491
+ 
+++    Wave function specifications:
+      -----------------------------
+ 
+      Number of closed shell electrons          22
+      Number of electrons in active shells      10
+      Max number of holes in RAS1 space          0
+      Max nr of electrons in RAS3 space          0
+      Number of inactive orbitals               11
+      Number of active orbitals                 14
+      Number of secondary orbitals              23
+      Spin quantum number                      2.0
+      State symmetry                             1
+--
+ 
+++    Orbital specifications:
+      -----------------------
+ 
+      Symmetry species                           1
+                                                 a
+      Frozen orbitals                            0
+      Inactive orbitals                         11
+      Active orbitals                           14
+      RAS1 orbitals                              0
+      RAS2 orbitals                             14
+      RAS3 orbitals                              0
+      Secondary orbitals                        23
+      Deleted orbitals                           0
+      Number of basis functions                 48
+--
+ 
+++    CI expansion specifications:
+      ----------------------------
+ 
+      Number of CSFs                        975975
+      Number of determinants               1249248
+      Number of root(s) required                 1
+      Root chosen for geometry opt.              1
+      CI root used                               1
+         
+      highest root included in the CI            1
+      max. size of the explicit Hamiltonian    200
+--
+ 
+++    Optimization specifications:
+      ----------------------------
+ 
+      RASSCF algorithm: Conventional
+      Maximum number of macro iterations       200
+      Maximum number of SX iterations          100
+      Threshold for RASSCF energy            0.100E-07
+      Threshold for max MO rotation          0.100E+00
+      Threshold for max BLB element          0.100E-03
+      Level shift parameter                  0.500E+00
+      Make Quasi-Newton update
+--
+ 
+      The MO-coefficients are taken from the file:
+      /home/grierjones/DDCASPT2/iron_oxo_DDCASPT2/cluster/2.44/2.44.RasOrb                                                            
+      Title: RASSCF average (pseudo-natural) orbitals                                      
+ 
+      Total molecular charge    2.00
+ 
+      ************************************************************************************************************************
+      *                                                                                                                      *
+      *                                            Wave function control section                                             *
+      *                                                                                                                      *
+      ************************************************************************************************************************
+ 
+ 
+                                         RASSCF iterations: Energy and convergence statistics
+                                         ----------------------------------------------------
+ 
+      Iter CI   SX   CI       RASSCF       Energy    max ROT     max BLB   max BLB  Level Ln srch  Step   QN   Walltime
+          iter iter root      energy       change     param      element    value   shift minimum  type update hh:mm:ss
+ Nr of preliminary CI iterations:   7
+      Total energies have been shifted. Add                -1000.00 au
+        1   1    6    1  -345.49268151    0.00E+00  -0.16E-02   16  38 1 -0.11E-02*  0.15   0.00    SX    NO    0:00:32
+        2   2    6    1  -345.49269649   -0.15E-04* -0.58E-03   11  20 1  0.32E-03*  0.15   0.00    SX    NO    0:00:12
+        3   1    5    1  -345.49269665   -0.16E-06*  0.19E-03    9  35 1 -0.15E-03*  0.15   0.00    SX    NO    0:00:10
+        4  15    6    1  -345.49271167   -0.15E-04* -0.78E-03   11  20 1  0.66E-03*  0.15   0.00    SX    NO    0:00:37
+        5   4    5    1  -345.49271230   -0.63E-06*  0.37E-03   11  25 1  0.14E-03*  0.15   1.03    QN   YES    0:00:16
+        6   6    5    1  -345.49271236   -0.64E-07*  0.30E-03   16  30 1  0.40E-04   0.15   1.32    QN   YES    0:00:19
+        7   3    5    1  -345.49271238   -0.20E-07* -0.17E-03   11  25 1 -0.29E-04   0.15   1.28    QN   YES    0:00:14
+        8   1    5    1  -345.49271239   -0.47E-08   0.13E-03   16  33 1  0.22E-04   0.15   1.51    QN   YES    0:00:10
+      Convergence after  8 iterations
+ 
+  Dmat in MO in SXCTL bf call to SXHAM                                                                                    
+  mat. size =    14x   14
+ 
+        1.0343620071531823
+       -0.0000000000000250      1.0343620071529394
+       -0.0000000007422999      0.0000000000639042      0.9949161526958304
+       -0.0000000091593924      0.0000008817364332      0.0000469107882154      1.9843205714938623
+       -0.0000000418750380     -0.0000000049485651      0.0000000000001813     -0.0000000000000040      1.9625870094038838
+        0.0000002866838041     -0.0000385492751818      0.0000000000137488      0.0000009350572710      0.0000000026327703
+        0.9609665138949958
+        0.0000385492760258      0.0000002866838152      0.0000000003792681      0.0000000028669396     -0.0000000257000026
+       -0.0000000000000178      0.9609665138914052
+        0.0000000085915964      0.0000000000942733     -0.0000302149471732      0.0000033981981688      0.0000000000000650
+        0.0000000000213818     -0.0000000071810791      0.0051558212855116
+        0.0000000027701369      0.0000000003097238      0.0000000000000620      0.0000000000002570     -0.0005741465528983
+       -0.0000000004167073      0.0000000039993507     -0.0000000000001820      0.9979405462853174
+       -0.0000000107656083     -0.0000000012307133     -0.0000000000000218     -0.0000000000000067      0.0004950238015743
+        0.0000000003806841     -0.0000000033889142      0.0000000000000178      0.0001983688260763      0.0347341881087260
+       -0.0000060133130796     -0.0001166140872121      0.0000000005943749      0.0000001129843676     -0.0000000020837325
+        0.0000272929113087     -0.0000016101457231      0.0000000000210473      0.0000000014894226     -0.0000000001274998
+        0.0050374046501123
+       -0.0001166140873832      0.0000060133129455      0.0000000094906209     -0.0000000069619553     -0.0000000125114077
+       -0.0000016101457174     -0.0000272929113389      0.0000000003259981      0.0000000088787926     -0.0000000007481986
+       -0.0000000000000019      0.0050374046500716
+       -0.0000000003897305      0.0000000378231013      0.0000016825372427     -0.0000500121410813      0.0000000000001298
+        0.0000000417916672      0.0000000001255703      0.0000004526731550     -0.0000000000000072      0.0000000000000028
+        0.0000000126553562     -0.0000000007803652      0.0147061785995921
+        0.0000000041147667      0.0000000004772409      0.0000000000000219      0.0000000000001586     -0.0002458447682013
+        0.0000000004697628     -0.0000000043655790      0.0000000000000007     -0.0000707599650992     -0.0000100207131149
+        0.0000000000408219      0.0000000002414100      0.0000000000000179      0.0049076807418303
+        9   1    5    1  -345.49271239   -0.19E-08   0.13E-03   16  26 1  0.70E-05   0.15   1.51    QN   YES    0:00:13
+ 
+      ************************************************************************************************************************
+                                                      Wave function printout:
+                       occupation of active orbitals, and spin coupling of open shells (u,d: Spin up or down)
+      ************************************************************************************************************************
+ 
+      Note: transformation to natural orbitals
+      has been made, which may change the order of the CSFs.
+ 
+      printout of CI-coefficients larger than  0.05 for root  1
+      energy=   -1345.492712
+      conf/sym  11111111111111     Coeff  Weight
+            86  2uu22u00u00000  -0.44762 0.20037
+           233  u2u220u0u00000  -0.44762 0.20037
+           506  uud22uu0u00000   0.36451 0.13287
+           590  uuu22du0u00000   0.08246 0.00680
+           898  u0u222u0u00000  -0.40590 0.16475
+           975  uuu22ud0u00000  -0.06387 0.00408
+          1395  0uu22u20u00000  -0.40590 0.16475
+         58606  uuu22uu0d00000  -0.29007 0.08414
+         61342  uuu2duu0ud0000   0.06015 0.00362
+ 
+      Natural orbitals and occupation numbers for root  1
+      sym 1:   1.034362   1.034362   0.994916   1.984321   1.962588   0.960966   0.960966   0.005156   0.997940   0.034734
+               0.005037   0.005037   0.014706   0.004908
+ 
+      ************************************************************************************************************************
+      *                                                                                                                      *
+      *                                                    Final results                                                     *
+      *                                                                                                                      *
+      ************************************************************************************************************************
+ 
+ 
+++    Wave function specifications:
+      -----------------------------
+ 
+      Number of closed shell electrons          22
+      Number of electrons in active shells      10
+      Max number of holes in RAS1 space          0
+      Max nr of electrons in RAS3 space          0
+      Number of inactive orbitals               11
+      Number of active orbitals                 14
+      Number of secondary orbitals              23
+      Spin quantum number                      2.0
+      State symmetry                             1
+--
+ 
+++    Orbital specifications:
+      -----------------------
+ 
+      Symmetry species                           1
+                                                 a
+      Frozen orbitals                            0
+      Inactive orbitals                         11
+      Active orbitals                           14
+      RAS1 orbitals                              0
+      RAS2 orbitals                             14
+      RAS3 orbitals                              0
+      Secondary orbitals                        23
+      Deleted orbitals                           0
+      Number of basis functions                 48
+--
+ 
+++    CI expansion specifications:
+      ----------------------------
+ 
+      Number of CSFs                        975975
+      Number of determinants               1249248
+      Number of root(s) required                 1
+      CI root used                               1
+      highest root included in the CI            1
+      Root passed to geometry opt.               1
+--
+ 
+++    Final optimization conditions:
+      ------------------------------
+ 
+      Average CI energy                           -1345.49271239
+      RASSCF energy for state  1                  -1345.49271239
+      Super-CI energy                                -0.00000000
+      RASSCF energy change                            0.00000000
+      Max change in MO coefficients              -0.142E-03
+      Max non-diagonal density matrix element     0.127E-03
+      Maximum BLB matrix element                  0.701E-05
+      (orbital pair  16,  26 in symmetry   1)
+      Norm of electronic gradient            0.141E-04
+--
+ 
+ 
+      Final state energy(ies):
+      ------------------------
+ 
+::    RASSCF root number  1 Total energy:  -1345.49271239
+ 
+++    Molecular orbitals:
+      -------------------
+ 
+      Pseudonatural active orbitals and approximate occupation numbers
+ 
+ 
+ 
+ 
+      Molecular orbitals for symmetry species 1: a  
+ 
+ 
+      Orbital                1         2         3         4         5         6         7         8         9        10
+      Energy         -264.3138  -33.0746  -28.1562  -28.1397  -28.1397  -21.1919   -4.9000   -3.4210   -3.4101   -3.4101
+      Occ. No.          2.0000    2.0000    2.0000    2.0000    2.0000    2.0000    2.0000    2.0000    2.0000    2.0000
+ 
+    1 O1     1s         0.0000    0.0000   -0.0000    0.0000   -0.0000    1.0000    0.0000    0.0001   -0.0000   -0.0000
+    2 O1     2s         0.0000    0.0002    0.0000   -0.0000    0.0000   -0.0012    0.0022    0.0031   -0.0000   -0.0000
+    3 O1     3s        -0.0000    0.0001   -0.0000    0.0000   -0.0000   -0.0006    0.0005    0.0011   -0.0000   -0.0000
+    4 O1     2px        0.0000    0.0000   -0.0000   -0.0000   -0.0000   -0.0000    0.0000    0.0000    0.0000    0.0003
+    5 O1     3px        0.0000    0.0000   -0.0000   -0.0000   -0.0000   -0.0000    0.0000    0.0000    0.0001    0.0004
+    6 O1     2py       -0.0000   -0.0000    0.0000    0.0000   -0.0000    0.0000   -0.0000   -0.0000   -0.0003    0.0000
+    7 O1     3py       -0.0000   -0.0000    0.0000    0.0000   -0.0000    0.0000   -0.0000   -0.0000   -0.0004    0.0001
+    8 O1     2pz        0.0000   -0.0004   -0.0002    0.0000   -0.0000    0.0032   -0.0051   -0.0033    0.0000    0.0000
+    9 O1     3pz       -0.0000   -0.0001    0.0000   -0.0000    0.0000    0.0002   -0.0002   -0.0003    0.0000    0.0000
+   10 O1     3d2-       0.0000   -0.0000   -0.0000    0.0000    0.0000   -0.0000    0.0000    0.0000    0.0000    0.0000
+   11 O1     3d1-       0.0000    0.0000   -0.0000   -0.0000    0.0000    0.0000    0.0000    0.0000    0.0001   -0.0000
+   12 O1     3d0       -0.0000    0.0000    0.0000    0.0000   -0.0000    0.0001    0.0002    0.0003   -0.0000   -0.0000
+   13 O1     3d1+      -0.0000   -0.0000    0.0000    0.0000    0.0000   -0.0000   -0.0000   -0.0000   -0.0000   -0.0001
+   14 O1     3d2+      -0.0000    0.0000   -0.0000   -0.0000    0.0000   -0.0000   -0.0000   -0.0000   -0.0000   -0.0000
+   15 FE2    1s         1.0000   -0.0000    0.0000   -0.0000    0.0000    0.0000   -0.0000   -0.0000    0.0000    0.0000
+   16 FE2    2s        -0.0000    1.0000    0.0004   -0.0000    0.0000    0.0000   -0.0012   -0.0000    0.0000    0.0000
+   17 FE2    3s        -0.0000    0.0012   -0.0000    0.0000   -0.0000    0.0001    0.9998    0.0034   -0.0000   -0.0000
+   18 FE2    4s         0.0000   -0.0001    0.0001   -0.0000    0.0000   -0.0004    0.0017   -0.0012    0.0000    0.0000
+   19 FE2    5s        -0.0000    0.0000   -0.0000    0.0000   -0.0000    0.0001   -0.0004    0.0004   -0.0000   -0.0000
+   20 FE2    2px        0.0000    0.0000    0.0000    0.9993    0.0372   -0.0000    0.0000   -0.0000   -0.0000   -0.0003
+   21 FE2    3px       -0.0000   -0.0000    0.0000    0.0003    0.0000    0.0000   -0.0000    0.0000    0.1172    0.9931
+   22 FE2    4px       -0.0000   -0.0000   -0.0000   -0.0000   -0.0000   -0.0000   -0.0000   -0.0000   -0.0005   -0.0046
+   23 FE2    5px       -0.0000   -0.0000    0.0000    0.0000    0.0000    0.0000   -0.0000    0.0000    0.0001    0.0008
+   24 FE2    2py       -0.0000   -0.0000   -0.0000   -0.0372    0.9993    0.0000   -0.0000    0.0000    0.0003   -0.0000
+   25 FE2    3py        0.0000    0.0000   -0.0000   -0.0000    0.0003   -0.0000    0.0000   -0.0000   -0.9931    0.1172
+   26 FE2    4py        0.0000    0.0000    0.0000    0.0000   -0.0000    0.0000    0.0000    0.0000    0.0046   -0.0005
+   27 FE2    5py        0.0000    0.0000   -0.0000   -0.0000    0.0000   -0.0000    0.0000   -0.0000   -0.0008    0.0001
+   28 FE2    2pz       -0.0000   -0.0004    1.0000   -0.0000    0.0000    0.0000    0.0000   -0.0000    0.0000    0.0000
+   29 FE2    3pz        0.0000   -0.0000   -0.0000   -0.0000    0.0000    0.0001   -0.0038    0.9998   -0.0000   -0.0000
+   30 FE2    4pz       -0.0000   -0.0001    0.0000   -0.0000    0.0000   -0.0004    0.0001   -0.0077    0.0000    0.0000
+   31 FE2    5pz        0.0000   -0.0000    0.0001   -0.0000    0.0000   -0.0000    0.0003    0.0024   -0.0000   -0.0000
+   32 FE2    3d2-       0.0000    0.0000   -0.0000   -0.0000   -0.0000   -0.0000    0.0000    0.0000   -0.0000    0.0000
+   33 FE2    4d2-      -0.0000   -0.0000   -0.0000    0.0000   -0.0000    0.0000    0.0000   -0.0000    0.0000    0.0000
+   34 FE2    3d1-       0.0000    0.0000    0.0000    0.0000   -0.0000    0.0000    0.0000    0.0000    0.0023   -0.0003
+   35 FE2    4d1-       0.0000    0.0000   -0.0000   -0.0000    0.0000    0.0000    0.0000   -0.0000   -0.0000    0.0000
+   36 FE2    3d0       -0.0000   -0.0000   -0.0000    0.0000   -0.0000   -0.0004   -0.0006   -0.0042    0.0000    0.0000
+   37 FE2    4d0       -0.0000   -0.0003    0.0001   -0.0000    0.0000   -0.0001   -0.0022   -0.0002    0.0000    0.0000
+   38 FE2    3d1+      -0.0000   -0.0000   -0.0000   -0.0000   -0.0000   -0.0000   -0.0000   -0.0000   -0.0003   -0.0023
+   39 FE2    4d1+      -0.0000   -0.0000    0.0000    0.0000    0.0000   -0.0000   -0.0000    0.0000    0.0000    0.0000
+   40 FE2    3d2+      -0.0000    0.0000    0.0000   -0.0000   -0.0000    0.0000    0.0000    0.0000   -0.0000    0.0000
+   41 FE2    4d2+       0.0000   -0.0000    0.0000   -0.0000   -0.0000   -0.0000   -0.0000   -0.0000    0.0000   -0.0000
+   42 FE2    4f3-       0.0000   -0.0000    0.0000    0.0004    0.0001    0.0000    0.0000    0.0000    0.0001    0.0058
+   43 FE2    4f2-       0.0000    0.0000    0.0000   -0.0000   -0.0000   -0.0000    0.0000   -0.0000   -0.0000   -0.0000
+   44 FE2    4f1-       0.0000    0.0000   -0.0000   -0.0000    0.0000    0.0000    0.0000   -0.0000   -0.0019    0.0002
+   45 FE2    4f0        0.0000   -0.0000    0.0001   -0.0000    0.0000   -0.0000   -0.0001    0.0043   -0.0000   -0.0000
+   46 FE2    4f1+      -0.0000   -0.0000    0.0000    0.0000    0.0000   -0.0000   -0.0000    0.0000    0.0002    0.0019
+   47 FE2    4f2+      -0.0000   -0.0000    0.0000    0.0000   -0.0000    0.0000   -0.0000    0.0000    0.0000    0.0000
+   48 FE2    4f3+      -0.0000    0.0000   -0.0000   -0.0001    0.0004   -0.0000   -0.0000   -0.0000   -0.0058    0.0001
+ 
+ 
+      Orbital               11        12        13        14        15        16        17        18        19        20
+      Energy           -1.6673    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000
+      Occ. No.          2.0000    1.0344    1.0344    0.9949    1.9843    1.9626    0.9610    0.9610    0.0052    0.9979
+ 
+    1 O1     1s         0.0019    0.0000    0.0000    0.0000    0.0000   -0.0021    0.0000   -0.0000   -0.0000   -0.0026
+    2 O1     2s         0.9771    0.0000    0.0000    0.0000   -0.0000    0.2095    0.0000   -0.0000   -0.0000   -0.0465
+    3 O1     3s        -0.0174    0.0000    0.0000    0.0000    0.0000    0.0052    0.0000   -0.0000   -0.0000   -0.0132
+    4 O1     2px       -0.0000    0.6413    0.3074   -0.0000   -0.0000    0.0000   -0.2910    0.6323    0.0000   -0.0000
+    5 O1     3px        0.0000   -0.0564   -0.0270    0.0000    0.0000    0.0000    0.0216   -0.0469    0.0000    0.0000
+    6 O1     2py        0.0000   -0.3074    0.6413    0.0000   -0.0000   -0.0000   -0.6323   -0.2910   -0.0000    0.0000
+    7 O1     3py       -0.0000    0.0270   -0.0564   -0.0000    0.0000   -0.0000    0.0469    0.0216   -0.0000   -0.0000
+    8 O1     2pz        0.2566    0.0000    0.0000   -0.0000   -0.0000   -0.8838   -0.0000    0.0000    0.0000    0.1405
+    9 O1     3pz       -0.0196   -0.0000   -0.0000   -0.0000   -0.0000    0.0032    0.0000   -0.0000    0.0000    0.0104
+   10 O1     3d2-      -0.0000   -0.0000    0.0000    0.0001    0.0000    0.0000   -0.0000   -0.0000    0.0055   -0.0000
+   11 O1     3d1-      -0.0000    0.0060   -0.0125   -0.0000    0.0000    0.0000    0.0121    0.0056    0.0000   -0.0000
+   12 O1     3d0       -0.0001   -0.0000   -0.0000    0.0000   -0.0000    0.0268    0.0000   -0.0000   -0.0000   -0.0028
+   13 O1     3d1+       0.0000   -0.0125   -0.0060    0.0000    0.0000   -0.0000    0.0056   -0.0121   -0.0000    0.0000
+   14 O1     3d2+       0.0000    0.0000    0.0000   -0.0001    0.0000   -0.0000   -0.0000    0.0000   -0.0061    0.0000
+   15 FE2    1s         0.0000    0.0000    0.0000    0.0000   -0.0000   -0.0006   -0.0000    0.0000    0.0000    0.0002
+   16 FE2    2s         0.0000    0.0000    0.0000   -0.0000   -0.0000   -0.0049   -0.0000    0.0000    0.0000    0.0011
+   17 FE2    3s        -0.0014    0.0000    0.0000   -0.0000   -0.0000   -0.0319   -0.0000    0.0000    0.0000    0.0072
+   18 FE2    4s        -0.0372    0.0000    0.0000    0.0000   -0.0000    0.1414    0.0000   -0.0000    0.0000   -0.0313
+   19 FE2    5s         0.0061   -0.0000   -0.0000   -0.0000    0.0000   -0.0492   -0.0000    0.0000    0.0000    0.0167
+   20 FE2    2px        0.0000   -0.0001   -0.0000   -0.0000    0.0000   -0.0000    0.0001   -0.0001   -0.0000    0.0000
+   21 FE2    3px        0.0000   -0.0010   -0.0005    0.0000   -0.0000   -0.0000    0.0019   -0.0041   -0.0000    0.0000
+   22 FE2    4px       -0.0000    0.0068    0.0032   -0.0000   -0.0000    0.0000   -0.0011    0.0023   -0.0000   -0.0000
+   23 FE2    5px       -0.0000    0.0008    0.0004    0.0000   -0.0000   -0.0000    0.0008   -0.0017   -0.0000    0.0000
+   24 FE2    2py       -0.0000    0.0000   -0.0001    0.0000    0.0000    0.0000    0.0001    0.0001    0.0000   -0.0000
+   25 FE2    3py       -0.0000    0.0005   -0.0010   -0.0000   -0.0000    0.0000    0.0041    0.0019    0.0000   -0.0000
+   26 FE2    4py        0.0000   -0.0032    0.0068    0.0000   -0.0000   -0.0000   -0.0023   -0.0011    0.0000    0.0000
+   27 FE2    5py        0.0000   -0.0004    0.0008   -0.0000   -0.0000    0.0000    0.0017    0.0008    0.0000   -0.0000
+   28 FE2    2pz       -0.0001    0.0000    0.0000   -0.0000    0.0000   -0.0013   -0.0000    0.0000    0.0000    0.0003
+   29 FE2    3pz       -0.0047    0.0000    0.0000   -0.0000   -0.0000   -0.0266   -0.0000    0.0000    0.0000    0.0094
+   30 FE2    4pz       -0.0251   -0.0000   -0.0000    0.0000    0.0000    0.1094    0.0000   -0.0000    0.0000   -0.0162
+   31 FE2    5pz       -0.0030    0.0000    0.0000   -0.0000   -0.0000    0.0003   -0.0000    0.0000    0.0000    0.0044
+   32 FE2    3d2-       0.0000   -0.0000    0.0000   -0.6712    0.7403    0.0000    0.0000   -0.0000   -0.0359   -0.0000
+   33 FE2    4d2-       0.0000    0.0000   -0.0000    0.0358   -0.0127   -0.0000   -0.0000   -0.0000   -0.6714    0.0000
+   34 FE2    3d1-       0.0000   -0.2948    0.6150   -0.0000   -0.0000   -0.0000    0.6630    0.3051    0.0000   -0.0000
+   35 FE2    4d1-       0.0000    0.0149   -0.0310    0.0000    0.0000   -0.0000   -0.0450   -0.0207    0.0000    0.0000
+   36 FE2    3d0       -0.0181   -0.0000   -0.0000   -0.0000   -0.0000    0.1135   -0.0000    0.0000    0.0000    0.9940
+   37 FE2    4d0       -0.0049    0.0000    0.0000    0.0000   -0.0000    0.0307    0.0000   -0.0000    0.0000   -0.0666
+   38 FE2    3d1+      -0.0000    0.6150    0.2948    0.0000   -0.0000    0.0000    0.3051   -0.6630   -0.0000    0.0000
+   39 FE2    4d1+      -0.0000   -0.0310   -0.0149   -0.0000    0.0000    0.0000   -0.0207    0.0450   -0.0000   -0.0000
+   40 FE2    3d2+       0.0000   -0.0000    0.0000    0.7393    0.6721   -0.0000    0.0000    0.0000    0.0395    0.0000
+   41 FE2    4d2+      -0.0000   -0.0000   -0.0000   -0.0395   -0.0115    0.0000   -0.0000    0.0000    0.7395   -0.0000
+   42 FE2    4f3-       0.0000    0.0000    0.0000    0.0000   -0.0000   -0.0000    0.0000   -0.0000   -0.0000   -0.0000
+   43 FE2    4f2-       0.0000    0.0000   -0.0000    0.0007   -0.0008    0.0000   -0.0000   -0.0000    0.0001    0.0000
+   44 FE2    4f1-       0.0000    0.0000   -0.0000    0.0000    0.0000   -0.0000   -0.0017   -0.0008    0.0000    0.0000
+   45 FE2    4f0        0.0002    0.0000    0.0000    0.0000   -0.0000    0.0036    0.0000   -0.0000    0.0000   -0.0020
+   46 FE2    4f1+      -0.0000   -0.0000   -0.0000   -0.0000    0.0000    0.0000   -0.0008    0.0017   -0.0000   -0.0000
+   47 FE2    4f2+      -0.0000    0.0000   -0.0000   -0.0008   -0.0008   -0.0000   -0.0000    0.0000   -0.0001   -0.0000
+   48 FE2    4f3+      -0.0000   -0.0000    0.0000   -0.0000   -0.0000    0.0000    0.0000    0.0000    0.0000    0.0000
+ 
+ 
+      Orbital               21        22        23        24        25        26        27        28        29        30
+      Energy            0.0000    0.0000    0.0000    0.0000    0.0000   -0.4225   -0.3517   -0.3517   -0.2076    0.1572
+      Occ. No.          0.0347    0.0050    0.0050    0.0147    0.0049    0.0000    0.0000    0.0000    0.0000    0.0000
+ 
+    1 O1     1s        -0.0146    0.0000    0.0000   -0.0000   -0.0330   -0.0110   -0.0000    0.0000    0.0239   -0.0324
+    2 O1     2s        -0.1714    0.0000    0.0000   -0.0000   -0.2934   -0.0984   -0.0000    0.0000    0.2105   -0.3268
+    3 O1     3s         0.2186    0.0000    0.0000    0.0000   -0.2103   -0.0051    0.0000   -0.0000    0.0548    0.0560
+    4 O1     2px       -0.0000   -0.0636   -0.1299    0.0000   -0.0000   -0.0000    0.0843   -0.0415   -0.0000   -0.0000
+    5 O1     3px        0.0000   -0.0387   -0.0790    0.0000   -0.0000    0.0000    0.0056   -0.0027    0.0000   -0.0000
+    6 O1     2py        0.0000   -0.1299    0.0636    0.0000    0.0000    0.0000   -0.0415   -0.0843    0.0000    0.0000
+    7 O1     3py       -0.0000   -0.0790    0.0387    0.0000    0.0000   -0.0000   -0.0027   -0.0056   -0.0000    0.0000
+    8 O1     2pz        0.2938   -0.0000   -0.0000    0.0000    0.1459    0.0144    0.0000   -0.0000    0.0051    0.3811
+    9 O1     3pz       -0.5971   -0.0000   -0.0000   -0.0000    0.1089   -0.0670   -0.0000    0.0000   -0.0385    1.0597
+   10 O1     3d2-       0.0000   -0.0000    0.0000   -0.0050    0.0000    0.0000    0.0000   -0.0000    0.0000    0.0000
+   11 O1     3d1-       0.0000    0.0187   -0.0091   -0.0000   -0.0000    0.0000   -0.0029   -0.0058    0.0000    0.0000
+   12 O1     3d0        0.0109    0.0000    0.0000    0.0000   -0.0064   -0.0006    0.0000   -0.0000    0.0071    0.0239
+   13 O1     3d1+      -0.0000    0.0091    0.0187   -0.0000    0.0000   -0.0000    0.0058   -0.0029   -0.0000   -0.0000
+   14 O1     3d2+      -0.0000   -0.0000   -0.0000   -0.0045   -0.0000   -0.0000   -0.0000   -0.0000    0.0000    0.0000
+   15 FE2    1s        -0.0022   -0.0000   -0.0000    0.0000    0.0007   -0.0002   -0.0000    0.0000   -0.0002    0.0042
+   16 FE2    2s        -0.0159   -0.0000   -0.0000    0.0000    0.0055   -0.0017   -0.0000    0.0000   -0.0015    0.0306
+   17 FE2    3s        -0.0776   -0.0000   -0.0000   -0.0000    0.0304   -0.0068   -0.0000    0.0000   -0.0081    0.1491
+   18 FE2    4s         0.3318   -0.0000   -0.0000   -0.0000   -0.0095   -0.6553   -0.0000    0.0000   -0.3049    0.7403
+   19 FE2    5s        -0.1458   -0.0000   -0.0000    0.0000    0.1011    0.0741   -0.0000    0.0000   -0.9706   -0.2989
+   20 FE2    2px       -0.0000    0.0001    0.0001   -0.0000    0.0000    0.0000   -0.0000    0.0000   -0.0000    0.0000
+   21 FE2    3px        0.0000    0.0016    0.0032   -0.0000    0.0000    0.0000   -0.0045    0.0022   -0.0000    0.0000
+   22 FE2    4px        0.0000    0.0284    0.0581   -0.0000    0.0000    0.0000   -0.9001    0.4434    0.0000    0.0000
+   23 FE2    5px       -0.0000    0.0078    0.0160   -0.0000    0.0000    0.0000   -0.0784    0.0386    0.0000    0.0000
+   24 FE2    2py        0.0000    0.0001   -0.0001   -0.0000   -0.0000   -0.0000    0.0000    0.0000    0.0000   -0.0000
+   25 FE2    3py       -0.0000    0.0032   -0.0016   -0.0000   -0.0000   -0.0000    0.0022    0.0045    0.0000   -0.0000
+   26 FE2    4py       -0.0000    0.0581   -0.0284   -0.0000   -0.0000   -0.0000    0.4434    0.9001   -0.0000   -0.0000
+   27 FE2    5py        0.0000    0.0160   -0.0078   -0.0000   -0.0000   -0.0000    0.0386    0.0784   -0.0000   -0.0000
+   28 FE2    2pz       -0.0024   -0.0000   -0.0000    0.0000    0.0010   -0.0002   -0.0000    0.0000   -0.0003    0.0046
+   29 FE2    3pz       -0.0380   -0.0000   -0.0000    0.0000    0.0220    0.0014   -0.0000    0.0000   -0.0076    0.0892
+   30 FE2    4pz        0.3081   -0.0000   -0.0000    0.0000    0.0953    0.7606    0.0000   -0.0000   -0.2030    0.6513
+   31 FE2    5pz       -0.0016   -0.0000   -0.0000    0.0000    0.0459    0.0597    0.0000   -0.0000   -0.0177    0.1039
+   32 FE2    3d2-      -0.0000    0.0000   -0.0000    0.0127   -0.0000   -0.0000   -0.0000   -0.0000    0.0000    0.0000
+   33 FE2    4d2-      -0.0000    0.0000   -0.0000    0.7404   -0.0000    0.0000   -0.0000   -0.0000   -0.0000   -0.0000
+   34 FE2    3d1-       0.0000    0.0652   -0.0319   -0.0000   -0.0000   -0.0000    0.0000    0.0001   -0.0000   -0.0000
+   35 FE2    4d1-      -0.0000    0.9260   -0.4532   -0.0000   -0.0000    0.0000   -0.0086   -0.0174   -0.0000   -0.0000
+   36 FE2    3d0        0.0095   -0.0000   -0.0000    0.0000    0.1006   -0.0066   -0.0000    0.0000   -0.0111    0.0922
+   37 FE2    4d0        0.1306   -0.0000   -0.0000    0.0000    1.0732   -0.0382   -0.0000    0.0000   -0.0117    0.1863
+   38 FE2    3d1+      -0.0000    0.0319    0.0652   -0.0000    0.0000    0.0000   -0.0001    0.0000    0.0000    0.0000
+   39 FE2    4d1+       0.0000    0.4532    0.9260   -0.0000    0.0000   -0.0000    0.0174   -0.0086    0.0000    0.0000
+   40 FE2    3d2+       0.0000    0.0000    0.0000    0.0115    0.0000   -0.0000   -0.0000   -0.0000    0.0000    0.0000
+   41 FE2    4d2+       0.0000    0.0000    0.0000    0.6722    0.0000   -0.0000    0.0000   -0.0000    0.0000    0.0000
+   42 FE2    4f3-      -0.0000    0.0002    0.0003   -0.0000    0.0000   -0.0000   -0.0005    0.0003    0.0000   -0.0000
+   43 FE2    4f2-       0.0000   -0.0000   -0.0000   -0.0005   -0.0000    0.0000    0.0000   -0.0000   -0.0000    0.0000
+   44 FE2    4f1-      -0.0000    0.0038   -0.0019   -0.0000   -0.0000   -0.0000   -0.0001   -0.0002    0.0000    0.0000
+   45 FE2    4f0        0.0124   -0.0000   -0.0000   -0.0000    0.0061    0.0001   -0.0000    0.0000    0.0010   -0.0040
+   46 FE2    4f1+       0.0000    0.0019    0.0038   -0.0000    0.0000    0.0000    0.0002   -0.0001   -0.0000   -0.0000
+   47 FE2    4f2+      -0.0000   -0.0000    0.0000   -0.0005    0.0000   -0.0000   -0.0000   -0.0000    0.0000   -0.0000
+   48 FE2    4f3+       0.0000    0.0003   -0.0002   -0.0000   -0.0000    0.0000    0.0003    0.0005   -0.0000    0.0000
+ 
+ 
+      Orbital               31        32        33        34        35        36        37        38        39        40
+      Energy            0.2746    0.2746    0.8884    1.5952    1.5952    1.6421    1.6422    1.6444    1.6987    1.6987
+      Occ. No.          0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000
+ 
+    1 O1     1s         0.0000    0.0000    0.0399   -0.0000    0.0000   -0.0000   -0.0000   -0.0418    0.0000   -0.0000
+    2 O1     2s         0.0000    0.0000    0.4225   -0.0000    0.0000   -0.0000   -0.0000   -0.3822    0.0000   -0.0000
+    3 O1     3s        -0.0000   -0.0000    1.2116   -0.0000    0.0000   -0.0000   -0.0000   -0.6162    0.0000   -0.0000
+    4 O1     2px        0.0403   -0.1395   -0.0000   -0.0584    0.0241   -0.0000    0.0000    0.0000   -0.0345    0.0172
+    5 O1     3px        0.3020   -1.0462   -0.0000   -0.1560    0.0645    0.0000   -0.0000    0.0000   -0.1537    0.0765
+    6 O1     2py        0.1395    0.0403    0.0000    0.0241    0.0584    0.0000    0.0000   -0.0000    0.0172    0.0345
+    7 O1     3py        1.0462    0.3020    0.0000    0.0645    0.1560   -0.0000   -0.0000   -0.0000    0.0765    0.1537
+    8 O1     2pz       -0.0000   -0.0000   -0.3330    0.0000   -0.0000    0.0000    0.0000    0.1582   -0.0000    0.0000
+    9 O1     3pz       -0.0000   -0.0000   -0.4280    0.0000   -0.0000    0.0000    0.0000    0.1516   -0.0000    0.0000
+   10 O1     3d2-      -0.0000    0.0000   -0.0000    0.0000   -0.0000   -0.6724   -0.7406    0.0000   -0.0000   -0.0000
+   11 O1     3d1-       0.0240    0.0069    0.0000    0.1421    0.3439    0.0000    0.0000   -0.0000   -0.4170   -0.8382
+   12 O1     3d0       -0.0000   -0.0000   -0.1952   -0.0000    0.0000   -0.0000   -0.0000   -0.4685    0.0000   -0.0000
+   13 O1     3d1+       0.0069   -0.0240   -0.0000   -0.3439    0.1421   -0.0000    0.0000    0.0000    0.8382   -0.4170
+   14 O1     3d2+      -0.0000   -0.0000   -0.0000   -0.0000   -0.0000    0.7406   -0.6724   -0.0000    0.0000   -0.0000
+   15 FE2    1s        -0.0000   -0.0000   -0.0028    0.0000   -0.0000    0.0000    0.0000    0.0014   -0.0000    0.0000
+   16 FE2    2s        -0.0000   -0.0000   -0.0206    0.0000   -0.0000    0.0000    0.0000    0.0106   -0.0000    0.0000
+   17 FE2    3s        -0.0000   -0.0000   -0.1083    0.0000   -0.0000    0.0000    0.0000    0.0581   -0.0000    0.0000
+   18 FE2    4s        -0.0000   -0.0000   -0.7401    0.0000   -0.0000    0.0000    0.0000    0.3991   -0.0000    0.0000
+   19 FE2    5s         0.0000    0.0000   -0.0380    0.0000   -0.0000    0.0000    0.0000    0.0112    0.0000   -0.0000
+   20 FE2    2px       -0.0004    0.0014   -0.0000    0.0001   -0.0000   -0.0000   -0.0000   -0.0000    0.0004   -0.0002
+   21 FE2    3px       -0.0087    0.0300   -0.0000    0.0009   -0.0004   -0.0000    0.0000    0.0000    0.0107   -0.0053
+   22 FE2    4px       -0.0959    0.3322    0.0000   -0.0492    0.0203   -0.0000    0.0000    0.0000    0.0922   -0.0459
+   23 FE2    5px        0.0039   -0.0135    0.0000    0.8621   -0.3562   -0.0000    0.0000   -0.0000    0.3607   -0.1794
+   24 FE2    2py       -0.0014   -0.0004    0.0000   -0.0000   -0.0001    0.0000   -0.0000    0.0000   -0.0002   -0.0004
+   25 FE2    3py       -0.0300   -0.0087    0.0000   -0.0004   -0.0009    0.0000    0.0000   -0.0000   -0.0053   -0.0107
+   26 FE2    4py       -0.3322   -0.0959   -0.0000    0.0203    0.0492    0.0000    0.0000   -0.0000   -0.0459   -0.0922
+   27 FE2    5py        0.0135    0.0039   -0.0000   -0.3562   -0.8621    0.0000    0.0000    0.0000   -0.1794   -0.3607
+   28 FE2    2pz       -0.0000   -0.0000   -0.0040    0.0000   -0.0000    0.0000    0.0000    0.0022   -0.0000    0.0000
+   29 FE2    3pz       -0.0000   -0.0000   -0.0868    0.0000   -0.0000    0.0000    0.0000    0.0520   -0.0000    0.0000
+   30 FE2    4pz       -0.0000   -0.0000   -0.8024    0.0000   -0.0000    0.0000    0.0000    0.3961   -0.0000    0.0000
+   31 FE2    5pz       -0.0000   -0.0000    0.1004    0.0000   -0.0000    0.0000    0.0000    0.9016   -0.0000    0.0000
+   32 FE2    3d2-       0.0000    0.0000    0.0000   -0.0000   -0.0000    0.0057    0.0066   -0.0000    0.0000    0.0000
+   33 FE2    4d2-      -0.0000    0.0000    0.0000   -0.0000   -0.0000    0.0184    0.0213   -0.0000    0.0000    0.0000
+   34 FE2    3d1-      -0.0724   -0.0209   -0.0000    0.0005    0.0013    0.0000    0.0000   -0.0000   -0.0214   -0.0430
+   35 FE2    4d1-      -0.2153   -0.0621    0.0000   -0.0034   -0.0082    0.0000   -0.0000   -0.0000   -0.0552   -0.1109
+   36 FE2    3d0       -0.0000   -0.0000   -0.1269    0.0000   -0.0000    0.0000    0.0000    0.0962   -0.0000    0.0000
+   37 FE2    4d0       -0.0000   -0.0000   -0.2819    0.0000   -0.0000    0.0000    0.0000    0.2235   -0.0000    0.0000
+   38 FE2    3d1+      -0.0209    0.0724    0.0000   -0.0013    0.0005   -0.0000    0.0000    0.0000    0.0430   -0.0214
+   39 FE2    4d1+      -0.0621    0.2153   -0.0000    0.0082   -0.0034   -0.0000   -0.0000    0.0000    0.1109   -0.0552
+   40 FE2    3d2+       0.0000   -0.0000   -0.0000    0.0000   -0.0000   -0.0063    0.0060    0.0000   -0.0000    0.0000
+   41 FE2    4d2+      -0.0000    0.0000   -0.0000    0.0000   -0.0000   -0.0202    0.0194    0.0000   -0.0000    0.0000
+   42 FE2    4f3-      -0.0001    0.0002    0.0000   -0.0004    0.0002   -0.0000    0.0000   -0.0000    0.0002   -0.0001
+   43 FE2    4f2-      -0.0000   -0.0000    0.0000    0.0000    0.0000   -0.0107   -0.0120    0.0000    0.0000    0.0000
+   44 FE2    4f1-       0.0072    0.0021    0.0000   -0.0027   -0.0064   -0.0000   -0.0000    0.0000    0.0251    0.0505
+   45 FE2    4f0       -0.0000   -0.0000    0.0243   -0.0000    0.0000   -0.0000   -0.0000   -0.0684    0.0000   -0.0000
+   46 FE2    4f1+       0.0021   -0.0072   -0.0000    0.0064   -0.0027    0.0000   -0.0000   -0.0000   -0.0505    0.0251
+   47 FE2    4f2+       0.0000    0.0000   -0.0000   -0.0000    0.0000    0.0118   -0.0109   -0.0000   -0.0000    0.0000
+   48 FE2    4f3+      -0.0002   -0.0001   -0.0000    0.0002    0.0004    0.0000    0.0000    0.0000   -0.0001   -0.0002
+ 
+ 
+      Orbital               41        42        43        44        45        46        47        48
+      Energy            1.8372    3.3367    3.3426    3.3426    3.3573    3.3707    3.3707    3.4173
+      Occ. No.          0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    0.0000
+ 
+    1 O1     1s        -0.0007   -0.0000    0.0000    0.0000   -0.0000   -0.0000   -0.0000   -0.0137
+    2 O1     2s        -0.0299    0.0000    0.0000    0.0000   -0.0000   -0.0000   -0.0000   -0.1383
+    3 O1     3s        -0.1135    0.0000    0.0000    0.0000   -0.0000   -0.0000   -0.0000   -0.1920
+    4 O1     2px       -0.0000   -0.0000    0.0029   -0.0107   -0.0000   -0.0220   -0.0274    0.0000
+    5 O1     3px       -0.0000   -0.0000    0.0054   -0.0199   -0.0000   -0.0409   -0.0509    0.0000
+    6 O1     2py        0.0000   -0.0000    0.0107    0.0029    0.0000   -0.0274    0.0220   -0.0000
+    7 O1     3py        0.0000   -0.0000    0.0199    0.0054    0.0000   -0.0509    0.0409   -0.0000
+    8 O1     2pz        0.0951    0.0000   -0.0000   -0.0000    0.0000    0.0000    0.0000    0.1072
+    9 O1     3pz        0.2322   -0.0000   -0.0000   -0.0000    0.0000    0.0000    0.0000    0.1269
+   10 O1     3d2-       0.0000    0.0208    0.0000    0.0000    0.0187   -0.0000   -0.0000    0.0000
+   11 O1     3d1-      -0.0000    0.0000   -0.0278   -0.0075   -0.0000    0.0706   -0.0567    0.0000
+   12 O1     3d0       -0.8841    0.0000    0.0000    0.0000   -0.0000   -0.0000   -0.0000   -0.1418
+   13 O1     3d1+       0.0000    0.0000   -0.0075    0.0278    0.0000    0.0567    0.0706   -0.0000
+   14 O1     3d2+      -0.0000    0.0189    0.0000   -0.0000   -0.0206    0.0000    0.0000   -0.0000
+   15 FE2    1s         0.0014    0.0000   -0.0000   -0.0000    0.0000    0.0000    0.0000    0.0008
+   16 FE2    2s         0.0104    0.0000   -0.0000   -0.0000    0.0000    0.0000    0.0000    0.0058
+   17 FE2    3s         0.0554   -0.0000   -0.0000   -0.0000    0.0000    0.0000    0.0000    0.0304
+   18 FE2    4s         0.2083   -0.0000   -0.0000   -0.0000    0.0000    0.0000    0.0000    0.1539
+   19 FE2    5s        -0.1245    0.0000    0.0000    0.0000   -0.0000   -0.0000   -0.0000   -0.0052
+   20 FE2    2px        0.0000   -0.0000   -0.0001    0.0004   -0.0000   -0.0000   -0.0000   -0.0000
+   21 FE2    3px        0.0000   -0.0000   -0.0015    0.0056   -0.0000   -0.0005   -0.0006    0.0000
+   22 FE2    4px       -0.0000    0.0000   -0.0026    0.0097    0.0000    0.0185    0.0230   -0.0000
+   23 FE2    5px        0.0000   -0.0000   -0.0021    0.0077    0.0000    0.0164    0.0205   -0.0000
+   24 FE2    2py       -0.0000   -0.0000   -0.0004   -0.0001    0.0000   -0.0000    0.0000    0.0000
+   25 FE2    3py       -0.0000   -0.0000   -0.0056   -0.0015    0.0000   -0.0006    0.0005   -0.0000
+   26 FE2    4py        0.0000    0.0000   -0.0097   -0.0026   -0.0000    0.0230   -0.0185    0.0000
+   27 FE2    5py       -0.0000   -0.0000   -0.0077   -0.0021   -0.0000    0.0205   -0.0164    0.0000
+   28 FE2    2pz        0.0021    0.0000   -0.0000   -0.0000    0.0000    0.0000    0.0000    0.0010
+   29 FE2    3pz        0.0478   -0.0000   -0.0000   -0.0000    0.0000   -0.0000   -0.0000    0.0198
+   30 FE2    4pz        0.2488   -0.0000   -0.0000   -0.0000    0.0000    0.0000    0.0000    0.1668
+   31 FE2    5pz       -0.5238   -0.0000   -0.0000   -0.0000    0.0000    0.0000    0.0000    0.0522
+   32 FE2    3d2-      -0.0000   -0.0010   -0.0000   -0.0000   -0.0009   -0.0000    0.0000    0.0000
+   33 FE2    4d2-      -0.0000   -0.0011    0.0000   -0.0000   -0.0006   -0.0000    0.0000   -0.0000
+   34 FE2    3d1-      -0.0000    0.0000   -0.0032   -0.0009   -0.0000    0.0082   -0.0065    0.0000
+   35 FE2    4d1-      -0.0000    0.0000   -0.0081   -0.0022   -0.0000    0.0198   -0.0159    0.0000
+   36 FE2    3d0        0.0715   -0.0000   -0.0000   -0.0000    0.0000    0.0000    0.0000    0.0403
+   37 FE2    4d0        0.1259    0.0000   -0.0000   -0.0000    0.0000    0.0000    0.0000    0.0870
+   38 FE2    3d1+       0.0000    0.0000   -0.0009    0.0032    0.0000    0.0065    0.0082   -0.0000
+   39 FE2    4d1+       0.0000    0.0000   -0.0022    0.0081    0.0000    0.0159    0.0198   -0.0000
+   40 FE2    3d2+       0.0000   -0.0009   -0.0000    0.0000    0.0010   -0.0000   -0.0000    0.0000
+   41 FE2    4d2+       0.0000   -0.0010    0.0000    0.0000    0.0007   -0.0000   -0.0000    0.0000
+   42 FE2    4f3-      -0.0000   -0.0000    0.3375   -0.8927    0.0000    0.2084    0.2137   -0.0000
+   43 FE2    4f2-      -0.0000   -0.7403   -0.0000   -0.0000   -0.6721    0.0000    0.0000   -0.0000
+   44 FE2    4f1-      -0.0000    0.0000   -0.2882   -0.0782   -0.0000    0.7447   -0.5976    0.0000
+   45 FE2    4f0       -0.0649   -0.0000   -0.0000   -0.0000    0.0000    0.0000    0.0000    1.0014
+   46 FE2    4f1+       0.0000    0.0000   -0.0782    0.2882    0.0000    0.5976    0.7447   -0.0000
+   47 FE2    4f2+       0.0000   -0.6721   -0.0000    0.0000    0.7403   -0.0000   -0.0000    0.0000
+   48 FE2    4f3+       0.0000   -0.0000    0.8927    0.3375   -0.0000    0.2137   -0.2084    0.0000
+--
+ 
+      Von Neumann Entropy (Root  1) =  3.28028
+ 
+
+      Mulliken population analysis for root number:  1
+      -----------------------------------------------
+ 
+ 
+++    Molecular charges:
+      ------------------
+ 
+      Mulliken charges per centre and basis function type
+      ---------------------------------------------------
+ 
+                O1      FE2   
+      1s       2.0000  2.0000
+      2s       1.9921  2.0000
+      2px      0.9910  2.0000
+      2pz      1.7822  2.0000
+      2py      0.9910  2.0000
+      3s       0.0051  1.9999
+      3px      0.0057  1.9998
+      3pz      0.0163  1.9995
+      3py      0.0057  1.9998
+      4s       0.0000  0.0873
+      3d2+    -0.0000  1.4401
+      3d1+     0.0004  0.9929
+      3d0      0.0027  1.0126
+      3d1-     0.0004  0.9929
+      3d2-    -0.0000  1.5357
+      4px      0.0000  0.0007
+      4pz      0.0000  0.0674
+      4py      0.0000  0.0007
+      5s       0.0000  0.0136
+      4d2+     0.0000  0.0113
+      4d1+     0.0000  0.0097
+      4d0      0.0000  0.0219
+      4d1-     0.0000  0.0097
+      4d2-     0.0000  0.0120
+      5px      0.0000 -0.0000
+      5pz      0.0000 -0.0009
+      5py      0.0000 -0.0000
+      4f3+     0.0000  0.0001
+      4f2+     0.0000  0.0000
+      4f1+     0.0000  0.0000
+      4f0      0.0000  0.0004
+      4f1-     0.0000  0.0000
+      4f2-     0.0000  0.0000
+      4f3-     0.0000  0.0001
+      Total    7.7927 24.2073
+ 
+      N-E      0.2073  1.7927
+ 
+      Total electronic charge=   32.000000
+ 
+      Total            charge=    2.000000
+--
+ 
+ 
+
+      Expectation values of various properties for root number:  1
+      -----------------------------------------------------------
+ 
+ 
+++    Molecular properties:
+      ---------------------
+ 
+      Charge (e):
+                      =    2.0000
+      Dipole Moment (Debye):
+      Origin of the operator (Ang)=    0.0000    0.0000    0.0000
+                   X= -4.1871E-07               Y=  1.3710E-07               Z= -2.0286E+00           Total=  2.0286E+00
+      Center of Charge (Ang)
+                     X=   -0.00000004               Y=    0.00000001               Z=   -0.21116894
+      Quadrupole Moment (Debye*Ang):
+      Origin of the operator (Ang)=    0.0000    0.0000    0.1194
+                  XX= -1.2648E+01              XY= -1.4351E-11              XZ=  5.0047E-06              YY= -1.2648E+01
+                  YZ= -1.6386E-06              ZZ= -4.8952E+00
+      In traceless form (Debye*Ang)
+                  XX= -3.8766E+00              XY= -2.1527E-11              XZ=  7.5071E-06              YY= -3.8766E+00
+                  YZ= -2.4580E-06              ZZ=  7.7531E+00
+--
+ 
+
+      Mulliken spin population analysis for root number:  1
+      ---------------------------------------------------
+ 
+ 
+++    Molecular charges:
+      ------------------
+ 
+      Mulliken spin population per centre and basis function type
+      ---------------------------------------------------
+ 
+                O1      FE2   
+      1s       0.0000  0.0000
+      2s       0.0030 -0.0000
+      2px      0.3305  0.0000
+      2pz      0.0285  0.0000
+      2py      0.3305  0.0000
+      3s      -0.0005 -0.0000
+      3px      0.0018  0.0000
+      3pz      0.0001  0.0000
+      3py      0.0018  0.0000
+      4s       0.0000 -0.0015
+      3d2+     0.0000  0.4533
+      3d1+     0.0001  0.8150
+      3d0     -0.0002  0.8222
+      3d1-     0.0001  0.8150
+      3d2-     0.0000  0.3738
+      4px      0.0000  0.0002
+      4pz      0.0000 -0.0025
+      4py      0.0000  0.0002
+      5s       0.0000  0.0000
+      4d2+     0.0000  0.0039
+      4d1+     0.0000  0.0074
+      4d0      0.0000  0.0064
+      4d1-     0.0000  0.0074
+      4d2-     0.0000  0.0033
+      5px      0.0000 -0.0000
+      5pz      0.0000 -0.0000
+      5py      0.0000 -0.0000
+      4f3+     0.0000  0.0000
+      4f2+     0.0000  0.0000
+      4f1+     0.0000  0.0000
+      4f0      0.0000  0.0000
+      4f1-     0.0000  0.0000
+      4f2-     0.0000  0.0000
+      4f3-     0.0000  0.0000
+      Total    0.6956  3.3044
+ 
+      Total electronic spin=    4.000000
+--
+ 
+ 
+
+      LoProp population analysis for root number:  1
+      -----------------------------------------------
+ 
+ 
+++    LoProp analysis:
+      ----------------
+ 
+ 
+ 
+  Input file to MOLDEN was generated!
+ 
+ 
+++    Static properties:
+      ------------------
+ 
+ 
+      LoProp Charges per center
+ 
+
+                   O1       FE2   
+      Nuclear      8.0000  26.0000
+      Electronic  -7.8287 -24.1713
+ 
+      Total        0.1713   1.8287
+--
+ 
+ 
+      Natural Bond Order analysis for root number:  1
+ 
+++    Natural Bond Order analysis
+      ---------------------------
+      Based on LoProp computed density
+      -------------------------------------------------------------------------------------
+      Atom A       Atom B       Bond Order
+        O1           FE2            0.982
+      -------------------------------------------------------------------------------------
+      NBO located     22.000 core electrons.
+      NBO located      1.984 lone pair electrons.
+      NBO located      1.964 electrons involved in    1 bonds.
+      NBO located      0.998 non-bonded electrons on atom O1        
+      NBO located      0.998 non-bonded electrons on atom O1        
+      The remaining    4.057 electrons are to be considered as diffuse
+--
+ 
+--
+ 
+ 
+  Input file to MOLDEN was generated!
+ 
+ 
+  Input file to MOLDEN was generated!
+ 
+      Average orbitals are written to the RASORB file
+      Natural orbitals for root   1 are written to the RASORB.1 file
+      Spin density orbitals for root   1 are written to the SPDORB.1 file
+ 
+forrtl: warning (525): IEEE_DIVIDE_BY_ZERO is signaling
+forrtl: warning (526): IEEE_INVALID is signaling
+forrtl: warning (528): IEEE_UNDERFLOW is signaling
+--- Stop Module: rasscf at Wed Jan 22 01:53:35 2025 /rc=_RC_ALL_IS_WELL_ ---
+*** files: 2.45.LprOrb 2.45.rasscf.molden 2.45.rasscf.molden.1 2.45.LoProp.molden 2.45.RasOrb 2.45.RasOrb.1 2.45.rasscf.h5 2.45.SpdOrb.1 xmldump
+    saved to directory /home/grierjones/DDCASPT2/iron_oxo_DDCASPT2/cluster/2.45
+--- Module rasscf spent 2 minutes 56 seconds ---
+
+>>> COPY /tmp/2.45/2.45.rasscf.h5 /home/grierjones/DDCASPT2/iron_oxo_DDCASPT2/cluster/2.45/
+
+>>> COPY /tmp/2.45/GMJ_Fock_MO.csv /home/grierjones/DDCASPT2/iron_oxo_DDCASPT2/cluster/2.45/2.45.GMJ_Fock_MO.csv
+
+>>> COPY /tmp/2.45/GMJ_PT2_Fock_MO.csv /home/grierjones/DDCASPT2/iron_oxo_DDCASPT2/cluster/2.45/2.45.GMJ_PT2_Fock_MO.csv
+
+*** symbolic link created: INPORB -> 2.45.RasOrb
+--- Start Module: motra at Wed Jan 22 01:53:35 2025 ---
+ 
+()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()
+
+                                               &MOTRA
+
+                                   only a single process is used
+                       available to each process: 2.0 GB of memory, 1 thread?
+()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()
+ 
+ 
+      *** WARNING: Default frozen orbitals is overwritten by user input.
+      *** Default values:   7
+ 
+      Header of the integral files:
+      
+       Integrals generated by seward 4.2.0  , Wed Jan 22 01:50:37 2025
+ 
+ 
+      Header of MO coefficients source file:
+      * RASSCF average (pseudo-natural) orbitals                                      
+ 
+ 
+      Cartesian coordinates in Angstrom:
+      -----------------------------------------------------
+      No.  Label        X            Y            Z        
+      -----------------------------------------------------
+       1   O1         0.00000000   0.00000000   2.02580000
+       2   FE2        0.00000000   0.00000000  -0.42580000
+      -----------------------------------------------------
+      Nuclear repulsion energy =   44.89674491
+ 
+      Orbital specifications:
+      -----------------------
+ 
+      Symmetry species:              1
+      Number of basis functions:    48
+      Frozen orbitals:               0
+      Deleted orbitals:              0
+      Number of orbitals used:      48
+
+       SYMMETRY  BASIS FUNCTIONS       ORBITALS      INTEGRALS   CPU(SEC)  I/O(SEC)
+ 
+        1 1 1 1   48  48  48  48    48  48  48  48      692076       0.00      0.00
+
+       TOTAL CPU TIME(SEC)    0.39TOTAL I/O TIME(SEC)    0.95
+ 
+--- Stop Module: motra at Wed Jan 22 01:53:36 2025 /rc=_RC_ALL_IS_WELL_ ---
+*** files: xmldump
+    saved to directory /home/grierjones/DDCASPT2/iron_oxo_DDCASPT2/cluster/2.45
+
+>>> COPY /tmp/2.45/GMJ_one_int_indx.csv /home/grierjones/DDCASPT2/iron_oxo_DDCASPT2/cluster/2.45/2.45.GMJ_one_int_indx.csv
+
+>>> COPY /tmp/2.45/GMJ_one_int.csv /home/grierjones/DDCASPT2/iron_oxo_DDCASPT2/cluster/2.45/2.45.GMJ_one_int.csv
+
+>>> COPY /tmp/2.45/GMJ_two_int_indx.csv /home/grierjones/DDCASPT2/iron_oxo_DDCASPT2/cluster/2.45/2.45.GMJ_two_int_indx.csv
+
+>>> COPY /tmp/2.45/GMJ_two_int.csv /home/grierjones/DDCASPT2/iron_oxo_DDCASPT2/cluster/2.45/2.45.GMJ_two_int.csv
+
+*** symbolic link created: INPORB -> 2.45.RasOrb
+--- Start Module: caspt2 at Wed Jan 22 01:53:36 2025 ---
+ 
+()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()
+
+                                              &CASPT2
+
+                                   only a single process is used
+                       available to each process: 2.0 GB of memory, 1 thread?
+()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()
+ 
+ Cholesky algorithm in CASPT2 =    1
+ 
+ ###############################################################################
+ ###############################################################################
+ ###                                                                         ###
+ ###                                                                         ###
+ ###    User changed nr of frozen orbitals.                                  ###
+ ###                                                                         ###
+ ###                                                                         ###
+ ###############################################################################
+ ###############################################################################
+ 
+++    Wave function specifications:
+      -----------------------------
+ 
+      Number of closed shell electrons          22
+      Number of electrons in active shells      10
+      Max number of holes in RAS1 space          0
+      Max number of electrons in RAS3 space      0
+      Number of inactive orbitals               11
+      Number of active orbitals                 14
+      Number of secondary orbitals              23
+      Spin quantum number                      2.0
+      State symmetry                             1
+      Number of CSFs                        975975
+      Number of root(s) available                1
+      Root passed to geometry opt.               1
+      A file JOBMIX will be created.
+      This is a CASSCF or RASSCF reference function
+--
+ 
+++    Orbital specifications:
+      -----------------------
+ 
+      Symmetry species                           1
+                                                 a
+      Frozen orbitals                            0
+      Inactive orbitals                         11
+      Active orbitals                           14
+      Secondary orbitals                        23
+      Deleted orbitals                           0
+      Number of basis functions                 48
+--
+ 
+      Type of Fock operator: STANDARD
+      Type of 0-order Hamiltonian: STANDARD WITH DEFAULT IPEA
+        "IP-EA" denominator shift =      0.25
+      The input orbitals and the CI vector will be transformed.
+ 
+--------------------------------------------------------------------------------
+ Estimated memory requirements:
+  POLY3 :                227658189
+  RHS:                     4146972
+  SIGMA :                   646704
+  PRPCTL:                        0
+ Available workspace:    229020647
+ 
+++ CASPT2 computation for group   1
+ 
+********************************************************************************
+ Multi-State initialization phase begins for group   1
+--------------------------------------------------------------------------------
+********************************************************************************
+ Compute H0 matrices for state    1
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+ H0 matrices have been computed.
+ 
+********************************************************************************
+  CASPT2 EQUATION SOLUTION
+--------------------------------------------------------------------------------
+ 
+  Total nr of CASPT2 parameters:
+   Before reduction:      408969
+   After  reduction:      408969
+ 
+ The contributions to the second order correlation energy in atomic units.
+-----------------------------------------------------------------------------------------------------------------------------
+  IT.      VJTU        VJTI        ATVX        AIVX        VJAI        BVAT        BJAT        BJAI        TOTAL       RNORM  
+-----------------------------------------------------------------------------------------------------------------------------
+   1    -0.003978   -0.029885   -0.015612   -0.179164   -0.017994   -0.077389   -0.018561   -0.043861   -0.386444    0.014578
+   2    -0.004010   -0.029918   -0.015945   -0.179587   -0.018046   -0.077579   -0.018734   -0.043938   -0.387757    0.003352
+   3    -0.004011   -0.029924   -0.016013   -0.179681   -0.018046   -0.077578   -0.018750   -0.043943   -0.387947    0.000826
+   4    -0.004009   -0.029923   -0.016011   -0.179660   -0.018043   -0.077563   -0.018741   -0.043939   -0.387891    0.000214
+   5    -0.004009   -0.029923   -0.016010   -0.179654   -0.018043   -0.077562   -0.018740   -0.043939   -0.387880    0.000050
+   6    -0.004010   -0.029923   -0.016009   -0.179656   -0.018043   -0.077563   -0.018740   -0.043939   -0.387884    0.000012
+   7    -0.004010   -0.029923   -0.016009   -0.179656   -0.018043   -0.077563   -0.018741   -0.043939   -0.387884    0.000003
+-------------------------------------------------------------------------------------------------------------------
+ 
+  FINAL CASPT2 RESULT:
+ 
+  Correlation energy /Case, /Symm, and sums:
+ VJTU     -0.00400957 -0.00400957
+ VJTIP    -0.01033919 -0.01033919
+ VJTIM    -0.01958357 -0.01958357
+ ATVX     -0.01600922 -0.01600922
+ AIVX     -0.17965637 -0.17965637
+ VJAIP    -0.01431543 -0.01431543
+ VJAIM    -0.00372754 -0.00372754
+ BVATP    -0.02176510 -0.02176510
+ BVATM    -0.05579833 -0.05579833
+ BJATP    -0.01146901 -0.01146901
+ BJATM    -0.00727151 -0.00727151
+ BJAIP    -0.02966641 -0.02966641
+ BJAIM    -0.01427279 -0.01427279
+ Summed:  -0.38788404 -0.38788404
+ 
+      Reference energy:       -1345.4927123898
+      E2 (Non-variational):      -0.3878840361
+      E2 (Variational):          -0.3878840214
+      Total energy:           -1345.8805964112
+      Residual norm:              0.0000006735
+      Reference weight:           0.93784
+ 
+      Contributions to the CASPT2 correlation energy
+      Active & Virtual Only:         -0.0935726417
+      One Inactive Excited:          -0.2024064634
+      Two Inactive Excited:          -0.0919049309
+ 
+ 
+++ Denominators, etc.
+----------------------------------------------------------------------------------------------------
+ Report on small energy denominators, large coefficients, and large energy contributions.
+CASE  SYMM ACTIVE-MIX  NON-ACTIVE INDICES          DENOMINATOR     RHS VALUE       COEFFICIENT     CONTRIBUTION
+ATVX     1  Mu1.0001  Se1.026                       0.23490981      0.00000000     -0.00000000     -0.00000000
+ATVX     1  Mu1.0002  Se1.026                       0.23490981     -0.00000000      0.00000001     -0.00000000
+ATVX     1  Mu1.0003  Se1.026                       0.26756705      0.00000000     -0.00000000     -0.00000000
+ATVX     1  Mu1.0226  Se1.031                       2.01521884     -0.07104975      0.03427566     -0.00243528
+ATVX     1  Mu1.0227  Se1.032                       2.01521884      0.07104975     -0.03427566     -0.00243528
+AIVX     1  Mu1.0091  In1.011 Se1.033               3.49039727      0.09497290     -0.02769943     -0.00263070
+AIVX     1  Mu1.0053  In1.011 Se1.036               3.76218575     -0.09814755      0.02562050     -0.00251459
+AIVX     1  Mu1.0031  In1.011 Se1.037               3.56116464      0.13356294     -0.03684102     -0.00492059
+BVATM    1  Mu1.0001  Se1.032 Se1.031               2.26364872     -0.05622672      0.02570078     -0.00144507
+BVATM    1  Mu1.0022  Se1.044 Se1.043               8.70799343      0.20952723     -0.02406152     -0.00504154
+--
+ 
+   (Skipping property calculation,
+    use PROP keyword to activate)
+--
+ 
+  Total CASPT2 energies:
+::    CASPT2 Root  1     Total energy:  -1345.88059641
+ 
+  A NEW JOBIPH FILE NAMED 'JOBMIX' IS PREPARED.
+********************************************************************************
+forrtl: warning (528): IEEE_UNDERFLOW is signaling
+--- Stop Module: caspt2 at Wed Jan 22 02:08:34 2025 /rc=_RC_ALL_IS_WELL_ ---
+*** files: xmldump
+    saved to directory /home/grierjones/DDCASPT2/iron_oxo_DDCASPT2/cluster/2.45
+--- Module caspt2 spent 14 minutes 58 seconds ---
+
+>>> EXPORT i = B
+
+>>> EXPORT j = P
+
+>>> IF (-FILE GMJ_e2_${i}_${j}.csv)
+
+>>> COPY /tmp/2.45/GMJ_RHS_B_P.csv /home/grierjones/DDCASPT2/iron_oxo_DDCASPT2/cluster/2.45/GMJ_RHS_B_P.csv
+
+>>> COPY /tmp/2.45/GMJ_IVECW_B_P.csv /home/grierjones/DDCASPT2/iron_oxo_DDCASPT2/cluster/2.45/GMJ_IVECW_B_P.csv
+
+>>> COPY /tmp/2.45/GMJ_IVECX_B_P.csv /home/grierjones/DDCASPT2/iron_oxo_DDCASPT2/cluster/2.45/GMJ_IVECX_B_P.csv
+
+>>> COPY /tmp/2.45/GMJ_IVECC2_B_P.csv /home/grierjones/DDCASPT2/iron_oxo_DDCASPT2/cluster/2.45/GMJ_IVECC2_B_P.csv
+
+>>> COPY /tmp/2.45/GMJ_e2_B_P.csv /home/grierjones/DDCASPT2/iron_oxo_DDCASPT2/cluster/2.45/GMJ_e2_B_P.csv
+
+>>> END FOREACH
+
+>>> EXPORT j = M
+
+>>> IF (-FILE GMJ_e2_${i}_${j}.csv)
+
+>>> COPY /tmp/2.45/GMJ_RHS_B_M.csv /home/grierjones/DDCASPT2/iron_oxo_DDCASPT2/cluster/2.45/GMJ_RHS_B_M.csv
+
+>>> COPY /tmp/2.45/GMJ_IVECW_B_M.csv /home/grierjones/DDCASPT2/iron_oxo_DDCASPT2/cluster/2.45/GMJ_IVECW_B_M.csv
+
+>>> COPY /tmp/2.45/GMJ_IVECX_B_M.csv /home/grierjones/DDCASPT2/iron_oxo_DDCASPT2/cluster/2.45/GMJ_IVECX_B_M.csv
+
+>>> COPY /tmp/2.45/GMJ_IVECC2_B_M.csv /home/grierjones/DDCASPT2/iron_oxo_DDCASPT2/cluster/2.45/GMJ_IVECC2_B_M.csv
+
+>>> COPY /tmp/2.45/GMJ_e2_B_M.csv /home/grierjones/DDCASPT2/iron_oxo_DDCASPT2/cluster/2.45/GMJ_e2_B_M.csv
+
+>>> END FOREACH
+
+>>> END FOREACH
+
+>>> EXPORT i = E
+
+>>> EXPORT j = P
+
+>>> IF (-FILE GMJ_e2_${i}_${j}.csv)
+
+>>> COPY /tmp/2.45/GMJ_RHS_E_P.csv /home/grierjones/DDCASPT2/iron_oxo_DDCASPT2/cluster/2.45/GMJ_RHS_E_P.csv
+
+>>> COPY /tmp/2.45/GMJ_IVECW_E_P.csv /home/grierjones/DDCASPT2/iron_oxo_DDCASPT2/cluster/2.45/GMJ_IVECW_E_P.csv
+
+>>> COPY /tmp/2.45/GMJ_IVECX_E_P.csv /home/grierjones/DDCASPT2/iron_oxo_DDCASPT2/cluster/2.45/GMJ_IVECX_E_P.csv
+
+>>> COPY /tmp/2.45/GMJ_IVECC2_E_P.csv /home/grierjones/DDCASPT2/iron_oxo_DDCASPT2/cluster/2.45/GMJ_IVECC2_E_P.csv
+
+>>> COPY /tmp/2.45/GMJ_e2_E_P.csv /home/grierjones/DDCASPT2/iron_oxo_DDCASPT2/cluster/2.45/GMJ_e2_E_P.csv
+
+>>> END FOREACH
+
+>>> EXPORT j = M
+
+>>> IF (-FILE GMJ_e2_${i}_${j}.csv)
+
+>>> COPY /tmp/2.45/GMJ_RHS_E_M.csv /home/grierjones/DDCASPT2/iron_oxo_DDCASPT2/cluster/2.45/GMJ_RHS_E_M.csv
+
+>>> COPY /tmp/2.45/GMJ_IVECW_E_M.csv /home/grierjones/DDCASPT2/iron_oxo_DDCASPT2/cluster/2.45/GMJ_IVECW_E_M.csv
+
+>>> COPY /tmp/2.45/GMJ_IVECX_E_M.csv /home/grierjones/DDCASPT2/iron_oxo_DDCASPT2/cluster/2.45/GMJ_IVECX_E_M.csv
+
+>>> COPY /tmp/2.45/GMJ_IVECC2_E_M.csv /home/grierjones/DDCASPT2/iron_oxo_DDCASPT2/cluster/2.45/GMJ_IVECC2_E_M.csv
+
+>>> COPY /tmp/2.45/GMJ_e2_E_M.csv /home/grierjones/DDCASPT2/iron_oxo_DDCASPT2/cluster/2.45/GMJ_e2_E_M.csv
+
+>>> END FOREACH
+
+>>> END FOREACH
+
+>>> EXPORT i = F
+
+>>> EXPORT j = P
+
+>>> IF (-FILE GMJ_e2_${i}_${j}.csv)
+
+>>> COPY /tmp/2.45/GMJ_RHS_F_P.csv /home/grierjones/DDCASPT2/iron_oxo_DDCASPT2/cluster/2.45/GMJ_RHS_F_P.csv
+
+>>> COPY /tmp/2.45/GMJ_IVECW_F_P.csv /home/grierjones/DDCASPT2/iron_oxo_DDCASPT2/cluster/2.45/GMJ_IVECW_F_P.csv
+
+>>> COPY /tmp/2.45/GMJ_IVECX_F_P.csv /home/grierjones/DDCASPT2/iron_oxo_DDCASPT2/cluster/2.45/GMJ_IVECX_F_P.csv
+
+>>> COPY /tmp/2.45/GMJ_IVECC2_F_P.csv /home/grierjones/DDCASPT2/iron_oxo_DDCASPT2/cluster/2.45/GMJ_IVECC2_F_P.csv
+
+>>> COPY /tmp/2.45/GMJ_e2_F_P.csv /home/grierjones/DDCASPT2/iron_oxo_DDCASPT2/cluster/2.45/GMJ_e2_F_P.csv
+
+>>> END FOREACH
+
+>>> EXPORT j = M
+
+>>> IF (-FILE GMJ_e2_${i}_${j}.csv)
+
+>>> COPY /tmp/2.45/GMJ_RHS_F_M.csv /home/grierjones/DDCASPT2/iron_oxo_DDCASPT2/cluster/2.45/GMJ_RHS_F_M.csv
+
+>>> COPY /tmp/2.45/GMJ_IVECW_F_M.csv /home/grierjones/DDCASPT2/iron_oxo_DDCASPT2/cluster/2.45/GMJ_IVECW_F_M.csv
+
+>>> COPY /tmp/2.45/GMJ_IVECX_F_M.csv /home/grierjones/DDCASPT2/iron_oxo_DDCASPT2/cluster/2.45/GMJ_IVECX_F_M.csv
+
+>>> COPY /tmp/2.45/GMJ_IVECC2_F_M.csv /home/grierjones/DDCASPT2/iron_oxo_DDCASPT2/cluster/2.45/GMJ_IVECC2_F_M.csv
+
+>>> COPY /tmp/2.45/GMJ_e2_F_M.csv /home/grierjones/DDCASPT2/iron_oxo_DDCASPT2/cluster/2.45/GMJ_e2_F_M.csv
+
+>>> END FOREACH
+
+>>> END FOREACH
+
+>>> EXPORT i = G
+
+>>> EXPORT j = P
+
+>>> IF (-FILE GMJ_e2_${i}_${j}.csv)
+
+>>> COPY /tmp/2.45/GMJ_RHS_G_P.csv /home/grierjones/DDCASPT2/iron_oxo_DDCASPT2/cluster/2.45/GMJ_RHS_G_P.csv
+
+>>> COPY /tmp/2.45/GMJ_IVECW_G_P.csv /home/grierjones/DDCASPT2/iron_oxo_DDCASPT2/cluster/2.45/GMJ_IVECW_G_P.csv
+
+>>> COPY /tmp/2.45/GMJ_IVECX_G_P.csv /home/grierjones/DDCASPT2/iron_oxo_DDCASPT2/cluster/2.45/GMJ_IVECX_G_P.csv
+
+>>> COPY /tmp/2.45/GMJ_IVECC2_G_P.csv /home/grierjones/DDCASPT2/iron_oxo_DDCASPT2/cluster/2.45/GMJ_IVECC2_G_P.csv
+
+>>> COPY /tmp/2.45/GMJ_e2_G_P.csv /home/grierjones/DDCASPT2/iron_oxo_DDCASPT2/cluster/2.45/GMJ_e2_G_P.csv
+
+>>> END FOREACH
+
+>>> EXPORT j = M
+
+>>> IF (-FILE GMJ_e2_${i}_${j}.csv)
+
+>>> COPY /tmp/2.45/GMJ_RHS_G_M.csv /home/grierjones/DDCASPT2/iron_oxo_DDCASPT2/cluster/2.45/GMJ_RHS_G_M.csv
+
+>>> COPY /tmp/2.45/GMJ_IVECW_G_M.csv /home/grierjones/DDCASPT2/iron_oxo_DDCASPT2/cluster/2.45/GMJ_IVECW_G_M.csv
+
+>>> COPY /tmp/2.45/GMJ_IVECX_G_M.csv /home/grierjones/DDCASPT2/iron_oxo_DDCASPT2/cluster/2.45/GMJ_IVECX_G_M.csv
+
+>>> COPY /tmp/2.45/GMJ_IVECC2_G_M.csv /home/grierjones/DDCASPT2/iron_oxo_DDCASPT2/cluster/2.45/GMJ_IVECC2_G_M.csv
+
+>>> COPY /tmp/2.45/GMJ_e2_G_M.csv /home/grierjones/DDCASPT2/iron_oxo_DDCASPT2/cluster/2.45/GMJ_e2_G_M.csv
+
+>>> END FOREACH
+
+>>> END FOREACH
+
+>>> EXPORT i = H
+
+>>> EXPORT j = P
+
+>>> IF (-FILE GMJ_e2_${i}_${j}.csv)
+
+>>> COPY /tmp/2.45/GMJ_RHS_H_P.csv /home/grierjones/DDCASPT2/iron_oxo_DDCASPT2/cluster/2.45/GMJ_RHS_H_P.csv
+
+>>> COPY /tmp/2.45/GMJ_IVECW_H_P.csv /home/grierjones/DDCASPT2/iron_oxo_DDCASPT2/cluster/2.45/GMJ_IVECW_H_P.csv
+
+>>> COPY /tmp/2.45/GMJ_IVECX_H_P.csv /home/grierjones/DDCASPT2/iron_oxo_DDCASPT2/cluster/2.45/GMJ_IVECX_H_P.csv
+
+>>> COPY /tmp/2.45/GMJ_IVECC2_H_P.csv /home/grierjones/DDCASPT2/iron_oxo_DDCASPT2/cluster/2.45/GMJ_IVECC2_H_P.csv
+
+>>> COPY /tmp/2.45/GMJ_e2_H_P.csv /home/grierjones/DDCASPT2/iron_oxo_DDCASPT2/cluster/2.45/GMJ_e2_H_P.csv
+
+>>> END FOREACH
+
+>>> EXPORT j = M
+
+>>> IF (-FILE GMJ_e2_${i}_${j}.csv)
+
+>>> COPY /tmp/2.45/GMJ_RHS_H_M.csv /home/grierjones/DDCASPT2/iron_oxo_DDCASPT2/cluster/2.45/GMJ_RHS_H_M.csv
+
+>>> COPY /tmp/2.45/GMJ_IVECW_H_M.csv /home/grierjones/DDCASPT2/iron_oxo_DDCASPT2/cluster/2.45/GMJ_IVECW_H_M.csv
+
+>>> COPY /tmp/2.45/GMJ_IVECX_H_M.csv /home/grierjones/DDCASPT2/iron_oxo_DDCASPT2/cluster/2.45/GMJ_IVECX_H_M.csv
+
+>>> COPY /tmp/2.45/GMJ_IVECC2_H_M.csv /home/grierjones/DDCASPT2/iron_oxo_DDCASPT2/cluster/2.45/GMJ_IVECC2_H_M.csv
+
+>>> COPY /tmp/2.45/GMJ_e2_H_M.csv /home/grierjones/DDCASPT2/iron_oxo_DDCASPT2/cluster/2.45/GMJ_e2_H_M.csv
+
+>>> END FOREACH
+
+>>> END FOREACH
+
+>>> EXPORT i = A
+
+>>> IF (-FILE GMJ_e2_$i.csv)
+
+>>> COPY /tmp/2.45/GMJ_RHS_A.csv /home/grierjones/DDCASPT2/iron_oxo_DDCASPT2/cluster/2.45/GMJ_RHS_A.csv
+
+>>> COPY /tmp/2.45/GMJ_IVECW_A.csv /home/grierjones/DDCASPT2/iron_oxo_DDCASPT2/cluster/2.45/GMJ_IVECW_A.csv
+
+>>> COPY /tmp/2.45/GMJ_IVECX_A.csv /home/grierjones/DDCASPT2/iron_oxo_DDCASPT2/cluster/2.45/GMJ_IVECX_A.csv
+
+>>> COPY /tmp/2.45/GMJ_IVECC2_A.csv /home/grierjones/DDCASPT2/iron_oxo_DDCASPT2/cluster/2.45/GMJ_IVECC2_A.csv
+
+>>> COPY /tmp/2.45/GMJ_e2_A.csv /home/grierjones/DDCASPT2/iron_oxo_DDCASPT2/cluster/2.45/GMJ_e2_A.csv
+
+>>> END FOREACH
+
+>>> EXPORT i = C
+
+>>> IF (-FILE GMJ_e2_$i.csv)
+
+>>> COPY /tmp/2.45/GMJ_RHS_C.csv /home/grierjones/DDCASPT2/iron_oxo_DDCASPT2/cluster/2.45/GMJ_RHS_C.csv
+
+>>> COPY /tmp/2.45/GMJ_IVECW_C.csv /home/grierjones/DDCASPT2/iron_oxo_DDCASPT2/cluster/2.45/GMJ_IVECW_C.csv
+
+>>> COPY /tmp/2.45/GMJ_IVECX_C.csv /home/grierjones/DDCASPT2/iron_oxo_DDCASPT2/cluster/2.45/GMJ_IVECX_C.csv
+
+>>> COPY /tmp/2.45/GMJ_IVECC2_C.csv /home/grierjones/DDCASPT2/iron_oxo_DDCASPT2/cluster/2.45/GMJ_IVECC2_C.csv
+
+>>> COPY /tmp/2.45/GMJ_e2_C.csv /home/grierjones/DDCASPT2/iron_oxo_DDCASPT2/cluster/2.45/GMJ_e2_C.csv
+
+>>> END FOREACH
+
+>>> EXPORT i = D
+
+>>> IF (-FILE GMJ_e2_$i.csv)
+
+>>> COPY /tmp/2.45/GMJ_RHS_D.csv /home/grierjones/DDCASPT2/iron_oxo_DDCASPT2/cluster/2.45/GMJ_RHS_D.csv
+
+>>> COPY /tmp/2.45/GMJ_IVECW_D.csv /home/grierjones/DDCASPT2/iron_oxo_DDCASPT2/cluster/2.45/GMJ_IVECW_D.csv
+
+>>> COPY /tmp/2.45/GMJ_IVECX_D.csv /home/grierjones/DDCASPT2/iron_oxo_DDCASPT2/cluster/2.45/GMJ_IVECX_D.csv
+
+>>> COPY /tmp/2.45/GMJ_IVECC2_D.csv /home/grierjones/DDCASPT2/iron_oxo_DDCASPT2/cluster/2.45/GMJ_IVECC2_D.csv
+
+>>> COPY /tmp/2.45/GMJ_e2_D.csv /home/grierjones/DDCASPT2/iron_oxo_DDCASPT2/cluster/2.45/GMJ_e2_D.csv
+
+>>> END FOREACH
+
+.########################.
+.# Non-zero return code #.
+.########################.
+
+    Timing: Wall=1077.36 User=1073.06 System=4.22
+************************************
+*** WorkDir at /tmp/2.45 cleaned ***
+************************************
