@@ -764,7 +764,7 @@ MAXITER
         
         if run==True:
             call(['pymolcas','-new','-clean',os.path.join(self.path,f'{self.name}.input'), '-oe', os.path.join(self.path,f'{self.name}.output')])
-        self.write_energies()
+            self.write_energies()
             
         self.gen_feats()
         

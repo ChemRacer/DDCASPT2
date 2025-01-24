@@ -764,15 +764,16 @@ MAXITER
         '''
         Create input, run file, write energies to file, generate feature data, and clean up
         '''
-        # if run==True:
-        self.write_input()
+        if run==True:
+            self.write_input()
         
         top = os.getcwd()
         os.chdir(self.path)
         
         if run==True:
             call(['pymolcas','-new','-clean',os.path.join(self.path,f'{self.name}.input'), '-oe', os.path.join(self.path,f'{self.name}.output')])
-            self.write_energies()
+        
+        self.write_energies()
           
         self.gen_feats()
         
