@@ -1,7 +1,7 @@
 #!/bin/bash
 files=$(find . -name "GMJ_e2_A*" | sort -h)
 for i in *; do
-   if [[ ! -e "$i/GMJ_e2_A.csv" && -d "$i" ]]; then
+   if [[ ! -e "$i/$i.csv" && -d "$i" ]]; then
        echo "$i"
        echo "File does not exist."
        cd $i
