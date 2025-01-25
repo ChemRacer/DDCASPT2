@@ -1,0 +1,1458 @@
+   This run of MOLCAS is using the pymolcas driver
+
+                             OPE
+                             OPE          NMOL  CASOP  ENMOLC A   SO
+                 OPE        NMOLC        AS  OP EN  MO LC     AS  OP
+                OPENM       OL CA        SO  PE NM  OL CA     SOP EN
+                OP EN      MO   LC       AS  OP ENMOL  CASO   PENMOL
+                OP  EN     MO   LC       AS  OP EN     MO     LC ASO
+               OP   E  NMOL  C  AS       OP  EN MO     LC     AS  OP
+               OP  E   NMO   LC AS        OPEN  MO     LCASOP EN   M
+               O  PEN   MO  LCA  SO
+            OPE   NMO   L   CAS    OP
+        OPENMOL  CASOP     ENMOL   CASOPE
+     OPENMOLCA   SOPENMOLCASOPEN   MOLCASOPE
+    OPENMOLCAS   OP           EN   MOL    CAS
+    OPENMOLCAS       OP  ENM        O     LCA
+    OPENMOLCAS    OPEN  MOLCASO     P  E  NMO
+    OPENMOLCAS     OP               E  N  MOL
+    OPENMOLCA   SO           PENM   O  L  CAS    OPEN    MO    LCAS
+    OPENMOLCA   SOP           ENM   O  L  CAS   OP  EN  MOLC  AS   O
+    OPENMOLCA   SOPE           NM      O  LCA   S      OP  EN MO
+    OPENMOLC                AS         O  PEN   M      OL  CA  SOPE
+    OPENMO        LCASOPE  NMOL        C  ASO   P      ENMOLC     AS
+    OPE     NMO      LCA  SO     P     E   NM   OL  CA SO  PE N   MO
+          OPENMOLCA            SOPE   NMO        LCAS  O    P  ENMO
+     OPENMOLCASOPENMOLCASOPENMOLCASOPENMOLCA
+        OPENMOLCASOPENMOLCASOPENMOLCASOPE
+            OPENMOLCASOPENMOLCASOPENM
+               OPENMOLCASOPENMOLCA        version: 1d1d16313-dirty
+                   OPENMOLCASO
+                       OPE                tag:
+
+ OpenMolcas is free software; you can redistribute it and/or modify it
+ under the terms of the GNU Lesser General Public License version 2.1.
+ OpenMolcas is distributed in the hope that it will be useful, but it
+ is provided "as is" and without any express or implied warranties.
+ For more details see the full text of the license in the file
+ LICENSE or in <http://www.gnu.org/licenses/>.
+
+                 Copyright (C) The OpenMolcas Authors
+           For the author list and the recommended citation,
+                   consult the file CONTRIBUTORS.md
+
+           *************************************************
+           * pymolcas version py2.28                       *
+           *   build c4a6d18ded8cb6cad61d2372a9abd97c      *
+           *   (after the EMIL interpreter by V. Veryazov) *
+           *************************************************
+
+configuration info
+------------------
+C Compiler ID: IntelLLVM
+C flags: -std=gnu99
+Fortran Compiler ID: IntelLLVM
+Fortran flags: -standard-semantics -fltconsistency -fpp -i8 -heap-arrays
+Definitions: _MOLCAS_;_I8_;_LINUX_
+Parallel: OFF (GA=OFF)
+
+
+   ------------------------------------------------------------------------------
+  |
+  |              Project: ozone_121.25
+  |       Submitted from: /home/grierjones/DDCASPT2/ozone/ANO-RCC-MB/ozone_121.25
+  |         Scratch area: /tmp/ozone_121.25
+  |      Save outputs to: /home/grierjones/DDCASPT2/ozone/ANO-RCC-MB/ozone_121.25
+  |               Molcas: /home/grierjones/Test/build
+  |
+  | Scratch area is empty
+  |
+  |       MOLCAS_DRIVER = /usr/local/pymolcas
+  | MOLCAS_KEEP_WORKDIR = NO
+  |  MOLCAS_NEW_WORKDIR = YES
+  |       MOLCAS_NPROCS = 1
+  |        MOLCAS_PRINT = NORMAL
+  |       MOLCAS_SOURCE = /home/grierjones/Test
+  |    MOLCAS_STRUCTURE = 0
+  |
+   ------------------------------------------------------------------------------
+
+++ ---------   Input file   ---------
+
+&GATEWAY
+coord=ozone_121.25.xyz
+Basis = ANO-RCC-MB
+Group = nosymm
+Expert
+End of Input
+
+&SEWARD
+End of Input
+
+&SCF
+
+>>> COPY $WorkDir/ozone_121.25.scf.h5 $CurrDir/
+
+&RASSCF
+Title= RASSCF
+FileOrb
+/home/grierjones/DDCASPT2/ozone/ANO-RCC-MB/ozone_121.00/ozone_121.00.RasOrb
+NACTEL
+4 0 0
+Inactive
+10
+RAS2
+3
+Symmetry
+1
+Spin
+1
+orblisting
+all
+ITERation
+300 200
+
+>>> COPY $WorkDir/ozone_121.25.rasscf.h5 $CurrDir/
+
+>>> COPY $WorkDir/GMJ_Fock_MO.csv $CurrDir/ozone_121.25.GMJ_Fock_MO.csv
+
+>>> COPY $WorkDir/GMJ_PT2_Fock_MO.csv $CurrDir/ozone_121.25.GMJ_PT2_Fock_MO.csv
+
+&MOTRA
+Frozen=0
+LUMORB
+
+>>> COPY $WorkDir/GMJ_one_int_indx.csv $CurrDir/ozone_121.25.GMJ_one_int_indx.csv
+
+>>> COPY $WorkDir/GMJ_one_int.csv $CurrDir/ozone_121.25.GMJ_one_int.csv
+
+>>> COPY $WorkDir/GMJ_two_int_indx.csv $CurrDir/ozone_121.25.GMJ_two_int_indx.csv
+
+>>> COPY $WorkDir/GMJ_two_int.csv $CurrDir/ozone_121.25.GMJ_two_int.csv
+
+&CASPT2
+Frozen
+0
+MAXITER
+50
+
+>>> FOREACH i IN (B,E,F,G,H)
+
+  >>> FOREACH j IN (P,M)
+
+    >>> IF (-FILE GMJ_e2_${i}_${j}.csv)
+
+      >>> COPY $WorkDir/GMJ_RHS_${i}_${j}.csv $CurrDir/GMJ_RHS_${i}_${j}.csv
+
+      >>> COPY $WorkDir/GMJ_IVECW_${i}_${j}.csv $CurrDir/GMJ_IVECW_${i}_${j}.csv
+
+      >>> COPY $WorkDir/GMJ_IVECX_${i}_${j}.csv $CurrDir/GMJ_IVECX_${i}_${j}.csv
+
+      >>> COPY $WorkDir/GMJ_IVECC2_${i}_${j}.csv $CurrDir/GMJ_IVECC2_${i}_${j}.csv
+
+      >>> COPY $WorkDir/GMJ_e2_${i}_${j}.csv $CurrDir/GMJ_e2_${i}_${j}.csv
+
+    >>> END IF
+
+  >>> END FOREACH
+
+>>> END FOREACH
+
+>>> FOREACH i IN (A,C,D)
+
+  >>> IF (-FILE GMJ_e2_$i.csv)
+
+    >>> COPY $WorkDir/GMJ_RHS_$i.csv $CurrDir/GMJ_RHS_$i.csv
+
+    >>> COPY $WorkDir/GMJ_IVECW_$i.csv $CurrDir/GMJ_IVECW_$i.csv
+
+    >>> COPY $WorkDir/GMJ_IVECX_$i.csv $CurrDir/GMJ_IVECX_$i.csv
+
+    >>> COPY $WorkDir/GMJ_IVECC2_$i.csv $CurrDir/GMJ_IVECC2_$i.csv
+
+    >>> COPY $WorkDir/GMJ_e2_$i.csv $CurrDir/GMJ_e2_$i.csv
+
+  >>> END IF
+
+>>> END FOREACH
+
+-- ----------------------------------
+
+--- Start Module: gateway at Sat Jan 25 14:02:54 2025 ---
+ 
+()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()
+
+                                              &GATEWAY
+
+                                   only a single process is used
+                       available to each process: 2.0 GB of memory, 1 thread?
+()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()
+ 
+ ###############################################################################
+ ###############################################################################
+ ###                                                                         ###
+ ###                                                                         ###
+ ###                                                                         ###
+ ###    WARNING: EXPERT option is ON!                                        ###
+ ###                                                                         ###
+ ###                                                                         ###
+ ###############################################################################
+ ###############################################################################
+ 
+++    Symmetry information:
+      ---------------------
+ 
+                    Character Table for C1 
+ 
+                             E  
+                    a        1  x, y, xy, Rz, z, xz, Ry, yz, Rx, I
+--
+ 
+ 
+++    Basis set information:
+      ----------------------
+ 
+ 
+      Basis set label: O.ANO-RCC...2S1P.
+ 
+      Electronic valence basis set:
+      ------------------
+      Associated Effective Charge   8.000000 au
+      Associated Actual Charge      8.000000 au
+      Nuclear Model: Point charge
+ 
+      Shell  nPrim  nBasis  Cartesian Spherical Contaminant
+         s      14       2        X                  
+         p       9       1        X                  
+--
+ 
+ 
+++    Molecular structure info:
+      -------------------------
+ 
+                    ************************************************ 
+                    **** Cartesian Coordinates / Bohr, Angstrom **** 
+                    ************************************************ 
+ 
+     Center  Label                x              y              z                     x              y              z
+        1      O1               1.184649       2.104560       0.000000              0.626889       1.113685       0.000000
+        2      O2               0.000000       0.000000       0.000000              0.000000       0.000000       0.000000
+        3      O3               1.184649      -2.104560       0.000000              0.626889      -1.113685       0.000000
+ 
+                    *************************************** 
+                    *    InterNuclear Distances / Bohr    * 
+                    *************************************** 
+ 
+               1 O1            2 O2            3 O3    
+    1 O1       0.000000
+    2 O2       2.415070        0.000000
+    3 O3       4.209119        2.415070        0.000000
+ 
+                    ******************************************* 
+                    *    InterNuclear Distances / Angstrom    * 
+                    ******************************************* 
+ 
+               1 O1            2 O2            3 O3    
+    1 O1       0.000000
+    2 O2       1.278000        0.000000
+    3 O3       2.227370        1.278000        0.000000
+ 
+                    ************************************** 
+                    *    Valence Bond Angles / Degree    * 
+                    ************************************** 
+                          Atom centers                 Phi
+                      1 O1       2 O2       3 O3       121.25
+--
+ 
+ 
+            Nuclear Potential Energy             68.20561392 au
+ 
+ ###############################################################################
+ ###############################################################################
+ ###                                                                         ###
+ ###                                                                         ###
+ ###    There were warnings during the execution                             ###
+ ###    Please, check the output with care!                                  ###
+ ###                                                                         ###
+ ###                                                                         ###
+ ###############################################################################
+ ###############################################################################
+--- Stop Module: gateway at Sat Jan 25 14:02:54 2025 /rc=_RC_ALL_IS_WELL_ ---
+*** files: xmldump
+    saved to directory /home/grierjones/DDCASPT2/ozone/ANO-RCC-MB/ozone_121.25
+
+--- Start Module: seward at Sat Jan 25 14:02:54 2025 ---
+ 
+()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()
+
+                                              &SEWARD
+
+                                   only a single process is used
+                       available to each process: 2.0 GB of memory, 1 thread?
+()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()
+ 
+ ###############################################################################
+ ###############################################################################
+ ###                                                                         ###
+ ###                                                                         ###
+ ###                                                                         ###
+ ###    WARNING: EXPERT option is ON!                                        ###
+ ###                                                                         ###
+ ###                                                                         ###
+ ###############################################################################
+ ###############################################################################
+               SEWARD will generate:
+                  Multipole Moment integrals up to order  2
+                  Kinetic Energy integrals
+                  Nuclear Attraction integrals (point charge)
+                  One-Electron Hamiltonian integrals
+                  Velocity integrals
+                  Relativistic Douglas-Kroll-Hess integrals:
+                    - Parametrization         : EXP
+                    - DKH order of Hamiltonian: 2
+                    - DKH order of Properties : 0
+                         - multipole moment operators
+                         - electric potential operators
+                         - contact operators
+                  Atomic mean-field integrals
+                  Two-Electron Repulsion integrals
+ 
+                   Integrals are discarded if absolute value <: 0.10E-13
+                   Integral cutoff threshold is set to       <: 0.10E-15
+ 
+            Nuclear Potential Energy             68.20561392 au
+ 
+ 
+      Basis set specifications :
+      Symmetry species         a  
+      Basis functions           15
+ 
+ 
+  Input file to MOLDEN was generated!
+ 
+ ###############################################################################
+ ###############################################################################
+ ###                                                                         ###
+ ###                                                                         ###
+ ###    There were warnings during the execution                             ###
+ ###    Please, check the output with care!                                  ###
+ ###                                                                         ###
+ ###                                                                         ###
+ ###############################################################################
+ ###############################################################################
+forrtl: warning (525): IEEE_DIVIDE_BY_ZERO is signaling
+forrtl: warning (526): IEEE_INVALID is signaling
+forrtl: warning (528): IEEE_UNDERFLOW is signaling
+--- Stop Module: seward at Sat Jan 25 14:02:54 2025 /rc=_RC_ALL_IS_WELL_ ---
+*** files: ozone_121.25.GssOrb ozone_121.25.guessorb.h5 ozone_121.25.guessorb.molden xmldump
+    saved to directory /home/grierjones/DDCASPT2/ozone/ANO-RCC-MB/ozone_121.25
+
+*** symbolic link created: INPORB -> ozone_121.25.GssOrb
+--- Start Module: scf at Sat Jan 25 14:02:54 2025 ---
+ 
+()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()
+
+                                                &SCF
+
+                                   only a single process is used
+                       available to each process: 2.0 GB of memory, 1 thread?
+()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()
+ 
+++    Input section:
+      --------------
+ 
+      Header of the integral files:
+      
+       Integrals generated by seward 4.2.0  , Sat Jan 25 14:02:54 2025
+ 
+ 
+      Cartesian coordinates in Angstrom:
+      -----------------------------------------------------
+      No.  Label        X            Y            Z        
+      -----------------------------------------------------
+       1   O1         0.62688900   1.11368500   0.00000000
+       2   O2         0.00000000   0.00000000   0.00000000
+       3   O3         0.62688900  -1.11368500   0.00000000
+      -----------------------------------------------------
+      Nuclear repulsion energy =   68.20561392
+--
+ 
+++    Orbital specifications:
+      -----------------------
+ 
+      Symmetry species               1
+                                     a
+      Frozen orbitals                0
+      Occupied orbitals             12
+      Secondary orbitals             3
+      Deleted orbitals               0
+      Total number of orbitals      15
+      Number of basis functions     15
+--
+ 
+      Molecular charge                           0.000
+ 
+++    Optimization specifications:
+      ----------------------------
+ 
+      SCF Algorithm: Conventional
+      Minimized density differences are used
+      Number of density matrices in core                5
+      Maximum number of NDDO SCF iterations           400
+      Maximum number of HF SCF iterations             400
+      Threshold for SCF energy change            0.10E-08
+      Threshold for density matrix               0.10E-03
+      Threshold for Fock matrix                  0.15E-03
+      Threshold for linear dependence            0.10E-08
+      Threshold at which DIIS is turned on       0.15E+00
+      Threshold at which QNR/C2DIIS is turned on 0.75E-01
+      Threshold for Norm(delta) (QNR/C2DIIS)     0.20E-04
+      DIIS extrapolation of the SCF procedure
+      All orbitals punched on: SCFORB
+--
+ 
+      Input vectors read from INPORB
+      Orbital file label: *Guess orbitals
+ 
+ 
+++ Convergence information
+                                   SCF        iterations: Energy and convergence statistics
+ 
+Iter     Tot. SCF        One-elec.       Two-elec.     Energy      Max Dij or  Max Fij      DNorm      TNorm      AccCon     Time
+         Energy          Energy          Energy        Change      Delta Norm                                                in Sec.
+   1  -223.894276475  -440.073164643   147.973274251   0.00E+00    0.62E+00*   0.26E+00*    0.74E+01   0.49E+02   None         0.
+   2  -224.154426547  -443.048335143   150.688294680  -0.26E+00*   0.42E+00*   0.14E+00*    0.24E+01   0.50E+02   EDIIS        0.
+   3  -224.212450566  -441.686774985   149.268710503  -0.58E-01*   0.13E+00*   0.79E-01*    0.54E+00   0.50E+02   EDIIS        0.
+   4  -224.243698791  -442.465989002   150.016676295  -0.31E-01*   0.15E-01*   0.23E-01*    0.92E-01   0.50E+02   c2DIIS       0.
+   5  -224.248396159  -442.264652032   149.810641956  -0.47E-02*   0.53E-02*   0.33E-02*    0.17E-01   0.50E+02   QNRc2DIIS    0.
+   6  -224.248471873  -442.270170948   149.816085159  -0.76E-04*   0.87E-02*   0.18E-02*    0.68E-02   0.50E+02   QNRc2DIIS    0.
+   7  -224.248516363  -442.267774593   149.813644314  -0.44E-04*   0.11E-02*   0.93E-03*    0.42E-02   0.50E+02   QNRc2DIIS    0.
+   8  -224.248518366  -442.272285496   149.818153213  -0.20E-05*   0.55E-03*   0.36E-03*    0.38E-03   0.50E+02   QNRc2DIIS    0.
+   9  -224.248518980  -442.270123778   149.815990882  -0.61E-06*   0.46E-04*   0.24E-04     0.11E-03   0.50E+02   QNRc2DIIS    0.
+  10  -224.248518983  -442.270188947   149.816056048  -0.31E-08*   0.25E-05    0.20E-05     0.49E-04   0.50E+02   QNRc2DIIS    0.
+  11  -224.248518983  -442.270187112   149.816054212  -0.14E-10    0.51E-06    0.49E-06     0.26E-04   0.50E+02   QNRc2DIIS    0.
+ 
+       Convergence after 11 Macro Iterations
+--
+ 
+ *****************************************************************************************************************************
+ *                                                                                                                           *
+ *                                             SCF/KS-DFT Program, Final results                                             *
+ *                                                                                                                           *
+ *                                                                                                                           *
+ *                                                                                                                           *
+ *                                                       Final Results                                                       *
+ *                                                                                                                           *
+ *****************************************************************************************************************************
+ 
+::    Total SCF energy                               -224.2485189830
+      One-electron energy                            -442.2701871115
+      Two-electron energy                             149.8160542123
+      Nuclear repulsion energy                         68.2056139162
+      Kinetic energy (interpolated)                   224.7596119386
+      Virial theorem                                    0.9977260463
+      Total spin, S(S+1)                                0.0000000000
+      Total spin, S                                     0.0000000000
+      Max non-diagonal density matrix element           0.0000005572
+      Max non-diagonal Fock matrix element              0.0000000767
+ 
+ 
+      All orbitals with orbital energies smaller than  E(LUMO)+0.5 are printed
+ 
+++    Molecular orbitals:
+      -------------------
+ 
+      Title: SCF orbitals
+
+      Molecular orbitals for symmetry species 1: a  
+ 
+          Orbital            1         2         3         4         5         6         7         8         9        10    
+          Energy          -21.0614  -20.7928  -20.7927   -1.8062   -1.4843   -1.1326   -0.8666   -0.8310   -0.8193   -0.6183
+          Occ. No.          2.0000    2.0000    2.0000    2.0000    2.0000    2.0000    2.0000    2.0000    2.0000    2.0000
+ 
+        1 O1     1s         0.0010   -0.7071    0.7071   -0.0191    0.0130    0.0092   -0.0170   -0.0000   -0.0243    0.0037
+        2 O1     2s        -0.0004   -0.0003    0.0001    0.2865   -0.5650    0.5978   -0.2928   -0.0000   -0.4337    0.0582
+        3 O1     2px       -0.0001    0.0006   -0.0006   -0.0560    0.0509    0.0863    0.1582   -0.0000   -0.3319   -0.5354
+        4 O1     2py        0.0002    0.0012   -0.0010   -0.0943    0.0990    0.0801   -0.3129   -0.0000   -0.2605    0.5005
+        5 O1     2pz       -0.0000   -0.0000   -0.0000   -0.0000    0.0000    0.0000   -0.0000    0.3429   -0.0000    0.0000
+        6 O2     1s         1.0000   -0.0000   -0.0017   -0.0231   -0.0000   -0.0159   -0.0069   -0.0000   -0.0000   -0.0000
+        7 O2     2s        -0.0000   -0.0000   -0.0011    0.6544   -0.0000   -0.6605   -0.0808   -0.0000    0.0000   -0.0000
+        8 O2     2px        0.0015   -0.0000   -0.0002    0.1498   -0.0000    0.2193    0.7092    0.0000    0.0000    0.0000
+        9 O2     2py        0.0000    0.0006   -0.0000   -0.0000   -0.3423    0.0000   -0.0000    0.0000    0.5920   -0.1593
+       10 O2     2pz       -0.0000    0.0000   -0.0000   -0.0000   -0.0000   -0.0000   -0.0000    0.7362   -0.0000   -0.0000
+       11 O3     1s         0.0010    0.7071    0.7071   -0.0191   -0.0130    0.0092   -0.0170    0.0000    0.0243   -0.0037
+       12 O3     2s        -0.0004    0.0003    0.0001    0.2865    0.5650    0.5978   -0.2928    0.0000    0.4337   -0.0582
+       13 O3     2px       -0.0001   -0.0006   -0.0006   -0.0560   -0.0509    0.0863    0.1582    0.0000    0.3319    0.5354
+       14 O3     2py       -0.0002    0.0012    0.0010    0.0943    0.0990   -0.0801    0.3129   -0.0000   -0.2605    0.5005
+       15 O3     2pz       -0.0000    0.0000    0.0000   -0.0000   -0.0000   -0.0000   -0.0000    0.3429   -0.0000   -0.0000
+ 
+          Orbital           11        12        13        14        15    
+          Energy           -0.5880   -0.5256   -0.1071    0.2375    0.3840
+          Occ. No.          2.0000    2.0000    0.0000    0.0000    0.0000
+ 
+        1 O1     1s         0.0070   -0.0000    0.0000   -0.0262   -0.0458
+        2 O1     2s         0.0625   -0.0000    0.0000   -0.3075   -0.4376
+        3 O1     2px        0.6548   -0.0000    0.0000    0.2511    0.4292
+        4 O1     2py       -0.1311    0.0000   -0.0000    0.6950    0.5431
+        5 O1     2pz       -0.0000   -0.7226    0.6378    0.0000    0.0000
+        6 O2     1s         0.0179   -0.0000    0.0000    0.0831    0.0000
+        7 O2     2s         0.2134   -0.0000    0.0000    0.8253    0.0000
+        8 O2     2px       -0.5252    0.0000   -0.0000    0.5964    0.0000
+        9 O2     2py       -0.0000    0.0000    0.0000   -0.0000    1.0111
+       10 O2     2pz        0.0000   -0.0000   -0.7424    0.0000    0.0000
+       11 O3     1s         0.0070   -0.0000    0.0000   -0.0262    0.0458
+       12 O3     2s         0.0625    0.0000    0.0000   -0.3075    0.4376
+       13 O3     2px        0.6548   -0.0000    0.0000    0.2511   -0.4292
+       14 O3     2py        0.1311    0.0000   -0.0000   -0.6950    0.5431
+       15 O3     2pz        0.0000    0.7226    0.6378    0.0000   -0.0000
+--
+ 
+ 
+++    Molecular charges:
+      ------------------
+ 
+      Mulliken charges per centre and basis function type
+      ---------------------------------------------------
+ 
+                O1      O2      O3    
+      1s       2.0001  2.0001  2.0001
+      2s       1.9164  1.7674  1.9164
+      2px      1.7255  1.6763  1.7255
+      2pz      1.3516  1.2969  1.3516
+      2py      1.0691  1.1339  1.0691
+      Total    8.0627  7.8746  8.0627
+ 
+      N-E     -0.0627  0.1254 -0.0627
+ 
+      Total electronic charge=   24.000000
+ 
+      Total            charge=   -0.000000
+--
+ 
+ 
+  Input file to MOLDEN was generated!
+ 
+ 
+++    Static properties:
+      ------------------
+ 
+ 
+      LoProp Charges per center
+ 
+
+                   O1       O2       O3    
+      Nuclear      8.0000   8.0000   8.0000
+      Electronic  -8.1106  -7.7787  -8.1106
+ 
+      Total       -0.1106   0.2213  -0.1106
+--
+ 
+ 
+++    Natural Bond Order analysis
+      ---------------------------
+      Based on LoProp computed density
+      -------------------------------------------------------------------------------------
+      Atom A       Atom B       Bond Order | Atom A       Atom B       Bond Order
+        O1           O2             2.000  |   O2           O3             2.000
+      -------------------------------------------------------------------------------------
+      NBO located     12.000 core electrons.
+      NBO located      3.954 lone pair electrons.
+      NBO located      8.000 electrons involved in    2 bonds.
+      The remaining    0.046 electrons are to be considered as diffuse
+--
+ 
+ 
+++    Molecular properties:
+      ---------------------
+ 
+      Charge (e):
+                      =   -0.0000
+      Dipole Moment (Debye):
+      Origin of the operator (Ang)=    0.0000    0.0000    0.0000
+                   X= -2.1705E-01               Y= -3.5953E-11               Z= -6.0069E-14           Total=  2.1705E-01
+      Quadrupole Moment (Debye*Ang):
+      Origin of the operator (Ang)=    0.4179    0.0000    0.0000
+                  XX= -1.7370E+01              XY= -3.3326E-11              XZ=  2.5363E-13              YY= -1.8447E+01
+                  YZ= -9.7826E-15              ZZ= -1.5771E+01
+      In traceless form (Debye*Ang)
+                  XX= -2.6126E-01              XY= -4.9989E-11              XZ=  3.8044E-13              YY= -1.8765E+00
+                  YZ= -1.4674E-14              ZZ=  2.1377E+00
+--
+ 
+ 
+  Input file to MOLDEN was generated!
+ 
+ ###############################################################################
+ ###############################################################################
+ ###                                                                         ###
+ ###                                                                         ###
+ ###    RunFile label nBas                                                   ###
+ ###    was used       78 times                                              ###
+ ###                                                                         ###
+ ###                                                                         ###
+ ###############################################################################
+ ###############################################################################
+forrtl: warning (528): IEEE_UNDERFLOW is signaling
+--- Stop Module: scf at Sat Jan 25 14:02:54 2025 /rc=_RC_ALL_IS_WELL_ ---
+*** files: ozone_121.25.LprOrb ozone_121.25.LoProp.molden ozone_121.25.scf.molden ozone_121.25.ScfOrb ozone_121.25.scf.h5 xmldump
+    saved to directory /home/grierjones/DDCASPT2/ozone/ANO-RCC-MB/ozone_121.25
+
+>>> COPY /tmp/ozone_121.25/ozone_121.25.scf.h5 /home/grierjones/DDCASPT2/ozone/ANO-RCC-MB/ozone_121.25/
+
+*** symbolic link created: INPORB -> ozone_121.25.ScfOrb
+--- Start Module: rasscf at Sat Jan 25 14:02:54 2025 ---
+ 
+()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()
+
+                                              &RASSCF
+
+                                   only a single process is used
+                       available to each process: 2.0 GB of memory, 1 thread?
+()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()
+ 
+ 
+ *************** WARNING ****************
+ ###############################################################################
+ ###############################################################################
+ ###                                                                         ###
+ ###                                                                         ###
+ ###    Too many macro-iterations.                                           ###
+ ###                                                                         ###
+ ###                                                                         ###
+ ###############################################################################
+ ###############################################################################
+ Too many macro-iterations requested.
+ Reset to maximum, new MAXIT=     200
+ ****************************************
+ 
+ *************** WARNING ****************
+ ###############################################################################
+ ###############################################################################
+ ###                                                                         ###
+ ###                                                                         ###
+ ###    Too many SX-iterations.                                              ###
+ ###                                                                         ###
+ ###                                                                         ###
+ ###############################################################################
+ ###############################################################################
+ Too many SX-iterations requested.
+ Reset to maximum, new ITMAX=     100
+ ****************************************
+ 
+      Header of the ONEINT file:
+      --------------------------
+      
+      Integrals generated by seward 4.2.0  , Sat Jan 25 14:02:54 2025
+ 
+ 
+      OrdInt status: non-squared
+ 
+ 
+      Cartesian coordinates in Angstrom:
+      -----------------------------------------------------
+      No.  Label        X            Y            Z        
+      -----------------------------------------------------
+       1   O1         0.62688900   1.11368500   0.00000000
+       2   O2         0.00000000   0.00000000   0.00000000
+       3   O3         0.62688900  -1.11368500   0.00000000
+      -----------------------------------------------------
+      Nuclear repulsion energy =   68.20561392
+ 
+++    Wave function specifications:
+      -----------------------------
+ 
+      Number of closed shell electrons          20
+      Number of electrons in active shells       4
+      Max number of holes in RAS1 space          0
+      Max nr of electrons in RAS3 space          0
+      Number of inactive orbitals               10
+      Number of active orbitals                  3
+      Number of secondary orbitals               2
+      Spin quantum number                      0.0
+      State symmetry                             1
+--
+ 
+++    Orbital specifications:
+      -----------------------
+ 
+      Symmetry species                           1
+                                                 a
+      Frozen orbitals                            0
+      Inactive orbitals                         10
+      Active orbitals                            3
+      RAS1 orbitals                              0
+      RAS2 orbitals                              3
+      RAS3 orbitals                              0
+      Secondary orbitals                         2
+      Deleted orbitals                           0
+      Number of basis functions                 15
+--
+ 
+++    CI expansion specifications:
+      ----------------------------
+ 
+      Number of CSFs                             6
+      Number of determinants                     6
+      Number of root(s) required                 1
+      Root chosen for geometry opt.              1
+      CI root used                               1
+         
+      highest root included in the CI            1
+      max. size of the explicit Hamiltonian      6
+--
+ 
+++    Optimization specifications:
+      ----------------------------
+ 
+      RASSCF algorithm: Conventional
+      Maximum number of macro iterations       200
+      Maximum number of SX iterations          100
+      Threshold for RASSCF energy            0.100E-07
+      Threshold for max MO rotation          0.100E+00
+      Threshold for max BLB element          0.100E-03
+      Level shift parameter                  0.500E+00
+      Make Quasi-Newton update
+--
+ 
+      The MO-coefficients are taken from the file:
+      /home/grierjones/DDCASPT2/ozone/ANO-RCC-MB/ozone_121.00/ozone_121.00.RasOrb                                                     
+      Title: RASSCF average (pseudo-natural) orbitals                                      
+ 
+      Total molecular charge    0.00
+ 
+      ************************************************************************************************************************
+      *                                                                                                                      *
+      *                                            Wave function control section                                             *
+      *                                                                                                                      *
+      ************************************************************************************************************************
+ 
+ 
+                                         RASSCF iterations: Energy and convergence statistics
+                                         ----------------------------------------------------
+ 
+      Iter CI   SX   CI       RASSCF       Energy    max ROT     max BLB   max BLB  Level Ln srch  Step   QN   Walltime
+          iter iter root      energy       change     param      element    value   shift minimum  type update hh:mm:ss
+ Nr of preliminary CI iterations:   1
+        1   1    3    1  -224.36601730    0.00E+00  -0.63E-03    7  14 1 -0.17E-02*  0.23   0.00    SX    NO    0:00:00
+        2   1    3    1  -224.36602095   -0.37E-05*  0.33E-03    9  15 1  0.84E-03*  0.23   0.00    SX    NO    0:00:00
+        3   1    3    1  -224.36602214   -0.12E-05*  0.21E-03    7  14 1 -0.55E-03*  0.23   0.00    SX    NO    0:00:00
+        4   1    3    1  -224.36602259   -0.45E-06*  0.12E-03    9  15 1  0.30E-03*  0.23   0.00    SX    NO    0:00:00
+        5   1    2    1  -224.36602275   -0.16E-06*  0.18E-03    9  15 1  0.19E-03*  0.23   2.50    LS   YES    0:00:00
+        6   1    2    1  -224.36602285   -0.10E-06*  0.31E-04   10  14 1 -0.42E-04   0.23   1.08    QN   YES    0:00:00
+        7   1    2    1  -224.36602286   -0.27E-08   0.18E-04   10  14 1 -0.19E-04   0.23   1.44    QN   YES    0:00:00
+      Convergence after  7 iterations
+ 
+  Dmat in MO in SXCTL bf call to SXHAM                                                                                    
+  mat. size =     3x    3
+ 
+        1.9926729959539879
+        0.0000000000003308      1.5202241720018606
+        0.0006127983612094      0.0000000000005027      0.4871028320441506
+        8   1    2    1  -224.36602286   -0.68E-09   0.18E-04    7  14 1  0.54E-05   0.23   1.44    QN   YES    0:00:00
+ 
+      ************************************************************************************************************************
+                                                      Wave function printout:
+                       occupation of active orbitals, and spin coupling of open shells (u,d: Spin up or down)
+      ************************************************************************************************************************
+ 
+      Note: transformation to natural orbitals
+      has been made, which may change the order of the CSFs.
+ 
+      printout of CI-coefficients larger than  0.05 for root  1
+      energy=    -224.366023
+      conf/sym  111     Coeff  Weight
+             1  220  -0.86974 0.75645
+             3  202   0.48978 0.23989
+             6  022   0.06053 0.00366
+ 
+      Natural orbitals and occupation numbers for root  1
+      sym 1:   1.992673   1.520224   0.487103
+ 
+      ************************************************************************************************************************
+      *                                                                                                                      *
+      *                                                    Final results                                                     *
+      *                                                                                                                      *
+      ************************************************************************************************************************
+ 
+ 
+++    Wave function specifications:
+      -----------------------------
+ 
+      Number of closed shell electrons          20
+      Number of electrons in active shells       4
+      Max number of holes in RAS1 space          0
+      Max nr of electrons in RAS3 space          0
+      Number of inactive orbitals               10
+      Number of active orbitals                  3
+      Number of secondary orbitals               2
+      Spin quantum number                      0.0
+      State symmetry                             1
+--
+ 
+++    Orbital specifications:
+      -----------------------
+ 
+      Symmetry species                           1
+                                                 a
+      Frozen orbitals                            0
+      Inactive orbitals                         10
+      Active orbitals                            3
+      RAS1 orbitals                              0
+      RAS2 orbitals                              3
+      RAS3 orbitals                              0
+      Secondary orbitals                         2
+      Deleted orbitals                           0
+      Number of basis functions                 15
+--
+ 
+++    CI expansion specifications:
+      ----------------------------
+ 
+      Number of CSFs                             6
+      Number of determinants                     6
+      Number of root(s) required                 1
+      CI root used                               1
+      highest root included in the CI            1
+      Root passed to geometry opt.               1
+--
+ 
+++    Final optimization conditions:
+      ------------------------------
+ 
+      Average CI energy                            -224.36602286
+      RASSCF energy for state  1                   -224.36602286
+      Super-CI energy                                -0.00000000
+      RASSCF energy change                           -0.00000000
+      Max change in MO coefficients               0.153E-04
+      Max non-diagonal density matrix element     0.185E-04
+      Maximum BLB matrix element                  0.537E-05
+      (orbital pair   7,  14 in symmetry   1)
+      Norm of electronic gradient            0.766E-05
+--
+ 
+ 
+      Final state energy(ies):
+      ------------------------
+ 
+::    RASSCF root number  1 Total energy:   -224.36602286
+ 
+++    Molecular orbitals:
+      -------------------
+ 
+      Pseudonatural active orbitals and approximate occupation numbers
+ 
+ 
+ 
+ 
+      Molecular orbitals for symmetry species 1: a  
+ 
+ 
+      Orbital                1         2         3         4         5         6         7         8         9        10
+      Energy          -20.9276  -20.8238  -20.8237   -1.7729   -1.4768   -1.1195   -0.8340   -0.8098   -0.6329   -0.5803
+      Occ. No.          2.0000    2.0000    2.0000    2.0000    2.0000    2.0000    2.0000    2.0000    2.0000    2.0000
+ 
+    1 O1     1s         0.0023   -0.7071    0.7071   -0.0182    0.0110    0.0113   -0.0140   -0.0216    0.0034    0.0070
+    2 O1     2s        -0.0006   -0.0002    0.0000    0.3173   -0.5901    0.6048   -0.2222   -0.3819    0.0579    0.0536
+    3 O1     2px       -0.0001    0.0006   -0.0006   -0.0580    0.0492    0.1023    0.2339   -0.3747   -0.5181    0.6391
+    4 O1     2py        0.0003    0.0012   -0.0010   -0.1029    0.0986    0.1147   -0.3495   -0.2856    0.5179   -0.0589
+    5 O1     2pz       -0.0000    0.0000    0.0000    0.0000    0.0000    0.0000   -0.0000    0.0000    0.0000   -0.0000
+    6 O2     1s         1.0000   -0.0000   -0.0037   -0.0256    0.0000   -0.0123   -0.0095   -0.0000    0.0000    0.0237
+    7 O2     2s         0.0005   -0.0000   -0.0011    0.6106   -0.0000   -0.6584   -0.1426   -0.0000    0.0000    0.2991
+    8 O2     2px        0.0018   -0.0000   -0.0002    0.1480   -0.0000    0.1432    0.6259    0.0000   -0.0000   -0.5815
+    9 O2     2py       -0.0000    0.0006   -0.0000   -0.0000   -0.2980    0.0000   -0.0000    0.5325   -0.1551    0.0000
+   10 O2     2pz        0.0000    0.0000   -0.0000    0.0000    0.0000    0.0000   -0.0000    0.0000   -0.0000   -0.0000
+   11 O3     1s         0.0023    0.7071    0.7071   -0.0182   -0.0110    0.0113   -0.0140    0.0216   -0.0034    0.0070
+   12 O3     2s        -0.0006    0.0002    0.0000    0.3173    0.5901    0.6048   -0.2222    0.3819   -0.0579    0.0536
+   13 O3     2px       -0.0001   -0.0006   -0.0006   -0.0580   -0.0492    0.1023    0.2339    0.3747    0.5181    0.6391
+   14 O3     2py       -0.0003    0.0012    0.0010    0.1029    0.0986   -0.1147    0.3495   -0.2856    0.5179    0.0589
+   15 O3     2pz        0.0000    0.0000    0.0000    0.0000   -0.0000    0.0000    0.0000    0.0000    0.0000    0.0000
+ 
+ 
+      Orbital               11        12        13        14        15
+      Energy            0.0000    0.0000    0.0000    0.2431    0.4183
+      Occ. No.          1.9927    1.5202    0.4871    0.0000    0.0000
+ 
+    1 O1     1s         0.0000   -0.0000   -0.0000   -0.0278   -0.0477
+    2 O1     2s         0.0000    0.0000   -0.0000   -0.3239   -0.4525
+    3 O1     2px        0.0000   -0.0000    0.0000    0.2247    0.4152
+    4 O1     2py       -0.0000    0.0000   -0.0000    0.6812    0.5134
+    5 O1     2pz        0.2231   -0.7226    0.6889   -0.0000   -0.0000
+    6 O2     1s        -0.0000   -0.0000    0.0000    0.0811    0.0000
+    7 O2     2s        -0.0000   -0.0000    0.0000    0.8256    0.0000
+    8 O2     2px       -0.0000    0.0000    0.0000    0.6579    0.0000
+    9 O2     2py       -0.0000    0.0000    0.0000   -0.0000    1.0578
+   10 O2     2pz        0.8573   -0.0000   -0.5985    0.0000    0.0000
+   11 O3     1s        -0.0000    0.0000   -0.0000   -0.0278    0.0477
+   12 O3     2s        -0.0000    0.0000    0.0000   -0.3239    0.4525
+   13 O3     2px       -0.0000   -0.0000   -0.0000    0.2247   -0.4152
+   14 O3     2py       -0.0000   -0.0000   -0.0000   -0.6812    0.5134
+   15 O3     2pz        0.2231    0.7226    0.6889    0.0000   -0.0000
+--
+ 
+      Von Neumann Entropy (Root  1) =  0.80235
+ 
+
+      Mulliken population analysis for root number:  1
+      -----------------------------------------------
+ 
+ 
+++    Molecular charges:
+      ------------------
+ 
+      Mulliken charges per centre and basis function type
+      ---------------------------------------------------
+ 
+                O1      O2      O3    
+      1s       2.0001  2.0002  2.0001
+      2s       1.9071  1.7527  1.9071
+      2px      1.7692  1.5697  1.7692
+      2pz      1.1425  1.7150  1.1425
+      2py      1.1689  0.9868  1.1689
+      Total    7.9878  8.0243  7.9878
+ 
+      N-E      0.0122 -0.0243  0.0122
+ 
+      Total electronic charge=   24.000000
+ 
+      Total            charge=   -0.000000
+--
+ 
+ 
+
+      Expectation values of various properties for root number:  1
+      -----------------------------------------------------------
+ 
+ 
+++    Molecular properties:
+      ---------------------
+ 
+      Charge (e):
+                      =   -0.0000
+      Dipole Moment (Debye):
+      Origin of the operator (Ang)=    0.0000    0.0000    0.0000
+                   X=  2.9266E-01               Y= -4.4618E-11               Z= -1.9287E-13           Total=  2.9266E-01
+      Quadrupole Moment (Debye*Ang):
+      Origin of the operator (Ang)=    0.4179    0.0000    0.0000
+                  XX= -1.7537E+01              XY= -3.3108E-11              XZ= -3.1544E-13              YY= -1.7799E+01
+                  YZ= -3.5391E-13              ZZ= -1.5504E+01
+      In traceless form (Debye*Ang)
+                  XX= -8.8537E-01              XY= -4.9662E-11              XZ= -4.7316E-13              YY= -1.2788E+00
+                  YZ= -5.3086E-13              ZZ=  2.1642E+00
+--
+ 
+
+      LoProp population analysis for root number:  1
+      -----------------------------------------------
+ 
+ 
+++    LoProp analysis:
+      ----------------
+ 
+ 
+ 
+  Input file to MOLDEN was generated!
+ 
+ 
+++    Static properties:
+      ------------------
+ 
+ 
+      LoProp Charges per center
+ 
+
+                   O1       O2       O3    
+      Nuclear      8.0000   8.0000   8.0000
+      Electronic  -8.0194  -7.9611  -8.0194
+ 
+      Total       -0.0194   0.0389  -0.0194
+--
+ 
+ 
+      Natural Bond Order analysis for root number:  1
+ 
+++    Natural Bond Order analysis
+      ---------------------------
+      Based on LoProp computed density
+      -------------------------------------------------------------------------------------
+      Atom A       Atom B       Bond Order | Atom A       Atom B       Bond Order
+        O1           O2             1.966  |   O2           O3             1.966
+      -------------------------------------------------------------------------------------
+      NBO located     12.000 core electrons.
+      NBO located      3.949 lone pair electrons.
+      NBO located      7.862 electrons involved in    2 bonds.
+      The remaining    0.189 electrons are to be considered as diffuse
+--
+ 
+--
+ 
+ 
+  Input file to MOLDEN was generated!
+ 
+      Average orbitals are written to the RASORB file
+      Natural orbitals for root   1 are written to the RASORB.1 file
+      Spin density orbitals for root   1 are written to the SPDORB.1 file
+ 
+forrtl: warning (525): IEEE_DIVIDE_BY_ZERO is signaling
+forrtl: warning (526): IEEE_INVALID is signaling
+forrtl: warning (528): IEEE_UNDERFLOW is signaling
+--- Stop Module: rasscf at Sat Jan 25 14:02:55 2025 /rc=_RC_ALL_IS_WELL_ ---
+*** files: ozone_121.25.LprOrb ozone_121.25.rasscf.molden ozone_121.25.LoProp.molden ozone_121.25.RasOrb ozone_121.25.RasOrb.1 ozone_121.25.rasscf.h5 ozone_121.25.SpdOrb.1 xmldump
+    saved to directory /home/grierjones/DDCASPT2/ozone/ANO-RCC-MB/ozone_121.25
+
+>>> COPY /tmp/ozone_121.25/ozone_121.25.rasscf.h5 /home/grierjones/DDCASPT2/ozone/ANO-RCC-MB/ozone_121.25/
+
+>>> COPY /tmp/ozone_121.25/GMJ_Fock_MO.csv /home/grierjones/DDCASPT2/ozone/ANO-RCC-MB/ozone_121.25/ozone_121.25.GMJ_Fock_MO.csv
+
+>>> COPY /tmp/ozone_121.25/GMJ_PT2_Fock_MO.csv /home/grierjones/DDCASPT2/ozone/ANO-RCC-MB/ozone_121.25/ozone_121.25.GMJ_PT2_Fock_MO.csv
+
+*** symbolic link created: INPORB -> ozone_121.25.RasOrb
+--- Start Module: motra at Sat Jan 25 14:02:55 2025 ---
+ 
+()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()
+
+                                               &MOTRA
+
+                                   only a single process is used
+                       available to each process: 2.0 GB of memory, 1 thread?
+()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()
+ 
+ 
+      *** WARNING: Default frozen orbitals is overwritten by user input.
+      *** Default values:   3
+ 
+      Header of the integral files:
+      
+       Integrals generated by seward 4.2.0  , Sat Jan 25 14:02:54 2025
+ 
+ 
+      Header of MO coefficients source file:
+      * RASSCF average (pseudo-natural) orbitals                                      
+ 
+ 
+      Cartesian coordinates in Angstrom:
+      -----------------------------------------------------
+      No.  Label        X            Y            Z        
+      -----------------------------------------------------
+       1   O1         0.62688900   1.11368500   0.00000000
+       2   O2         0.00000000   0.00000000   0.00000000
+       3   O3         0.62688900  -1.11368500   0.00000000
+      -----------------------------------------------------
+      Nuclear repulsion energy =   68.20561392
+ 
+      Orbital specifications:
+      -----------------------
+ 
+      Symmetry species:              1
+      Number of basis functions:    15
+      Frozen orbitals:               0
+      Deleted orbitals:              0
+      Number of orbitals used:      15
+
+       SYMMETRY  BASIS FUNCTIONS       ORBITALS      INTEGRALS   CPU(SEC)  I/O(SEC)
+ 
+        1 1 1 1   15  15  15  15    15  15  15  15        7260       0.00      0.00
+
+       TOTAL CPU TIME(SEC)    0.00TOTAL I/O TIME(SEC)    0.01
+ 
+--- Stop Module: motra at Sat Jan 25 14:02:55 2025 /rc=_RC_ALL_IS_WELL_ ---
+*** files: xmldump
+    saved to directory /home/grierjones/DDCASPT2/ozone/ANO-RCC-MB/ozone_121.25
+
+>>> COPY /tmp/ozone_121.25/GMJ_one_int_indx.csv /home/grierjones/DDCASPT2/ozone/ANO-RCC-MB/ozone_121.25/ozone_121.25.GMJ_one_int_indx.csv
+
+>>> COPY /tmp/ozone_121.25/GMJ_one_int.csv /home/grierjones/DDCASPT2/ozone/ANO-RCC-MB/ozone_121.25/ozone_121.25.GMJ_one_int.csv
+
+>>> COPY /tmp/ozone_121.25/GMJ_two_int_indx.csv /home/grierjones/DDCASPT2/ozone/ANO-RCC-MB/ozone_121.25/ozone_121.25.GMJ_two_int_indx.csv
+
+>>> COPY /tmp/ozone_121.25/GMJ_two_int.csv /home/grierjones/DDCASPT2/ozone/ANO-RCC-MB/ozone_121.25/ozone_121.25.GMJ_two_int.csv
+
+*** symbolic link created: INPORB -> ozone_121.25.RasOrb
+--- Start Module: caspt2 at Sat Jan 25 14:02:55 2025 ---
+ 
+()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()
+
+                                              &CASPT2
+
+                                   only a single process is used
+                       available to each process: 2.0 GB of memory, 1 thread?
+()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()
+ 
+ Cholesky algorithm in CASPT2 =    1
+ 
+ ###############################################################################
+ ###############################################################################
+ ###                                                                         ###
+ ###                                                                         ###
+ ###    User changed nr of frozen orbitals.                                  ###
+ ###                                                                         ###
+ ###                                                                         ###
+ ###############################################################################
+ ###############################################################################
+ 
+++    Wave function specifications:
+      -----------------------------
+ 
+      Number of closed shell electrons          20
+      Number of electrons in active shells       4
+      Max number of holes in RAS1 space          0
+      Max number of electrons in RAS3 space      0
+      Number of inactive orbitals               10
+      Number of active orbitals                  3
+      Number of secondary orbitals               2
+      Spin quantum number                      0.0
+      State symmetry                             1
+      Number of CSFs                             6
+      Number of root(s) available                1
+      Root passed to geometry opt.               1
+      A file JOBMIX will be created.
+      This is a CASSCF or RASSCF reference function
+--
+ 
+++    Orbital specifications:
+      -----------------------
+ 
+      Symmetry species                           1
+                                                 a
+      Frozen orbitals                            0
+      Inactive orbitals                         10
+      Active orbitals                            3
+      Secondary orbitals                         2
+      Deleted orbitals                           0
+      Number of basis functions                 15
+--
+ 
+      Type of Fock operator: STANDARD
+      Type of 0-order Hamiltonian: STANDARD WITH DEFAULT IPEA
+        "IP-EA" denominator shift =      0.25
+      The input orbitals and the CI vector will be transformed.
+ 
+--------------------------------------------------------------------------------
+ Estimated memory requirements:
+  POLY3 :                   250202
+  RHS:                      251368
+  SIGMA :                   251440
+  PRPCTL:                        0
+ Available workspace:    230399382
+ 
+++ CASPT2 computation for group   1
+ 
+********************************************************************************
+ Multi-State initialization phase begins for group   1
+--------------------------------------------------------------------------------
+********************************************************************************
+ Compute H0 matrices for state    1
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+ H0 matrices have been computed.
+ 
+********************************************************************************
+  CASPT2 EQUATION SOLUTION
+--------------------------------------------------------------------------------
+ 
+  Total nr of CASPT2 parameters:
+   Before reduction:        2100
+   After  reduction:        1232
+-------------------------------------------------------------------------------------------------------------------
+ 
+  FINAL CASPT2 RESULT:
+ 
+  Correlation energy /Case, /Symm, and sums:
+ VJTU     -0.00000000 -0.00000000
+ VJTIP    -0.00076166 -0.00076166
+ VJTIM     0.00000000  0.00000000
+ ATVX     -0.00000000 -0.00000000
+ AIVX     -0.04566999 -0.04566999
+ VJAIP    -0.00000000 -0.00000000
+ VJAIM    -0.00000000 -0.00000000
+ BVATP    -0.00057348 -0.00057348
+ BVATM    -0.00000045 -0.00000045
+ BJATP    -0.00000000 -0.00000000
+ BJATM    -0.00000000 -0.00000000
+ BJAIP    -0.04380384 -0.04380384
+ BJAIM    -0.00657985 -0.00657985
+ Summed:  -0.09738927 -0.09738927
+ 
+      Reference energy:        -224.3660228562
+      E2 (Non-variational):      -0.0973892724
+      E2 (Variational):          -0.0973892777
+      Total energy:            -224.4634121338
+      Residual norm:              0.0000001914
+      Reference weight:           0.95286
+ 
+      Contributions to the CASPT2 correlation energy
+      Active & Virtual Only:         -0.0005739381
+      One Inactive Excited:          -0.0456699926
+      Two Inactive Excited:          -0.0511453417
+ 
+ 
+++ Denominators, etc.
+----------------------------------------------------------------------------------------------------
+ Report on small energy denominators, large coefficients, and large energy contributions.
+CASE  SYMM ACTIVE-MIX  NON-ACTIVE INDICES          DENOMINATOR     RHS VALUE       COEFFICIENT     CONTRIBUTION
+AIVX     1  Mu1.0003  In1.005 Se1.014               1.99584417     -0.05633323      0.02822526     -0.00159002
+AIVX     1  Mu1.0001  In1.007 Se1.014               0.99972604      0.02629821     -0.02630542     -0.00069179
+AIVX     1  Mu1.0004  In1.007 Se1.014               1.58976038     -0.05218620      0.03282646     -0.00171309
+AIVX     1  Mu1.0005  In1.007 Se1.014               1.63176496      0.06207882     -0.03804397     -0.00236172
+AIVX     1  Mu1.0002  In1.008 Se1.014               1.25110938      0.06511447     -0.05204538     -0.00338891
+AIVX     1  Mu1.0003  In1.008 Se1.014               1.32880926      0.03355809     -0.02525426     -0.00084748
+AIVX     1  Mu1.0002  In1.009 Se1.014               1.07421641     -0.05115602      0.04762171     -0.00243614
+AIVX     1  Mu1.0003  In1.009 Se1.014               1.15191630     -0.03571302      0.03100314     -0.00110722
+AIVX     1  Mu1.0005  In1.010 Se1.014               1.37807934     -0.03692797      0.02679670     -0.00098955
+AIVX     1  Mu1.0001  In1.008 Se1.015               1.15071770      0.03903878     -0.03392559     -0.00132441
+AIVX     1  Mu1.0004  In1.008 Se1.015               1.74075204     -0.07666857      0.04404336     -0.00337674
+AIVX     1  Mu1.0005  In1.008 Se1.015               1.78275663      0.08933045     -0.05010805     -0.00447617
+AIVX     1  Mu1.0006  In1.008 Se1.015               1.94209054     -0.07077417      0.03644226     -0.00257917
+AIVX     1  Mu1.0002  In1.010 Se1.015               1.19681136     -0.05398229      0.04510509     -0.00243488
+AIVX     1  Mu1.0003  In1.010 Se1.015               1.27451124     -0.03563242      0.02795772     -0.00099620
+BJAIP    1  Se1.014 In1.007 Se1.014 In1.007         2.15416947      0.06269359     -0.02910337     -0.00182459
+BJAIP    1  Se1.014 In1.007 Se1.015 In1.008         2.30516113      0.07761788     -0.03367135     -0.00261350
+BJAIP    1  Se1.014 In1.008 Se1.014 In1.008         2.10577352      0.06343739     -0.03012546     -0.00191108
+BJAIP    1  Se1.015 In1.008 Se1.015 In1.008         2.45615279      0.11355693     -0.04623366     -0.00525015
+BJAIP    1  Se1.014 In1.008 Se1.014 In1.009         1.92888056     -0.05062550      0.02624605     -0.00132872
+BJAIP    1  Se1.014 In1.009 Se1.014 In1.009         1.75198759      0.04906450     -0.02800505     -0.00137405
+BJAIP    1  Se1.014 In1.008 Se1.015 In1.010         2.05147550     -0.08468713      0.04128108     -0.00349598
+BJAIP    1  Se1.015 In1.010 Se1.015 In1.010         1.99717749      0.05510386     -0.02759087     -0.00152036
+BJAIM    1  Se1.014 In1.007 Se1.014 In1.008         2.30516113      0.08111885     -0.03519010     -0.00285458
+--
+ 
+   (Skipping property calculation,
+    use PROP keyword to activate)
+--
+ 
+  Total CASPT2 energies:
+::    CASPT2 Root  1     Total energy:   -224.46341213
+ 
+  A NEW JOBIPH FILE NAMED 'JOBMIX' IS PREPARED.
+********************************************************************************
+forrtl: warning (528): IEEE_UNDERFLOW is signaling
+--- Stop Module: caspt2 at Sat Jan 25 14:02:55 2025 /rc=_RC_ALL_IS_WELL_ ---
+*** files: xmldump
+    saved to directory /home/grierjones/DDCASPT2/ozone/ANO-RCC-MB/ozone_121.25
+
+>>> EXPORT i = B
+
+>>> EXPORT j = P
+
+>>> IF (-FILE GMJ_e2_${i}_${j}.csv)
+
+>>> COPY /tmp/ozone_121.25/GMJ_RHS_B_P.csv /home/grierjones/DDCASPT2/ozone/ANO-RCC-MB/ozone_121.25/GMJ_RHS_B_P.csv
+
+>>> COPY /tmp/ozone_121.25/GMJ_IVECW_B_P.csv /home/grierjones/DDCASPT2/ozone/ANO-RCC-MB/ozone_121.25/GMJ_IVECW_B_P.csv
+
+>>> COPY /tmp/ozone_121.25/GMJ_IVECX_B_P.csv /home/grierjones/DDCASPT2/ozone/ANO-RCC-MB/ozone_121.25/GMJ_IVECX_B_P.csv
+
+>>> COPY /tmp/ozone_121.25/GMJ_IVECC2_B_P.csv /home/grierjones/DDCASPT2/ozone/ANO-RCC-MB/ozone_121.25/GMJ_IVECC2_B_P.csv
+
+>>> COPY /tmp/ozone_121.25/GMJ_e2_B_P.csv /home/grierjones/DDCASPT2/ozone/ANO-RCC-MB/ozone_121.25/GMJ_e2_B_P.csv
+
+>>> END FOREACH
+
+>>> EXPORT j = M
+
+>>> IF (-FILE GMJ_e2_${i}_${j}.csv)
+(Skipped)
+
+>>> END FOREACH
+
+>>> END FOREACH
+
+>>> EXPORT i = E
+
+>>> EXPORT j = P
+
+>>> IF (-FILE GMJ_e2_${i}_${j}.csv)
+
+>>> COPY /tmp/ozone_121.25/GMJ_RHS_E_P.csv /home/grierjones/DDCASPT2/ozone/ANO-RCC-MB/ozone_121.25/GMJ_RHS_E_P.csv
+
+>>> COPY /tmp/ozone_121.25/GMJ_IVECW_E_P.csv /home/grierjones/DDCASPT2/ozone/ANO-RCC-MB/ozone_121.25/GMJ_IVECW_E_P.csv
+
+>>> COPY /tmp/ozone_121.25/GMJ_IVECX_E_P.csv /home/grierjones/DDCASPT2/ozone/ANO-RCC-MB/ozone_121.25/GMJ_IVECX_E_P.csv
+
+>>> COPY /tmp/ozone_121.25/GMJ_IVECC2_E_P.csv /home/grierjones/DDCASPT2/ozone/ANO-RCC-MB/ozone_121.25/GMJ_IVECC2_E_P.csv
+
+>>> COPY /tmp/ozone_121.25/GMJ_e2_E_P.csv /home/grierjones/DDCASPT2/ozone/ANO-RCC-MB/ozone_121.25/GMJ_e2_E_P.csv
+
+>>> END FOREACH
+
+>>> EXPORT j = M
+
+>>> IF (-FILE GMJ_e2_${i}_${j}.csv)
+
+>>> COPY /tmp/ozone_121.25/GMJ_RHS_E_M.csv /home/grierjones/DDCASPT2/ozone/ANO-RCC-MB/ozone_121.25/GMJ_RHS_E_M.csv
+
+>>> COPY /tmp/ozone_121.25/GMJ_IVECW_E_M.csv /home/grierjones/DDCASPT2/ozone/ANO-RCC-MB/ozone_121.25/GMJ_IVECW_E_M.csv
+
+>>> COPY /tmp/ozone_121.25/GMJ_IVECX_E_M.csv /home/grierjones/DDCASPT2/ozone/ANO-RCC-MB/ozone_121.25/GMJ_IVECX_E_M.csv
+
+>>> COPY /tmp/ozone_121.25/GMJ_IVECC2_E_M.csv /home/grierjones/DDCASPT2/ozone/ANO-RCC-MB/ozone_121.25/GMJ_IVECC2_E_M.csv
+
+>>> COPY /tmp/ozone_121.25/GMJ_e2_E_M.csv /home/grierjones/DDCASPT2/ozone/ANO-RCC-MB/ozone_121.25/GMJ_e2_E_M.csv
+
+>>> END FOREACH
+
+>>> END FOREACH
+
+>>> EXPORT i = F
+
+>>> EXPORT j = P
+
+>>> IF (-FILE GMJ_e2_${i}_${j}.csv)
+
+>>> COPY /tmp/ozone_121.25/GMJ_RHS_F_P.csv /home/grierjones/DDCASPT2/ozone/ANO-RCC-MB/ozone_121.25/GMJ_RHS_F_P.csv
+
+>>> COPY /tmp/ozone_121.25/GMJ_IVECW_F_P.csv /home/grierjones/DDCASPT2/ozone/ANO-RCC-MB/ozone_121.25/GMJ_IVECW_F_P.csv
+
+>>> COPY /tmp/ozone_121.25/GMJ_IVECX_F_P.csv /home/grierjones/DDCASPT2/ozone/ANO-RCC-MB/ozone_121.25/GMJ_IVECX_F_P.csv
+
+>>> COPY /tmp/ozone_121.25/GMJ_IVECC2_F_P.csv /home/grierjones/DDCASPT2/ozone/ANO-RCC-MB/ozone_121.25/GMJ_IVECC2_F_P.csv
+
+>>> COPY /tmp/ozone_121.25/GMJ_e2_F_P.csv /home/grierjones/DDCASPT2/ozone/ANO-RCC-MB/ozone_121.25/GMJ_e2_F_P.csv
+
+>>> END FOREACH
+
+>>> EXPORT j = M
+
+>>> IF (-FILE GMJ_e2_${i}_${j}.csv)
+
+>>> COPY /tmp/ozone_121.25/GMJ_RHS_F_M.csv /home/grierjones/DDCASPT2/ozone/ANO-RCC-MB/ozone_121.25/GMJ_RHS_F_M.csv
+
+>>> COPY /tmp/ozone_121.25/GMJ_IVECW_F_M.csv /home/grierjones/DDCASPT2/ozone/ANO-RCC-MB/ozone_121.25/GMJ_IVECW_F_M.csv
+
+>>> COPY /tmp/ozone_121.25/GMJ_IVECX_F_M.csv /home/grierjones/DDCASPT2/ozone/ANO-RCC-MB/ozone_121.25/GMJ_IVECX_F_M.csv
+
+>>> COPY /tmp/ozone_121.25/GMJ_IVECC2_F_M.csv /home/grierjones/DDCASPT2/ozone/ANO-RCC-MB/ozone_121.25/GMJ_IVECC2_F_M.csv
+
+>>> COPY /tmp/ozone_121.25/GMJ_e2_F_M.csv /home/grierjones/DDCASPT2/ozone/ANO-RCC-MB/ozone_121.25/GMJ_e2_F_M.csv
+
+>>> END FOREACH
+
+>>> END FOREACH
+
+>>> EXPORT i = G
+
+>>> EXPORT j = P
+
+>>> IF (-FILE GMJ_e2_${i}_${j}.csv)
+
+>>> COPY /tmp/ozone_121.25/GMJ_RHS_G_P.csv /home/grierjones/DDCASPT2/ozone/ANO-RCC-MB/ozone_121.25/GMJ_RHS_G_P.csv
+
+>>> COPY /tmp/ozone_121.25/GMJ_IVECW_G_P.csv /home/grierjones/DDCASPT2/ozone/ANO-RCC-MB/ozone_121.25/GMJ_IVECW_G_P.csv
+
+>>> COPY /tmp/ozone_121.25/GMJ_IVECX_G_P.csv /home/grierjones/DDCASPT2/ozone/ANO-RCC-MB/ozone_121.25/GMJ_IVECX_G_P.csv
+
+>>> COPY /tmp/ozone_121.25/GMJ_IVECC2_G_P.csv /home/grierjones/DDCASPT2/ozone/ANO-RCC-MB/ozone_121.25/GMJ_IVECC2_G_P.csv
+
+>>> COPY /tmp/ozone_121.25/GMJ_e2_G_P.csv /home/grierjones/DDCASPT2/ozone/ANO-RCC-MB/ozone_121.25/GMJ_e2_G_P.csv
+
+>>> END FOREACH
+
+>>> EXPORT j = M
+
+>>> IF (-FILE GMJ_e2_${i}_${j}.csv)
+
+>>> COPY /tmp/ozone_121.25/GMJ_RHS_G_M.csv /home/grierjones/DDCASPT2/ozone/ANO-RCC-MB/ozone_121.25/GMJ_RHS_G_M.csv
+
+>>> COPY /tmp/ozone_121.25/GMJ_IVECW_G_M.csv /home/grierjones/DDCASPT2/ozone/ANO-RCC-MB/ozone_121.25/GMJ_IVECW_G_M.csv
+
+>>> COPY /tmp/ozone_121.25/GMJ_IVECX_G_M.csv /home/grierjones/DDCASPT2/ozone/ANO-RCC-MB/ozone_121.25/GMJ_IVECX_G_M.csv
+
+>>> COPY /tmp/ozone_121.25/GMJ_IVECC2_G_M.csv /home/grierjones/DDCASPT2/ozone/ANO-RCC-MB/ozone_121.25/GMJ_IVECC2_G_M.csv
+
+>>> COPY /tmp/ozone_121.25/GMJ_e2_G_M.csv /home/grierjones/DDCASPT2/ozone/ANO-RCC-MB/ozone_121.25/GMJ_e2_G_M.csv
+
+>>> END FOREACH
+
+>>> END FOREACH
+
+>>> EXPORT i = H
+
+>>> EXPORT j = P
+
+>>> IF (-FILE GMJ_e2_${i}_${j}.csv)
+
+>>> COPY /tmp/ozone_121.25/GMJ_RHS_H_P.csv /home/grierjones/DDCASPT2/ozone/ANO-RCC-MB/ozone_121.25/GMJ_RHS_H_P.csv
+
+>>> COPY /tmp/ozone_121.25/GMJ_IVECW_H_P.csv /home/grierjones/DDCASPT2/ozone/ANO-RCC-MB/ozone_121.25/GMJ_IVECW_H_P.csv
+
+>>> COPY /tmp/ozone_121.25/GMJ_IVECX_H_P.csv /home/grierjones/DDCASPT2/ozone/ANO-RCC-MB/ozone_121.25/GMJ_IVECX_H_P.csv
+
+>>> COPY /tmp/ozone_121.25/GMJ_IVECC2_H_P.csv /home/grierjones/DDCASPT2/ozone/ANO-RCC-MB/ozone_121.25/GMJ_IVECC2_H_P.csv
+
+>>> COPY /tmp/ozone_121.25/GMJ_e2_H_P.csv /home/grierjones/DDCASPT2/ozone/ANO-RCC-MB/ozone_121.25/GMJ_e2_H_P.csv
+
+>>> END FOREACH
+
+>>> EXPORT j = M
+
+>>> IF (-FILE GMJ_e2_${i}_${j}.csv)
+
+>>> COPY /tmp/ozone_121.25/GMJ_RHS_H_M.csv /home/grierjones/DDCASPT2/ozone/ANO-RCC-MB/ozone_121.25/GMJ_RHS_H_M.csv
+
+>>> COPY /tmp/ozone_121.25/GMJ_IVECW_H_M.csv /home/grierjones/DDCASPT2/ozone/ANO-RCC-MB/ozone_121.25/GMJ_IVECW_H_M.csv
+
+>>> COPY /tmp/ozone_121.25/GMJ_IVECX_H_M.csv /home/grierjones/DDCASPT2/ozone/ANO-RCC-MB/ozone_121.25/GMJ_IVECX_H_M.csv
+
+>>> COPY /tmp/ozone_121.25/GMJ_IVECC2_H_M.csv /home/grierjones/DDCASPT2/ozone/ANO-RCC-MB/ozone_121.25/GMJ_IVECC2_H_M.csv
+
+>>> COPY /tmp/ozone_121.25/GMJ_e2_H_M.csv /home/grierjones/DDCASPT2/ozone/ANO-RCC-MB/ozone_121.25/GMJ_e2_H_M.csv
+
+>>> END FOREACH
+
+>>> END FOREACH
+
+>>> EXPORT i = A
+
+>>> IF (-FILE GMJ_e2_$i.csv)
+
+>>> COPY /tmp/ozone_121.25/GMJ_RHS_A.csv /home/grierjones/DDCASPT2/ozone/ANO-RCC-MB/ozone_121.25/GMJ_RHS_A.csv
+
+>>> COPY /tmp/ozone_121.25/GMJ_IVECW_A.csv /home/grierjones/DDCASPT2/ozone/ANO-RCC-MB/ozone_121.25/GMJ_IVECW_A.csv
+
+>>> COPY /tmp/ozone_121.25/GMJ_IVECX_A.csv /home/grierjones/DDCASPT2/ozone/ANO-RCC-MB/ozone_121.25/GMJ_IVECX_A.csv
+
+>>> COPY /tmp/ozone_121.25/GMJ_IVECC2_A.csv /home/grierjones/DDCASPT2/ozone/ANO-RCC-MB/ozone_121.25/GMJ_IVECC2_A.csv
+
+>>> COPY /tmp/ozone_121.25/GMJ_e2_A.csv /home/grierjones/DDCASPT2/ozone/ANO-RCC-MB/ozone_121.25/GMJ_e2_A.csv
+
+>>> END FOREACH
+
+>>> EXPORT i = C
+
+>>> IF (-FILE GMJ_e2_$i.csv)
+
+>>> COPY /tmp/ozone_121.25/GMJ_RHS_C.csv /home/grierjones/DDCASPT2/ozone/ANO-RCC-MB/ozone_121.25/GMJ_RHS_C.csv
+
+>>> COPY /tmp/ozone_121.25/GMJ_IVECW_C.csv /home/grierjones/DDCASPT2/ozone/ANO-RCC-MB/ozone_121.25/GMJ_IVECW_C.csv
+
+>>> COPY /tmp/ozone_121.25/GMJ_IVECX_C.csv /home/grierjones/DDCASPT2/ozone/ANO-RCC-MB/ozone_121.25/GMJ_IVECX_C.csv
+
+>>> COPY /tmp/ozone_121.25/GMJ_IVECC2_C.csv /home/grierjones/DDCASPT2/ozone/ANO-RCC-MB/ozone_121.25/GMJ_IVECC2_C.csv
+
+>>> COPY /tmp/ozone_121.25/GMJ_e2_C.csv /home/grierjones/DDCASPT2/ozone/ANO-RCC-MB/ozone_121.25/GMJ_e2_C.csv
+
+>>> END FOREACH
+
+>>> EXPORT i = D
+
+>>> IF (-FILE GMJ_e2_$i.csv)
+
+>>> COPY /tmp/ozone_121.25/GMJ_RHS_D.csv /home/grierjones/DDCASPT2/ozone/ANO-RCC-MB/ozone_121.25/GMJ_RHS_D.csv
+
+>>> COPY /tmp/ozone_121.25/GMJ_IVECW_D.csv /home/grierjones/DDCASPT2/ozone/ANO-RCC-MB/ozone_121.25/GMJ_IVECW_D.csv
+
+>>> COPY /tmp/ozone_121.25/GMJ_IVECX_D.csv /home/grierjones/DDCASPT2/ozone/ANO-RCC-MB/ozone_121.25/GMJ_IVECX_D.csv
+
+>>> COPY /tmp/ozone_121.25/GMJ_IVECC2_D.csv /home/grierjones/DDCASPT2/ozone/ANO-RCC-MB/ozone_121.25/GMJ_IVECC2_D.csv
+
+>>> COPY /tmp/ozone_121.25/GMJ_e2_D.csv /home/grierjones/DDCASPT2/ozone/ANO-RCC-MB/ozone_121.25/GMJ_e2_D.csv
+
+>>> END FOREACH
+
+.########################.
+.# Non-zero return code #.
+.########################.
+
+    Timing: Wall=1.04 User=0.74 System=0.29
+********************************************
+*** WorkDir at /tmp/ozone_121.25 cleaned ***
+********************************************
