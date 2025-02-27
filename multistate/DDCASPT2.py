@@ -35,6 +35,12 @@ import seaborn as sns; sns.set(style="ticks", color_codes=True)
 from sklearn.model_selection import train_test_split
 
 
+# In[ ]:
+
+
+
+
+
 # In[2]:
 
 
@@ -88,11 +94,12 @@ from sklearn.model_selection import train_test_split
 # H_M (II->VV) (M): \ IJAB \ E$_{ai}$ E$_{bj}$ \ pqrs=aibj=2031 \
 # 
 
+
 # In[3]:
 
 
 class DDCASPT2:
-    def __init__(self,path,basis_set,name,electrons,occupied,inactive,previous=None,symmetry=1,spin=0,UHF=False,charge=0,clean=False,n_jobs=None):
+    def __init__(self,path,basis_set,name,electrons,occupied,inactive,scf_previous=None,casscf_previous=None,symmetry=1,spin=0,UHF=False,CIROOT=None,frozen=0,pt2maxiter=50,MSroots=None,charge=0,clean=False,n_jobs=None):
         '''
         Initialize
         '''
@@ -102,13 +109,19 @@ class DDCASPT2:
         self.electrons=electrons
         self.occupied=occupied
         self.inactive=inactive
-        self.previous=previous
+        self.scf_previous=scf_previous
+        self.casscf_previous=casscf_previous
         self.symmetry=symmetry
         self.spin=spin      
         self.UHF=UHF
+        self.CIROOT = CIROOT
+        self.frozen=frozen
+        self.pt2maxiter=pt2maxiter     
+        self.MSroots=MSroots
         self.charge=charge
         self.clean=clean
         self.n_jobs=n_jobs
+        
 
         print(f"Running on {self.n_jobs} cores")
         
@@ -141,7 +154,6 @@ class DDCASPT2:
 coord={f'{self.name}.xyz'}
 Basis = {self.basis_set}
 Group = nosymm
-Expert
 End of Input
 
 '''
@@ -156,7 +168,7 @@ End of Input
     
     def _gen_motra(self):
         string=f'''&MOTRA
-Frozen=0
+Frozen={self.frozen}
 LUMORB
 >>> COPY $WorkDir/GMJ_one_int_indx.csv $CurrDir/{self.name}.GMJ_one_int_indx.csv
 >>> COPY $WorkDir/GMJ_one_int.csv $CurrDir/{self.name}.GMJ_one_int.csv
@@ -167,6 +179,7 @@ LUMORB
         return string
     
     def _gen_scf(self):
+        
         if self.UHF:
             string=f"""&SCF &END
 UHF
@@ -174,29 +187,42 @@ charge
 {self.charge}
 spin
 {self.spin + 1}            
->>> COPY $WorkDir/{self.name}.scf.h5 $CurrDir/
-
 """            
         else:
             string=f"""&SCF &END
->>> COPY $WorkDir/{self.name}.scf.h5 $CurrDir/
-
 """
-        return string    
+        if self.scf_previous is not None:
+            fileorb=f"""FileOrb
+{self.scf_previous}
+"""
+        else:
+            fileorb=''
+            
+        endstring=f""">>> COPY $WorkDir/{self.name}.scf.h5 $CurrDir/
+        
+"""
+        return string+fileorb+endstring  
     
     
     def _gen_rasscf(self):
         start_string="""&RASSCF &END
 Title= RASSCF
 """
-        if self.previous!=None:
+        if self.casscf_previous is not None:
             fileorb=f"""FileOrb
-{self.previous}
+{self.casscf_previous}
 """
         else:
             fileorb=''
 
-        if self.inactive==None:
+        if self.CIROOT is None:
+            ciroot=''
+        else:
+            ciroot=f"""CIROOT
+{self.CIROOT}            
+"""
+
+        if self.inactive is None:
             end_string=f"""NACTEL
 {self.electrons} 0 0
 RAS2
@@ -209,13 +235,9 @@ charge
 {self.charge}
 orblisting
 all
-ITERation
-300 200
-
 
 >>> COPY $WorkDir/{self.name}.rasscf.h5 $CurrDir/
 >>> COPY $WorkDir/GMJ_Fock_MO.csv $CurrDir/{self.name}.GMJ_Fock_MO.csv
->>> COPY $WorkDir/GMJ_PT2_Fock_MO.csv $CurrDir/{self.name}.GMJ_PT2_Fock_MO.csv
 
 """
         else:
@@ -231,47 +253,87 @@ Spin
 {self.spin + 1}
 orblisting
 all
-ITERation
-300 200
-
 
 >>> COPY $WorkDir/{self.name}.rasscf.h5 $CurrDir/
 >>> COPY $WorkDir/GMJ_Fock_MO.csv $CurrDir/{self.name}.GMJ_Fock_MO.csv
->>> COPY $WorkDir/GMJ_PT2_Fock_MO.csv $CurrDir/{self.name}.GMJ_PT2_Fock_MO.csv
 
 """
-        return start_string+fileorb+end_string 
+        return start_string+fileorb+ciroot+end_string 
     
     def _gen_caspt2(self):
-        string="""&CASPT2 &END
+        startstring="""&CASPT2 &END"""
+        if self.frozen is None:
+            frozstr=''
+        else:
+            frozstr=f"""
 Frozen 
-0
+{self.frozen}         
+"""
+        if self.pt2maxiter is None:
+            pt2maxiter=''
+        else:
+            pt2maxiter=f"""
 MAXITER
-50
-
+{self.pt2maxiter}
+"""
+        if self.MSroots is None:
+            caspt2data="""
 >>foreach i in (B,E,F,G,H)
 >>foreach j in (P,M)
->>if ( -FILE GMJ_e2_${i}_${j}.csv )
->>> COPY $WorkDir/GMJ_RHS_${i}_${j}.csv $CurrDir/GMJ_RHS_${i}_${j}.csv
->>> COPY $WorkDir/GMJ_IVECW_${i}_${j}.csv $CurrDir/GMJ_IVECW_${i}_${j}.csv
->>> COPY $WorkDir/GMJ_IVECX_${i}_${j}.csv $CurrDir/GMJ_IVECX_${i}_${j}.csv
->>> COPY $WorkDir/GMJ_IVECC2_${i}_${j}.csv $CurrDir/GMJ_IVECC2_${i}_${j}.csv
->>> COPY $WorkDir/GMJ_e2_${i}_${j}.csv $CurrDir/GMJ_e2_${i}_${j}.csv
+>>if ( -FILE GMJ_e2_${i}_${j}_1_.csv )
+>>> COPY $WorkDir/GMJ_RHS_${i}_${j}_1_.csv $CurrDir/GMJ_RHS_${i}_${j}_1_.csv
+>>> COPY $WorkDir/GMJ_IVECW_${i}_${j}_1_.csv $CurrDir/GMJ_IVECW_${i}_${j}_1_.csv
+>>> COPY $WorkDir/GMJ_IVECX_${i}_${j}_1_.csv $CurrDir/GMJ_IVECX_${i}_${j}_1_.csv
+>>> COPY $WorkDir/GMJ_IVECC2_${i}_${j}_1_.csv $CurrDir/GMJ_IVECC2_${i}_${j}_1_.csv
+>>> COPY $WorkDir/GMJ_e2_${i}_${j}_1_.csv $CurrDir/GMJ_e2_${i}_${j}_1_.csv
 >>endif
 >>enddo
 >>enddo
 
 >>foreach i in (A,C,D)
->>if ( -FILE GMJ_e2_$i.csv )
->>> COPY $WorkDir/GMJ_RHS_$i.csv $CurrDir/GMJ_RHS_$i.csv
->>> COPY $WorkDir/GMJ_IVECW_$i.csv $CurrDir/GMJ_IVECW_$i.csv
->>> COPY $WorkDir/GMJ_IVECX_$i.csv $CurrDir/GMJ_IVECX_$i.csv
->>> COPY $WorkDir/GMJ_IVECC2_$i.csv $CurrDir/GMJ_IVECC2_$i.csv
->>> COPY $WorkDir/GMJ_e2_$i.csv $CurrDir/GMJ_e2_$i.csv
+>>if ( -FILE GMJ_e2_$i_1_.csv )
+>>> COPY $WorkDir/GMJ_RHS_$i_1_.csv $CurrDir/GMJ_RHS_$i_1_.csv
+>>> COPY $WorkDir/GMJ_IVECW_$i_1_.csv $CurrDir/GMJ_IVECW_$i_1_.csv
+>>> COPY $WorkDir/GMJ_IVECX_$i_1_.csv $CurrDir/GMJ_IVECX_$i_1_.csv
+>>> COPY $WorkDir/GMJ_IVECC2_$i_1_.csv $CurrDir/GMJ_IVECC2_$i_1_.csv
+>>> COPY $WorkDir/GMJ_e2_$i_1_.csv $CurrDir/GMJ_e2_$i_1_.csv
 >>endif
 >>enddo
 """
-        return string    
+        else:
+
+            looproots="("+','.join(str(i) for i in range(1,self.MSroots+1))+")"
+            caspt2data=f"""
+>>foreach k in {looproots}
+>>foreach i in (B,E,F,G,H)
+>>foreach j in (P,M)
+"""+"""
+>>if ( -FILE GMJ_e2_${i}_${j}_${k}_.csv )
+>>> COPY $WorkDir/GMJ_RHS_${i}_${j}_${k}_.csv $CurrDir/GMJ_RHS_${i}_${j}_${k}_.csv
+>>> COPY $WorkDir/GMJ_IVECW_${i}_${j}_${k}_.csv $CurrDir/GMJ_IVECW_${i}_${j}_${k}_.csv
+>>> COPY $WorkDir/GMJ_IVECX_${i}_${j}_${k}_.csv $CurrDir/GMJ_IVECX_${i}_${j}_${k}_.csv
+>>> COPY $WorkDir/GMJ_IVECC2_${i}_${j}_${k}_.csv $CurrDir/GMJ_IVECC2_${i}_${j}_${k}_.csv
+>>> COPY $WorkDir/GMJ_e2_${i}_${j}_${k}_.csv $CurrDir/GMJ_e2_${i}_${j}_${k}_.csv
+>>endif
+>>enddo
+>>enddo
+>>enddo
+"""+f"""
+>>foreach j in {looproots}
+>>foreach i in (A,C,D)
+"""+"""
+>>if ( -FILE GMJ_e2_${i}_${j}_.csv )
+>>> COPY $WorkDir/GMJ_RHS_${i}_${j}_.csv $CurrDir/GMJ_RHS_${i}_${j}_.csv
+>>> COPY $WorkDir/GMJ_IVECW_${i}_${j}_.csv $CurrDir/GMJ_IVECW_${i}_${j}_.csv
+>>> COPY $WorkDir/GMJ_IVECX_${i}_${j}_.csv $CurrDir/GMJ_IVECX_${i}_${j}_.csv
+>>> COPY $WorkDir/GMJ_IVECC2_${i}_${j}_.csv $CurrDir/GMJ_IVECC2_${i}_${j}_.csv
+>>> COPY $WorkDir/GMJ_e2_${i}_${j}_.csv $CurrDir/GMJ_e2_${i}_${j}_.csv
+>>endif
+>>enddo
+>>enddo
+"""
+
+        return startstring+frozstr+pt2maxiter+caspt2data    
         
     def write_input(self):
        # Write input
@@ -286,12 +348,21 @@ MAXITER
     def write_energies(self):
         # Grab energies
         self.path_check = os.path.join(self.path,f'{self.name}.output')
-
-        self.E2 = float((grep['-i', 'E2 (Variational):',self.path_check] | awk['{print $NF }'])())
-        self.CASSCF_E = float((grep['-i', '::    RASSCF root number  1',self.path_check] | awk['{print $8 }'])())
-        self.CASPT2_E = float((grep['-i', '::    CASPT2',self.path_check] | awk['{print $NF }'])())   
-
-        pd.DataFrame.from_dict({"E2":self.E2,"CASSCF_E":self.CASSCF_E,"CASPT2_E":self.CASPT2_E},orient='index').rename(columns={0:self.name}).to_excel(os.path.join(self.path,f"{self.name}_energies.xlsx"))
+        self.HF = float((grep['-i', '::    Total SCF energy',self.path_check] | awk['{print $NF }'])())
+        if self.CIROOT is None and self.MSroots is None:
+        
+            self.E2 = float((grep['-i', 'E2 (Variational):',self.path_check] | awk['{print $NF }'])())
+            self.CASSCF_E = float((grep['-i', '::    RASSCF root number  1',self.path_check] | awk['{print $8 }'])())
+            self.CASPT2_E = float((grep['-i', '::    CASPT2',self.path_check] | awk['{print $NF }'])())
+            pd.DataFrame.from_dict({"E2":self.E2,"CASSCF_E":self.CASSCF_E,"CASPT2_E":self.CASPT2_E},orient='index').rename(columns={0:self.name}).to_excel(os.path.join(self.path,f"{self.name}_energies.xlsx"))
+        else:
+            
+            hf=float((grep['-i', '::    Total SCF energy',"H2.output"] | awk['{print $NF }'])())
+            corr=(grep['-i', 'E2 (Variational):',"H2.output"] | awk['{print $NF }'])().strip().split('\n')
+            rasscf=(grep['-i', '::    RASSCF',"H2.output"] | awk['{print $NF }'])().strip().split('\n')
+            caspt2=(grep['-i', '::    CASPT2',"H2.output"] | awk['{print $NF }'])().strip().split('\n')
+            
+            pd.DataFrame(np.vstack([corr,rasscf,caspt2,self.MSroots*[hf]]).T.astype(float),index=[f"root_{i+1}" for i in range(self.MSroots)],columns=['E2','CASSCF_E','CASPT2_E','SCF_E']).to_excel(os.path.join(self.path,f"{self.name}_energies.xlsx"))               
 
     def orbitals(self):
         #Grab basis information
@@ -325,11 +396,7 @@ MAXITER
         return '_'.join(re.sub(r'(?<!\d)0+(\d+)', r'\1', i) for i in lst.split('_'))
 
 
-    def caspt2_fock_indexing(self,u,v):
-        '''
-        Fast way to generate feature labels for the CASPT2 style Fock featues
-        '''
-        return ["F$_{"+f"{u}{v}"+"}$","FI$_{"+f"{u}{v}"+"}$","FA$_{"+f"{u}{v}"+"}$","D$_{"+f"{u}{v}"+"}$"]
+
         
     def eightfold(self,i,j,k,l,integrals):
         '''
@@ -490,11 +557,6 @@ MAXITER
         else:
             self.binary_feat.append((uniquepair,0))
     
-        # CASPT2 style Fock features
-        if qidx>=sidx:
-            self.CASPT2Fockfeatures.append((uniquepair,dict(zip(self.caspt2_fock_indexing('q','s'),self.pt2fock_stacked[:,2:][(self.pt2fock_stacked[:,0]==qidx)&(self.pt2fock_stacked[:,1]==sidx)].flatten()))))
-        else:
-            self.CASPT2Fockfeatures.append((uniquepair,dict(zip(self.caspt2_fock_indexing('q','s'),self.pt2fock_stacked[:,2:][(self.pt2fock_stacked[:,0]==sidx)&(self.pt2fock_stacked[:,1]==qidx)].flatten()))))
     
         # Get the pair-energies that share the same qs
         subpairs = self.pairs[self.pairs[:,3]==uniquepair]
@@ -546,16 +608,13 @@ MAXITER
         self.checkE2 += pairenergy
 
 
-        return self.checkE2, self.h_features, self.CASPT2Fockfeatures, self.b4_type, self.binary_feat, self.MO_feat, self.two_el_feats, self.pairenergylist  
+        return self.checkE2, self.h_features, self.b4_type, self.binary_feat, self.MO_feat, self.two_el_feats, self.pairenergylist  
     
 
-    def gen_df(self):
+    def gen_df(self,root):
         '''
         Generate feature dataframe
-        '''
-        # IT,IU,F(global index),FI(global index),fa(global index),d(global index
-        caspt2fockdf = pd.concat([pd.DataFrame.from_dict(vals,orient='index',columns=[idx]) for idx, vals in self.CASPT2Fockfeatures],axis=1).T
-        
+        '''        
         # binary feature df
         bindf = pd.DataFrame(self.binary_feat).set_index(0).rename(columns={0:'binary'})
         
@@ -586,25 +645,24 @@ MAXITER
 
         pairenergy_df = pd.DataFrame(self.pairenergylist,columns=['index','Pair_Energies']).set_index('index').astype({'Pair_Energies':float})
         # Everything together so far
-        concatdf = pd.concat([h_df,important2e,bindf,caspt2fockdf,allMO_feats,two_el_df,pairenergy_df],axis=1)
-        concatdf.to_csv(os.path.join(self.path,f"{self.name}.csv"),compression='zip') 
+        concatdf = pd.concat([h_df,important2e,bindf,allMO_feats,two_el_df,pairenergy_df],axis=1)
+        concatdf.to_csv(os.path.join(self.path,f"{self.name}_{root}.csv"),compression='zip') 
 
-    def gen_pairs(self,i):
+    def gen_pairs(self,i,root):
         '''
         Generate pairs in a parallel manner
         '''
         pairs = []
-        typ = os.path.basename(i).split('.')[0].replace('GMJ_e2_','')
-        # print(typ)
-        
-        IVEC = pd.read_csv(os.path.join(self.path,f'GMJ_IVECW_{typ}.csv'),sep='\s+',header=None,skiprows=[0])
-        RHS = pd.read_csv(os.path.join(self.path,f'GMJ_RHS_{typ}.csv'),sep=',',header=None,index_col=0)
+        typ = os.path.basename(i).split('.')[0].replace('GMJ_e2_','').replace(f'_{root}_','')
+
+        IVEC = pd.read_csv(os.path.join(self.path,f'GMJ_IVECW_{typ}_{root}_.csv'),sep='\s+',header=None,skiprows=[0])
+        RHS = pd.read_csv(os.path.join(self.path,f'GMJ_RHS_{typ}_{root}_.csv'),sep=',',header=None,index_col=0)
         RHS.index = list(map(self.strip,RHS.index))
         RHS = np.array(RHS.index).reshape(IVEC.shape)
-        e2 = np.genfromtxt(os.path.join(self.path,f'GMJ_e2_{typ}.csv'),skip_header=True).reshape(RHS.shape)
-        IVECX = pd.read_csv(os.path.join(self.path,f'GMJ_IVECX_{typ}.csv'),sep='\s+',header=None,skiprows=[0])
+        e2 = np.genfromtxt(os.path.join(self.path,f'GMJ_e2_{typ}_{root}_.csv'),skip_header=True).reshape(RHS.shape)
+        IVECX = pd.read_csv(os.path.join(self.path,f'GMJ_IVECX_{typ}_{root}_.csv'),sep='\s+',header=None,skiprows=[0])
 
-        IVECC2 = pd.read_csv(os.path.join(self.path,f'GMJ_IVECC2_{typ}.csv'),sep='\s+',header=None,skiprows=[0])    
+        IVECC2 = pd.read_csv(os.path.join(self.path,f'GMJ_IVECC2_{typ}_{root}_.csv'),sep='\s+',header=None,skiprows=[0])    
         for idxi,i in enumerate(RHS):
             for idxj,j in enumerate(i):
                 # Split the index and enforce a standardization of p,q,r,s 
@@ -621,14 +679,6 @@ MAXITER
         Generate features
         '''
         self.orbitals()
-        # Load the PT2 Fock elements
-        # Columns are as follows:
-        # IT,IU,F(global index),FI(global index),fa(global index),d(global index)
-        pt2fock = os.path.join(self.path,f"{self.name}.GMJ_PT2_Fock_MO.csv")
-        
-        pt2fock_values = np.nan_to_num(np.fromfile(pt2fock,dtype=float).reshape(-1,6)[:,3:])
-        pt2fock_idx = np.fromfile(pt2fock,dtype=int).reshape(-1,6)[:,0:3]-1
-        self.pt2fock_stacked = np.hstack([pt2fock_idx,pt2fock_values])
         
         
         # Read CASSCF Fock from file
@@ -695,61 +745,60 @@ MAXITER
         self.typedict = {v:k for k,v in dict(enumerate(["A", "B_P", "B_M", "C", "D", "E_P", "E_M", "F_P", "F_M", "G_P", "G_M", "H_P", "H_M"])).items()}
         
         
-        
+        # Add MS-CASPT2 support below
         # IVECW and IRHS should have same indices
         # Same as IVECC2, it should all be element wise
-        
-        
-        
-            
-        if self.n_jobs==None:
-            self.pairs = np.vstack([self.gen_pairs(i) for i in tqdm(glob(os.path.join(self.path,"GMJ_e2_*.csv")),desc="Pairs")])    
+        if self.MSroots  is None:
+            msroots_range = [1]
         else:
-            self.pairs = np.vstack(Parallel(n_jobs=self.n_jobs)(delayed(self.gen_pairs)(i) for i in tqdm(glob(os.path.join(self.path,"GMJ_e2_*.csv")),desc="Pairs")))  
+            msroots_range = range(1, self.MSroots + 1)
         
-        # qs pairs!
-        uniquepairs = np.unique(self.pairs[:,3])
-        self.uniquepairs = uniquepairs
-        self.checkE2=0
-
-        
-        self.h_features = []
-        self.CASPT2Fockfeatures = []
-        self.b4_type = []
-        self.binary_feat = []
-        self.MO_feat = []
-        self.two_el_feats = []
-        self.pairenergylist = []
-        
-        if self.n_jobs==None:
-            out = []
-            for i in tqdm(self.uniquepairs,desc="Features"):
-                outpar = self.parallel_feat(i)
+        for msr in tqdm(msroots_range,desc="Root"):
+            if self.n_jobs is None:
+                self.pairs = np.vstack([self.gen_pairs(i,msr) for i in tqdm(glob(os.path.join(self.path,f"GMJ_e2_*_{msr}_.csv")),desc="Pairs")])    
+            else:
+                self.pairs = np.vstack(Parallel(n_jobs=self.n_jobs)(delayed(self.gen_pairs)(i,msr) for i in tqdm(glob(os.path.join(self.path,f"GMJ_e2_*_{msr}_.csv")),desc="Pairs")))  
             
-        else:
-            outpar=Parallel(n_jobs=self.n_jobs)(delayed(self.parallel_feat)(i) for i in tqdm(self.uniquepairs,desc="Features"))
-            for i in outpar:
-                self.checkE2 += i[0]
-                self.h_features.append(i[1])
-                self.CASPT2Fockfeatures.append(i[2])
-                self.b4_type.append(i[3])
-                self.binary_feat.append(i[4])
-                self.MO_feat.append(i[5])
-                self.two_el_feats.append(i[6])
-                self.pairenergylist.append(i[7])
-
-  
-            self.h_features = sum(self.h_features,[])
-            self.CASPT2Fockfeatures = sum(self.CASPT2Fockfeatures,[])
-            self.b4_type = sum(self.b4_type,[])
-            self.binary_feat = sum(self.binary_feat,[])
-            self.MO_feat = sum(self.MO_feat,[])
-            self.two_el_feats = sum(self.two_el_feats,[])
-            self.pairenergylist = sum(self.pairenergylist,[])
-        
-
-        
-        self.gen_df()
+            # qs pairs!
+            uniquepairs = np.unique(self.pairs[:,3])
+            self.uniquepairs = uniquepairs
+            self.checkE2=0
+    
+            
+            self.h_features = []
+            self.b4_type = []
+            self.binary_feat = []
+            self.MO_feat = []
+            self.two_el_feats = []
+            self.pairenergylist = []
+            
+            if self.n_jobs is None:
+                out = []
+                for i in tqdm(self.uniquepairs,desc="Features"):
+                    outpar = self.parallel_feat(i)
+                
+            else:
+                outpar=Parallel(n_jobs=self.n_jobs)(delayed(self.parallel_feat)(i) for i in tqdm(self.uniquepairs,desc="Features"))
+                for i in outpar:
+                    self.checkE2 += i[0]
+                    self.h_features.append(i[1])
+                    self.b4_type.append(i[2])
+                    self.binary_feat.append(i[3])
+                    self.MO_feat.append(i[4])
+                    self.two_el_feats.append(i[5])
+                    self.pairenergylist.append(i[6])
+    
+      
+                self.h_features = sum(self.h_features,[])
+                self.b4_type = sum(self.b4_type,[])
+                self.binary_feat = sum(self.binary_feat,[])
+                self.MO_feat = sum(self.MO_feat,[])
+                self.two_el_feats = sum(self.two_el_feats,[])
+                self.pairenergylist = sum(self.pairenergylist,[])
+            
+    
+            
+            self.gen_df(msr)
         
     
     def __call__(self,run=True):
@@ -764,8 +813,9 @@ MAXITER
         
         if run==True:
             call(['pymolcas','-new','-clean',os.path.join(self.path,f'{self.name}.input'), '-oe', os.path.join(self.path,f'{self.name}.output')])
+        
         self.write_energies()
-            
+          
         self.gen_feats()
         
         if self.clean:
@@ -773,50 +823,22 @@ MAXITER
         os.chdir(top)
 
 
-# In[ ]:
+
+# In[4]:
 
 
 # for i in glob("GMJ*csv")+glob("*GMJ*int*csv")+glob('*h5'):
 #     os.remove(i)
-DDCASPT2('./','ANO-RCC-MB','988-v',10,8,None,previous="$CurrDir/988-v.RasOrb",symmetry=1,spin=4,UHF=True,charge=2,clean=True,n_jobs=-1)(run=True)
-parallelfeat = pd.read_csv('988-v.csv',compression='zip',index_col=0)
-# serialfeat = pd.read_csv('../new_DDCASPT2/O3_106.00.csv',compression='zip',index_col=0)
-# print(f"O3={(parallelfeat == serialfeat).all().all()}")
-# print((parallelfeat == serialfeat).all()[~(parallelfeat == serialfeat).all()])
-print(*pd.read_excel('988-v_energies.xlsx',index_col=0).loc['E2'].values,parallelfeat['Pair_Energies'].sum())
-print()
+
+# path='./'
+# basis_set='ANO-RCC-VDZP'
+# name="H2"
+# electrons=2
+# occupied=2
+# inactive=None
 
 
-# In[ ]:
-
-
-TEST=True
-
-
-# In[ ]:
-
-
-if TEST==True:
-    for j in [None,16]:
-        for c in [True,False]:
-            print(f"jobs: {j}\nclean: {c}")    
-            for i in glob("GMJ*csv")+glob("*GMJ*int*csv")+glob('*h5'):
-                os.remove(i)
-            DDCASPT2('./','ANO-RCC-VDZP','H2',2,2,0,previous=None,symmetry=1,spin=0,UHF=False,charge=0,clean=c,n_jobs=j)(run=True)
-            parallelfeat = pd.read_csv('H2.csv',compression='zip',index_col=0)
-            serialfeat = pd.read_csv('../new_DDCASPT2/H2.csv',compression='zip',index_col=0)
-            print(f"H2={(parallelfeat == serialfeat).all().all()}")
-            print((parallelfeat == serialfeat).all()[~(parallelfeat == serialfeat).all()])
-            print(*pd.read_excel('H2_energies.xlsx',index_col=0).loc['E2'].values,parallelfeat['Pair_Energies'].sum())
-        
-            DDCASPT2('./','ANO-RCC-VDZP','O3_106.00',4,3,10,previous=None,symmetry=1,spin=0,UHF=False,charge=0,clean=c,n_jobs=j)(run=True)
-            parallelfeat = pd.read_csv('O3_106.00.csv',compression='zip',index_col=0)
-            # serialfeat = pd.read_csv('../new_DDCASPT2/O3_106.00.csv',compression='zip',index_col=0)
-            # print(f"O3={(parallelfeat == serialfeat).all().all()}")
-            # print((parallelfeat == serialfeat).all()[~(parallelfeat == serialfeat).all()])
-            print(*pd.read_excel('O3_106.00_energies.xlsx',index_col=0).loc['E2'].values,parallelfeat['Pair_Energies'].sum())
-            print()
-            
+# DDCASPT2(path,basis_set,name,electrons,occupied,inactive,scf_previous=None,casscf_previous=None,symmetry=1,spin=0,UHF=False,CIROOT="3 3 1",frozen=0,pt2maxiter=50,MSroots=3,charge=0,clean=False,n_jobs=-1)(run=True)
 
 
 # In[ ]:
