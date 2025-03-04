@@ -805,7 +805,7 @@ MAXITER
             print(f"Found a valid MOLCAS installation at {os.environ['MOLCAS']}")
             print(f"MOLCAS_WORKDIR is set to {os.environ['MOLCAS_WORKDIR']}")
             
-            call(['pymolcas','-nt','12','-new','-clean',os.path.join(self.path,f'{self.name}.input'), '-oe', os.path.join(self.path,f'{self.name}.output')])
+            call(['pymolcas','-nt',str(self.n_jobs),'-new','-clean',os.path.join(self.path,f'{self.name}.input'), '-oe', os.path.join(self.path,f'{self.name}.output')])
 
         if feat==True:
             self.write_energies()
