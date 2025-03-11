@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[ ]:
+# In[1]:
 
 
 import sys
@@ -41,7 +41,7 @@ from sklearn.model_selection import train_test_split
 
 
 
-# In[ ]:
+# In[2]:
 
 
 #######################################################
@@ -95,7 +95,7 @@ from sklearn.model_selection import train_test_split
 # 
 
 
-# In[ ]:
+# In[3]:
 
 
 class DDCASPT2:
@@ -346,10 +346,10 @@ MAXITER
             pd.DataFrame.from_dict({"E2":self.E2,"CASSCF_E":self.CASSCF_E,"CASPT2_E":self.CASPT2_E},orient='index').rename(columns={0:self.name}).to_excel(os.path.join(self.path,f"{self.name}_energies.xlsx"))
         else:
             
-            hf=float((grep['-i', '::    Total SCF energy',self.path_check] | awk['{print $NF }'])())
-            corr=(grep['-i', 'E2 (Variational):',self.path_check] | awk['{print $NF }'])().strip().split('\n')
-            rasscf=(grep['-i', '::    RASSCF',self.path_check] | awk['{print $NF }'])().strip().split('\n')
-            caspt2=(grep['-i', '::    CASPT2',self.path_check] | awk['{print $NF }'])().strip().split('\n')
+            hf=float((grep['-i', '::    Total SCF energy',"H2.output"] | awk['{print $NF }'])())
+            corr=(grep['-i', 'E2 (Variational):',"H2.output"] | awk['{print $NF }'])().strip().split('\n')
+            rasscf=(grep['-i', '::    RASSCF',"H2.output"] | awk['{print $NF }'])().strip().split('\n')
+            caspt2=(grep['-i', '::    CASPT2',"H2.output"] | awk['{print $NF }'])().strip().split('\n')
             
             pd.DataFrame(np.vstack([corr,rasscf,caspt2,self.MSroots*[hf]]).T.astype(float),index=[f"root_{i+1}" for i in range(self.MSroots)],columns=['E2','CASSCF_E','CASPT2_E','SCF_E']).to_excel(os.path.join(self.path,f"{self.name}_energies.xlsx"))               
 
@@ -797,15 +797,15 @@ MAXITER
         if inputwrite==True:
             self.write_input()
         
-        top = os.getcwd()
-        os.chdir(self.path)
+        # top = os.getcwd()
+        # os.chdir(self.path)
         
         if run==True:
             print(f"Running on {self.n_jobs} cores")
             print(f"Found a valid MOLCAS installation at {os.environ['MOLCAS']}")
             print(f"MOLCAS_WORKDIR is set to {os.environ['MOLCAS_WORKDIR']}")
             
-            call(['pymolcas','-nt',str(self.n_jobs),'-new','-clean',os.path.join(self.path,f'{self.name}.input'), '-oe', os.path.join(self.path,f'{self.name}.output')])
+            call(['pymolcas','-new','-clean',os.path.join(self.path,f'{self.name}.input'), '-oe', os.path.join(self.path,f'{self.name}.output')])
 
         if feat==True:
             self.write_energies()
@@ -813,11 +813,11 @@ MAXITER
         
         if self.clean:
             self.del_useless()
-        os.chdir(top)
+        # os.chdir(top)
 
 
 
-# In[ ]:
+# In[4]:
 
 
 # for i in glob("GMJ*csv")+glob("*GMJ*int*csv")+glob('*h5'):
