@@ -31,6 +31,7 @@ from shutil import copy
 import csv
 import h5py as h5
 import seaborn as sns; sns.set(style="ticks", color_codes=True)
+from collections import Counter
 
 from sklearn.model_selection import train_test_split
 
@@ -536,6 +537,7 @@ MAXITER
         uniquepair: str
             Unique pair-energy label XX_YY
         '''
+        
         q,s = uniquepair.split('_')
         qidx = self.basis_dict[q]
         sidx = self.basis_dict[s]
@@ -607,7 +609,8 @@ MAXITER
         # binary feature df
         bindf = pd.DataFrame(self.binary_feat).set_index(0).rename(columns={0:'binary'})
         
-        # one-electron dataframe
+        seen = {}
+        duplicates = {}
         h_df = pd.DataFrame(self.h_features).pivot(index=0, columns=1)
         h_df.columns=h_df.columns.droplevel()
         h_df.drop(columns=["h$_{qs}^{3}$","h$_{qs}^{1}$","h$_{qs}^{2}$"],inplace=True)
@@ -633,7 +636,7 @@ MAXITER
         allMO_feats = pd.concat([pd.concat([i for i in listconcatmo if i.columns[0]==j]) for j in self.uniquepairs],axis=1).T
 
         pairenergy_df = pd.DataFrame(self.pairenergylist,columns=['index','Pair_Energies']).set_index('index').astype({'Pair_Energies':float})
-        # Everything together so far
+        # save file
         concatdf = pd.concat([h_df,important2e,bindf,allMO_feats,two_el_df,pairenergy_df],axis=1)
         concatdf.to_csv(os.path.join(self.path,f"{self.name}_{root}.csv"),compression='zip') 
 
@@ -751,6 +754,7 @@ MAXITER
             # qs pairs!
             uniquepairs = np.unique(self.pairs[:,3])
             self.uniquepairs = uniquepairs
+            
             self.checkE2=0
     
             
@@ -760,32 +764,34 @@ MAXITER
             self.MO_feat = []
             self.two_el_feats = []
             self.pairenergylist = []
+
             
-            if self.n_jobs is None:
-                out = []
-                for i in tqdm(self.uniquepairs,desc="Features"):
-                    outpar = self.parallel_feat(i)
+            # if self.n_jobs is None:
+            out = []
+            for i in tqdm(self.uniquepairs,desc="Features"):
+                self.parallel_feat(i)
                 
-            else:
-                outpar=Parallel(n_jobs=self.n_jobs)(delayed(self.parallel_feat)(i) for i in tqdm(self.uniquepairs,desc="Features"))
-                for i in outpar:
-                    self.checkE2 += i[0]
-                    self.h_features.append(i[1])
-                    self.b4_type.append(i[2])
-                    self.binary_feat.append(i[3])
-                    self.MO_feat.append(i[4])
-                    self.two_el_feats.append(i[5])
-                    self.pairenergylist.append(i[6])
-    
+            # else:
+            #     outpar=Parallel(n_jobs=self.n_jobs)(delayed(self.parallel_feat)(i) for i in tqdm(self.uniquepairs,desc="Features"))
+            #     for i in outpar:
+            #         self.checkE2 += i[0]
+            #         self.h_features.append(i[1])
+            #         self.b4_type.append(i[2])
+            #         self.binary_feat.append(i[3])
+            #         self.MO_feat.append(i[4])
+            #         self.two_el_feats.append(i[5])
+            #         self.pairenergylist.append(i[6])
       
-                self.h_features = sum(self.h_features,[])
-                self.b4_type = sum(self.b4_type,[])
-                self.binary_feat = sum(self.binary_feat,[])
-                self.MO_feat = sum(self.MO_feat,[])
-                self.two_el_feats = sum(self.two_el_feats,[])
-                self.pairenergylist = sum(self.pairenergylist,[])
+            #     self.h_features = sum(self.h_features,[])
+            #     self.b4_type = sum(self.b4_type,[])
+            #     self.binary_feat = sum(self.binary_feat,[])
+            #     self.MO_feat = sum(self.MO_feat,[])
+            #     self.two_el_feats = sum(self.two_el_feats,[])
+            #     self.pairenergylist = sum(self.pairenergylist,[])
             
-    
+
+            
+            
             
             self.gen_df(msr)
         
@@ -804,8 +810,10 @@ MAXITER
             print(f"Running on {self.n_jobs} cores")
             print(f"Found a valid MOLCAS installation at {os.environ['MOLCAS']}")
             print(f"MOLCAS_WORKDIR is set to {os.environ['MOLCAS_WORKDIR']}")
-            
-            call(['pymolcas','-nt',str(self.n_jobs),'-new','-clean',os.path.join(self.path,f'{self.name}.input'), '-oe', os.path.join(self.path,f'{self.name}.output')])
+            if self.n_jobs is None:
+                call(['pymolcas','-new','-clean',os.path.join(self.path,f'{self.name}.input'), '-oe', os.path.join(self.path,f'{self.name}.output')])                
+            else:
+                call(['pymolcas','-nt',str(self.n_jobs),'-new','-clean',os.path.join(self.path,f'{self.name}.input'), '-oe', os.path.join(self.path,f'{self.name}.output')])
 
         if feat==True:
             self.write_energies()
@@ -814,28 +822,5 @@ MAXITER
         if self.clean:
             self.del_useless()
         os.chdir(top)
-
-
-
-# In[ ]:
-
-
-# for i in glob("GMJ*csv")+glob("*GMJ*int*csv")+glob('*h5'):
-#     os.remove(i)
-
-# path='./'
-# basis_set='ANO-RCC-VDZP'
-# name="H2"
-# electrons=2
-# occupied=2
-# inactive=None
-
-
-# DDCASPT2(path,basis_set,name,electrons,occupied,inactive,scf_previous=None,casscf_previous=None,symmetry=1,spin=0,UHF=False,CIROOT="3 3 1",frozen=0,pt2maxiter=50,MSroots=3,charge=0,clean=False,n_jobs=-1)(run=True)
-
-
-# In[ ]:
-
-
 
 
