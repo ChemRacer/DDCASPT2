@@ -377,7 +377,8 @@ MAXITER
             Basis_Indices.append(f'S{i+1}')   
         
         self.Basis_Indices = Basis_Indices
-        self.basis_dict = {v:k for k,v in dict(enumerate(Basis_Indices)).items()}        
+        self.basis_dict = {v:k-self.fro for k,v in dict(enumerate(Basis_Indices)).items() if 'F' not in v}
+        print(self.basis_dict)
 
     def strip(self,lst):   
         '''
@@ -539,9 +540,10 @@ MAXITER
         '''
         
         q,s = uniquepair.split('_')
+        
         qidx = self.basis_dict[q]
         sidx = self.basis_dict[s]
-    
+        
         # From same orbital = 1, else 0
         if q==s:
             self.binary_feat.append((uniquepair,1))
@@ -709,7 +711,7 @@ MAXITER
         MO_df = pd.DataFrame.from_dict(scfMO_dict).rename(columns={"MO_ENERGIES":"MO_ENERGIES_SCF","MO_OCCUPATIONS":"MO_OCCUPATIONS_SCF"})
         MO_df['MO_ENERGIES']=CASSCF_fock
         MO_df['MO_OCCUPATIONS']=casMO_dict['MO_OCCUPATIONS']
-        # MO_df = MO_df.reset_index()
+        MO_df = MO_df.iloc[self.fro:].reset_index(drop=True)
         MO_df.index = self.basis_dict.keys()
         self.MO_df = MO_df
         
@@ -822,5 +824,17 @@ MAXITER
         if self.clean:
             self.del_useless()
         os.chdir(top)
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
 
 
