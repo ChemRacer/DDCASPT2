@@ -1,6 +1,6 @@
 #!/bin/bash
 #This file is a submission script to request the ISAAC resources from Slurm
-#SBATCH --account=ACF-UTK0022             # The project account to be charged
+#SBATCH --account=ACF-UTK0011             # The project account to be charged
 #SBATCH --job-name=ironoxo_2.40		       #The name of the job
 #SBATCH --nodes=1                     # Number of nodes
 #SBATCH --ntasks-per-node=16          # cpus per node
