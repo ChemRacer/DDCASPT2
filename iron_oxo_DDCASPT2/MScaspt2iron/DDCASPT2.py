@@ -260,7 +260,13 @@ all
         return start_string+fileorb+ciroot+end_string 
     
     def _gen_caspt2(self):
-        startstring="""&CASPT2 &END"""
+        startstring="""&CASPT2 &END
+
+Imaginary Shift
+0.2
+IPEA
+0.25       
+"""
         if self.frozen is None:
             frozstr=''
         else:
@@ -356,10 +362,10 @@ MAXITER
             pd.DataFrame.from_dict({"E2":self.E2,"CASSCF_E":self.CASSCF_E,"CASPT2_E":self.CASPT2_E},orient='index').rename(columns={0:self.name}).to_excel(os.path.join(self.path,f"{self.name}_energies.xlsx"))
         else:
             
-            hf=float((grep['-i', '::    Total SCF energy',"H2.output"] | awk['{print $NF }'])())
-            corr=(grep['-i', 'E2 (Variational):',"H2.output"] | awk['{print $NF }'])().strip().split('\n')
-            rasscf=(grep['-i', '::    RASSCF',"H2.output"] | awk['{print $NF }'])().strip().split('\n')
-            caspt2=(grep['-i', '::    CASPT2',"H2.output"] | awk['{print $NF }'])().strip().split('\n')
+            hf=float((grep['-i', '::    Total SCF energy',self.path_check] | awk['{print $NF }'])())
+            corr=(grep['-i', 'E2 (Variational):',self.path_check] | awk['{print $NF }'])().strip().split('\n')
+            rasscf=(grep['-i', '::    RASSCF',self.path_check] | awk['{print $NF }'])().strip().split('\n')
+            caspt2=(grep['-i', '::    CASPT2',self.path_check] | awk['{print $NF }'])().strip().split('\n')
             
             pd.DataFrame(np.vstack([corr,rasscf,caspt2,self.MSroots*[hf]]).T.astype(float),index=[f"root_{i+1}" for i in range(self.MSroots)],columns=['E2','CASSCF_E','CASPT2_E','SCF_E']).to_excel(os.path.join(self.path,f"{self.name}_energies.xlsx"))               
 
