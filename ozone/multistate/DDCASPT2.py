@@ -197,6 +197,14 @@ spin
     def _gen_rasscf(self):
         start_string="""&RASSCF &END
 Title= RASSCF
+LEVShft
+0.3
+ITERation
+200 100
+CIMX
+200
+SDAV
+500
 """
         if self.casscf_previous is not None:
             fileorb=f"""FileOrb
@@ -251,7 +259,13 @@ all
         return start_string+fileorb+ciroot+end_string 
     
     def _gen_caspt2(self):
-        startstring="""&CASPT2 &END"""
+        startstring="""&CASPT2 &END
+
+Imaginary Shift
+0.2
+IPEA
+0.25       
+"""
         if self.frozen is None:
             frozstr=''
         else:

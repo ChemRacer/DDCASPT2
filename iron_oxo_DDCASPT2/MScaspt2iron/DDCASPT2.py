@@ -257,7 +257,12 @@ Spin
 {self.spin + 1}
 orblisting
 all
-
+ITERation
+200 100
+CIMX
+200
+SDAV
+500
 >>> COPY $WorkDir/{self.name}.rasscf.h5 $CurrDir/
 >>> COPY $WorkDir/GMJ_Fock_MO.csv $CurrDir/{self.name}.GMJ_Fock_MO.csv
 
