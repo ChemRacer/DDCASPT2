@@ -37,7 +37,7 @@ def write_energies(path,MSroots=3,CIROOT="3 3 1"):
         hf=float((grep['-i', '::    Total SCF energy',path_check] | awk['{print $NF }'])())
         corr=(grep['-i', 'E2 (Variational):',path_check] | awk['{print $NF }'])().strip().split('\n')
         rasscf=(grep['-i', '::    RASSCF',path_check] | awk['{print $NF }'])().strip().split('\n')
-        caspt2=(grep['-i', '::    CASPT2',path_check] | awk['{print $NF }'])().strip().split('\n')
+        caspt2=(grep['-i', '::    MS-CASPT2',path_check] | awk['{print $NF }'])().strip().split('\n')
         
         df = pd.DataFrame(np.vstack([corr,rasscf,caspt2,MSroots*[hf]]).T.astype(float),index=[f"{i+1}" for i in range(MSroots)],columns=['E2','CASSCF_E','CASPT2_E','SCF_E']) #.to_excel(os.path.join(path,f"{name}_energies.xlsx"))
 
