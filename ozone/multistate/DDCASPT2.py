@@ -197,8 +197,6 @@ spin
     def _gen_rasscf(self):
         start_string="""&RASSCF &END
 Title= RASSCF
-LEVShft
-0.3
 ITERation
 200 100
 CIMX
@@ -261,10 +259,8 @@ all
     def _gen_caspt2(self):
         startstring="""&CASPT2 &END
 
-Imaginary Shift
-0.2
-IPEA
-0.25       
+Multistate
+ALL
 """
         if self.frozen is None:
             frozstr=''
@@ -370,13 +366,13 @@ MAXITER
 
     def orbitals(self):
         #Grab basis information
-        self.fro=int(subprocess.Popen(f"grep -i 'Frozen orbitals' {self.path_check} | tail -n 1",shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT).communicate()[0].split()[-1])
+        self.fro=int(subprocess.Popen(f"grep 'Frozen orbitals' {self.path_check} | tail -n 1",shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT).communicate()[0].split()[-1])
         # Number of inactive orbitals
-        self.inact=int(subprocess.Popen(f"grep -i 'Inactive orbitals' {self.path_check} | tail -n 1",shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT).communicate()[0].split()[-1])
+        self.inact=int(subprocess.Popen(f"grep 'Inactive orbitals' {self.path_check} | tail -n 1",shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT).communicate()[0].split()[-1])
         # Number of active orbitals
-        self.act=int(subprocess.Popen(f"grep -i 'Active orbitals' {self.path_check} | tail -n 1",shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT).communicate()[0].split()[-1])
+        self.act=int(subprocess.Popen(f"grep 'Active orbitals' {self.path_check} | tail -n 1",shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT).communicate()[0].split()[-1])
         # Number of seconary orbitals
-        self.virt=int(subprocess.Popen(f"grep -i 'Secondary orbitals' {self.path_check} | tail -n 1",shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT).communicate()[0].split()[-1])
+        self.virt=int(subprocess.Popen(f"grep 'Secondary orbitals' {self.path_check} | tail -n 1",shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT).communicate()[0].split()[-1])
         # Number of basis functions for sanity check
         self.bas_check=int(subprocess.Popen(f"grep -i 'Number of basis functions' {self.path_check} | tail -n 1",shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT).communicate()[0].split()[-1])
         
