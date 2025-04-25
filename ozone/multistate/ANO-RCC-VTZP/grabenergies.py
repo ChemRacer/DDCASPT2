@@ -23,7 +23,7 @@ import subprocess
 import sys
 
 def write_energies(path,MSroots=3,CIROOT="3 3 1"):
-    radius = os.path.dirname(i)
+    radius = float(os.path.dirname(i).split("_")[1])
     path_check = path 
     HF = float((grep['-i', '::    Total SCF energy',path_check] | awk['{print $NF }'])())
     if CIROOT is None and MSroots is None:
