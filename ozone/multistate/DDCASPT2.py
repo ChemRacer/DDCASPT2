@@ -778,28 +778,29 @@ MAXITER
             self.pairenergylist = []
 
             
-            # if self.n_jobs is None:
-            out = []
-            for i in tqdm(self.uniquepairs,desc="Features"):
-                self.parallel_feat(i)
+            if self.n_jobs is None:
+                out = []
+                for i in tqdm(self.uniquepairs,desc="Features"):
+                    self.parallel_feat(i)
                 
-            # else:
-            #     outpar=Parallel(n_jobs=self.n_jobs)(delayed(self.parallel_feat)(i) for i in tqdm(self.uniquepairs,desc="Features"))
-            #     for i in outpar:
-            #         self.checkE2 += i[0]
-            #         self.h_features.append(i[1])
-            #         self.b4_type.append(i[2])
-            #         self.binary_feat.append(i[3])
-            #         self.MO_feat.append(i[4])
-            #         self.two_el_feats.append(i[5])
-            #         self.pairenergylist.append(i[6])
+            else:
+                print(f"Running with {self.n_jobs} cores")
+                outpar=Parallel(n_jobs=self.n_jobs,verbose=1000)(delayed(self.parallel_feat)(i) for i in tqdm(self.uniquepairs,desc="Features"))
+                for i in outpar:
+                    self.checkE2 += i[0]
+                    self.h_features.append(i[1])
+                    self.b4_type.append(i[2])
+                    self.binary_feat.append(i[3])
+                    self.MO_feat.append(i[4])
+                    self.two_el_feats.append(i[5])
+                    self.pairenergylist.append(i[6])
       
-            #     self.h_features = sum(self.h_features,[])
-            #     self.b4_type = sum(self.b4_type,[])
-            #     self.binary_feat = sum(self.binary_feat,[])
-            #     self.MO_feat = sum(self.MO_feat,[])
-            #     self.two_el_feats = sum(self.two_el_feats,[])
-            #     self.pairenergylist = sum(self.pairenergylist,[])
+                self.h_features = sum(self.h_features,[])
+                self.b4_type = sum(self.b4_type,[])
+                self.binary_feat = sum(self.binary_feat,[])
+                self.MO_feat = sum(self.MO_feat,[])
+                self.two_el_feats = sum(self.two_el_feats,[])
+                self.pairenergylist = sum(self.pairenergylist,[])
             
 
             
