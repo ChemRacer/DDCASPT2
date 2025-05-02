@@ -1,11 +1,11 @@
 #!/bin/bash
 #This file is a submission script to request the ISAAC resources from Slurm
-#SBATCH --account=ACF-UTK0011             # The project account to be charged
-#SBATCH --job-name=/home/grierjones/DDCASPT2/ozone/multistate/ANO-RCC-VTZP/ozone_131.75		       #The name of the job
+#SBATCH --account=ACF-UTK0022
+#SBATCH --job-name=ozone_131.75
 #SBATCH --nodes=1                     # Number of nodes
 #SBATCH --ntasks-per-node=4          # cpus per node
-#SBATCH --partition=campus            # If not specified then default is "campus"
-#SBATCH --qos=campus
+#SBATCH --partition=condo-kvogiatz
+#SBATCH --qos=condo-kvogiatz
 #SBATCH --time=0-04:00:00             # Wall time (days-hh:mm:ss)
 #SBATCH --error=job.e%J	       # The file where run time errors will be dumped
 #SBATCH --output=job.o%J	       # The file where the output of the terminal will be dumped
@@ -39,7 +39,7 @@ echo "Running $SLURM_NTASKS tasks."
 echo "Current working directory is $(pwd)"
 
 # THE COMMAND
-pymolcas --new --clean /home/grierjones/DDCASPT2/ozone/multistate/ANO-RCC-VTZP/ozone_131.75.input -oe /home/grierjones/DDCASPT2/ozone/multistate/ANO-RCC-VTZP/ozone_131.75.output
+pymolcas --new --clean ozone_131.75.input -oe ozone_131.75.output
 # CLEAN-UP AND EXIT
 rm -r $SLURM_SUBMIT_DIR/$SLURM_JOBID
 echo "Program finished with exit code $? at: $(date)"

@@ -66,26 +66,26 @@ def run(dirname,basis_set):
         if os.path.exists(subdirpath)==False:
             os.mkdir(subdirpath)
         print(subdirpath)
-        if os.path.exists(os.path.join(subdirpath,f'{name}.csv'))==False:
-            shutil.rmtree(os.path.join('tmp'),name)
+        # if os.path.exists(os.path.join(subdirpath,f'{name}.csv'))==False:
+        shutil.rmtree(os.path.join('tmp'),name)
+        
+        # Write xyz
+        with open(os.path.join(subdirpath,f'{name}.xyz'),'w') as f:
+            f.write(f'{3}\n\n')
             
-            # Write xyz
-            with open(os.path.join(subdirpath,f'{name}.xyz'),'w') as f:
-                f.write(f'{3}\n\n')
-                
-                radius=1.278
-                f.write(f"""O {radius*cos(((float(r)/2)*(pi/180))):>8f} {radius*sin((float(r)/2)*(pi/180)):>8f} {0.0000:>8f}
+            radius=1.278
+            f.write(f"""O {radius*cos(((float(r)/2)*(pi/180))):>8f} {radius*sin((float(r)/2)*(pi/180)):>8f} {0.0000:>8f}
 O {0:>8f} {0:>8f} {0:>8f}
 O {radius*cos(-(float(r)/2)*(pi/180)):>8f} {radius*sin(-(float(r)/2)*(pi/180)):>8f} {0:>8f}
 """)
 
-            
-            if idxr==0:
-                d = DDCASPT2(subdirpath,basis_set,name,4,3,10,previous=None,n_jobs=12)()
-            else:            
-                previous=os.path.join(topdir,basis_set,f'{dirname}_{radius_range[idxr-1]:.2f}',f"{dirname}_{radius_range[idxr-1]:.2f}.RasOrb")
-                print(previous)
-                d = DDCASPT2(subdirpath,basis_set,name,4,3,10,previous=previous,n_jobs=12)()
+        
+        if idxr==0:
+            d = DDCASPT2(subdirpath,basis_set,name,4,3,10,previous=None)()
+        else:            
+            previous=os.path.join(topdir,basis_set,f'{dirname}_{radius_range[idxr-1]:.2f}',f"{dirname}_{radius_range[idxr-1]:.2f}.RasOrb")
+            print(previous)
+            d = DDCASPT2(subdirpath,basis_set,name,4,3,10,previous=previous)()
     
     for idxr, r in enumerate(radius_range):
         # Loop radius
@@ -102,13 +102,13 @@ O {radius*cos(-(float(r)/2)*(pi/180)):>8f} {radius*sin(-(float(r)/2)*(pi/180)):>
 # In[ ]:
 
 
-# run('ozone','ANO-RCC-VDZP')
+run('ozone','ANO-RCC-MB')
 
 
 # In[ ]:
 
 
-run('ozone','ANO-RCC-VTZP')
+# run('ozone','ANO-RCC-VTZP')
 
 
 # In[ ]:
