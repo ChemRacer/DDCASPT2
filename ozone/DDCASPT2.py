@@ -747,7 +747,7 @@ MAXITER
             self.two_el_feats = sum(self.two_el_feats,[])
             self.pairenergylist = sum(self.pairenergylist,[])
         
-
+        print(self.checkE2)
         
         self.gen_df()
         

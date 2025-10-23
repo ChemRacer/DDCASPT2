@@ -281,12 +281,12 @@ MAXITER
 >>enddo
 
 >>foreach i in (A,C,D)
->>if ( -FILE GMJ_e2_$i_1_.csv )
->>> COPY $WorkDir/GMJ_RHS_$i_1_.csv $CurrDir/GMJ_RHS_$i_1_.csv
->>> COPY $WorkDir/GMJ_IVECW_$i_1_.csv $CurrDir/GMJ_IVECW_$i_1_.csv
->>> COPY $WorkDir/GMJ_IVECX_$i_1_.csv $CurrDir/GMJ_IVECX_$i_1_.csv
->>> COPY $WorkDir/GMJ_IVECC2_$i_1_.csv $CurrDir/GMJ_IVECC2_$i_1_.csv
->>> COPY $WorkDir/GMJ_e2_$i_1_.csv $CurrDir/GMJ_e2_$i_1_.csv
+>>if ( -FILE GMJ_e2_${i}_1_.csv )
+>>> COPY $WorkDir/GMJ_RHS_${i}_1_.csv $CurrDir/GMJ_RHS_${i}_1_.csv
+>>> COPY $WorkDir/GMJ_IVECW_${i}_1_.csv $CurrDir/GMJ_IVECW_${i}_1_.csv
+>>> COPY $WorkDir/GMJ_IVECX_${i}_1_.csv $CurrDir/GMJ_IVECX_${i}_1_.csv
+>>> COPY $WorkDir/GMJ_IVECC2_${i}_1_.csv $CurrDir/GMJ_IVECC2_${i}_1_.csv
+>>> COPY $WorkDir/GMJ_e2_${i}_1_.csv $CurrDir/GMJ_e2_${i}_1_.csv
 >>endif
 >>enddo
 """
@@ -507,7 +507,7 @@ MAXITER
         # Find <pq|rs>
         intdict[r"$(\langle pq \vert rs \rangle)_{"+f"{idx}"+"}$"] = self.eightfold(p,q,r,s,integrals)
         # Find <pq|sr>
-        intdict[r"$(\langle pq \vert sr \rangle)_{"+f"{idx}"+"}$"] = self.eightfold(p,q,r,s,integrals)
+        intdict[r"$(\langle pq \vert sr \rangle)_{"+f"{idx}"+"}$"] = self.eightfold(p,q,s,r,integrals)
         
         # Find Jpp <pp|pp>
         intdict[r"$(\langle pp \vert pp \rangle)_{"+f"{idx}"+"}$"] = self.Coulomb(p,p,integrals)
