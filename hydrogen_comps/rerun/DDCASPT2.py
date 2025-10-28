@@ -144,6 +144,7 @@ class DDCASPT2:
 coord={f'{self.name}.xyz'}
 Basis = {self.basis_set}
 Group = nosymm
+EXPErt
 End of Input
 
 '''
