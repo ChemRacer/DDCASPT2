@@ -197,12 +197,6 @@ spin
     def _gen_rasscf(self):
         start_string="""&RASSCF &END
 Title= RASSCF
-ITERation
-200 100
-CIMX
-200
-SDAV
-500
 """
         if self.casscf_previous is not None:
             fileorb=f"""FileOrb
@@ -257,11 +251,7 @@ all
         return start_string+fileorb+ciroot+end_string 
     
     def _gen_caspt2(self):
-        startstring="""&CASPT2 &END
-
-Multistate
-ALL
-"""
+        startstring="""&CASPT2 &END"""
         if self.frozen is None:
             frozstr=''
         else:
@@ -291,12 +281,12 @@ MAXITER
 >>enddo
 
 >>foreach i in (A,C,D)
->>if ( -FILE GMJ_e2_$i_1_.csv )
->>> COPY $WorkDir/GMJ_RHS_$i_1_.csv $CurrDir/GMJ_RHS_$i_1_.csv
->>> COPY $WorkDir/GMJ_IVECW_$i_1_.csv $CurrDir/GMJ_IVECW_$i_1_.csv
->>> COPY $WorkDir/GMJ_IVECX_$i_1_.csv $CurrDir/GMJ_IVECX_$i_1_.csv
->>> COPY $WorkDir/GMJ_IVECC2_$i_1_.csv $CurrDir/GMJ_IVECC2_$i_1_.csv
->>> COPY $WorkDir/GMJ_e2_$i_1_.csv $CurrDir/GMJ_e2_$i_1_.csv
+>>if ( -FILE GMJ_e2_${i}_1_.csv )
+>>> COPY $WorkDir/GMJ_RHS_${i}_1_.csv $CurrDir/GMJ_RHS_${i}_1_.csv
+>>> COPY $WorkDir/GMJ_IVECW_${i}_1_.csv $CurrDir/GMJ_IVECW_${i}_1_.csv
+>>> COPY $WorkDir/GMJ_IVECX_${i}_1_.csv $CurrDir/GMJ_IVECX_${i}_1_.csv
+>>> COPY $WorkDir/GMJ_IVECC2_${i}_1_.csv $CurrDir/GMJ_IVECC2_${i}_1_.csv
+>>> COPY $WorkDir/GMJ_e2_${i}_1_.csv $CurrDir/GMJ_e2_${i}_1_.csv
 >>endif
 >>enddo
 """
@@ -366,13 +356,13 @@ MAXITER
 
     def orbitals(self):
         #Grab basis information
-        self.fro=int(subprocess.Popen(f"grep 'Frozen orbitals' {self.path_check} | tail -n 1",shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT).communicate()[0].split()[-1])
+        self.fro=int(subprocess.Popen(f"grep -i 'Frozen orbitals' {self.path_check} | tail -n 1",shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT).communicate()[0].split()[-1])
         # Number of inactive orbitals
-        self.inact=int(subprocess.Popen(f"grep 'Inactive orbitals' {self.path_check} | tail -n 1",shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT).communicate()[0].split()[-1])
+        self.inact=int(subprocess.Popen(f"grep -i 'Inactive orbitals' {self.path_check} | tail -n 1",shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT).communicate()[0].split()[-1])
         # Number of active orbitals
-        self.act=int(subprocess.Popen(f"grep 'Active orbitals' {self.path_check} | tail -n 1",shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT).communicate()[0].split()[-1])
+        self.act=int(subprocess.Popen(f"grep -i 'Active orbitals' {self.path_check} | tail -n 1",shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT).communicate()[0].split()[-1])
         # Number of seconary orbitals
-        self.virt=int(subprocess.Popen(f"grep 'Secondary orbitals' {self.path_check} | tail -n 1",shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT).communicate()[0].split()[-1])
+        self.virt=int(subprocess.Popen(f"grep -i 'Secondary orbitals' {self.path_check} | tail -n 1",shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT).communicate()[0].split()[-1])
         # Number of basis functions for sanity check
         self.bas_check=int(subprocess.Popen(f"grep -i 'Number of basis functions' {self.path_check} | tail -n 1",shell=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT).communicate()[0].split()[-1])
         
@@ -517,7 +507,7 @@ MAXITER
         # Find <pq|rs>
         intdict[r"$(\langle pq \vert rs \rangle)_{"+f"{idx}"+"}$"] = self.eightfold(p,q,r,s,integrals)
         # Find <pq|sr>
-        intdict[r"$(\langle pq \vert sr \rangle)_{"+f"{idx}"+"}$"] = self.eightfold(p,q,r,s,integrals)
+        intdict[r"$(\langle pq \vert sr \rangle)_{"+f"{idx}"+"}$"] = self.eightfold(p,q,s,r,integrals)
         
         # Find Jpp <pp|pp>
         intdict[r"$(\langle pp \vert pp \rangle)_{"+f"{idx}"+"}$"] = self.Coulomb(p,p,integrals)
@@ -778,29 +768,28 @@ MAXITER
             self.pairenergylist = []
 
             
-            if self.n_jobs is None:
-                out = []
-                for i in tqdm(self.uniquepairs,desc="Features"):
-                    self.parallel_feat(i)
+            # if self.n_jobs is None:
+            out = []
+            for i in tqdm(self.uniquepairs,desc="Features"):
+                self.parallel_feat(i)
                 
-            else:
-                print(f"Running with {self.n_jobs} cores")
-                outpar=Parallel(n_jobs=self.n_jobs,verbose=1000)(delayed(self.parallel_feat)(i) for i in tqdm(self.uniquepairs,desc="Features"))
-                for i in outpar:
-                    self.checkE2 += i[0]
-                    self.h_features.append(i[1])
-                    self.b4_type.append(i[2])
-                    self.binary_feat.append(i[3])
-                    self.MO_feat.append(i[4])
-                    self.two_el_feats.append(i[5])
-                    self.pairenergylist.append(i[6])
+            # else:
+            #     outpar=Parallel(n_jobs=self.n_jobs)(delayed(self.parallel_feat)(i) for i in tqdm(self.uniquepairs,desc="Features"))
+            #     for i in outpar:
+            #         self.checkE2 += i[0]
+            #         self.h_features.append(i[1])
+            #         self.b4_type.append(i[2])
+            #         self.binary_feat.append(i[3])
+            #         self.MO_feat.append(i[4])
+            #         self.two_el_feats.append(i[5])
+            #         self.pairenergylist.append(i[6])
       
-                self.h_features = sum(self.h_features,[])
-                self.b4_type = sum(self.b4_type,[])
-                self.binary_feat = sum(self.binary_feat,[])
-                self.MO_feat = sum(self.MO_feat,[])
-                self.two_el_feats = sum(self.two_el_feats,[])
-                self.pairenergylist = sum(self.pairenergylist,[])
+            #     self.h_features = sum(self.h_features,[])
+            #     self.b4_type = sum(self.b4_type,[])
+            #     self.binary_feat = sum(self.binary_feat,[])
+            #     self.MO_feat = sum(self.MO_feat,[])
+            #     self.two_el_feats = sum(self.two_el_feats,[])
+            #     self.pairenergylist = sum(self.pairenergylist,[])
             
 
             
