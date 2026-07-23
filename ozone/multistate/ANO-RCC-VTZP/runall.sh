@@ -1,5 +1,5 @@
 #!/bin/bash
-files=$(find . -name "GMJ_e2_A*" | sort -h)
+files=$(find . -name "DDCASPT2_e2_A*" | sort -h)
 for i in *; do
    if [[ ! -e "$i/$i.csv" && -d "$i" ]]; then
        echo "$i"

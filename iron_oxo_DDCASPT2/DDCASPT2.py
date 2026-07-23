@@ -113,11 +113,11 @@ class DDCASPT2:
         print(f"Running on {self.n_jobs} cores")
         
         if 'grierjones' in os.getcwd():
-            os.environ['MOLCAS']='/home/grierjones/Test/build'
+            os.environ['MOLCAS']='${LOCALHOME}/Test/build'
             os.environ['MOLCAS_WORKDIR']='/tmp'
         elif 'isaac' in os.getcwd():
             os.environ['MOLCAS']="/lustre/isaac/proj/UTK0022/GMJ/Test/build"
-            os.environ['MOLCAS_WORKDIR']='/lustre/isaac/scratch/gjones39/'
+            os.environ['MOLCAS_WORKDIR']='${SCRATCH}/'
 
         print(f"Found a valid MOLCAS installation at {os.environ['MOLCAS']}")
         print(f"MOLCAS_WORKDIR is set to {os.environ['MOLCAS_WORKDIR']}")
@@ -158,10 +158,10 @@ End of Input
         string=f'''&MOTRA
 Frozen=0
 LUMORB
->>> COPY $WorkDir/GMJ_one_int_indx.csv $CurrDir/{self.name}.GMJ_one_int_indx.csv
->>> COPY $WorkDir/GMJ_one_int.csv $CurrDir/{self.name}.GMJ_one_int.csv
->>> COPY $WorkDir/GMJ_two_int_indx.csv $CurrDir/{self.name}.GMJ_two_int_indx.csv
->>> COPY $WorkDir/GMJ_two_int.csv $CurrDir/{self.name}.GMJ_two_int.csv
+>>> COPY $WorkDir/DDCASPT2_one_int_indx.csv $CurrDir/{self.name}.DDCASPT2_one_int_indx.csv
+>>> COPY $WorkDir/DDCASPT2_one_int.csv $CurrDir/{self.name}.DDCASPT2_one_int.csv
+>>> COPY $WorkDir/DDCASPT2_two_int_indx.csv $CurrDir/{self.name}.DDCASPT2_two_int_indx.csv
+>>> COPY $WorkDir/DDCASPT2_two_int.csv $CurrDir/{self.name}.DDCASPT2_two_int.csv
 
 '''
         return string
@@ -214,8 +214,8 @@ ITERation
 
 
 >>> COPY $WorkDir/{self.name}.rasscf.h5 $CurrDir/
->>> COPY $WorkDir/GMJ_Fock_MO.csv $CurrDir/{self.name}.GMJ_Fock_MO.csv
->>> COPY $WorkDir/GMJ_PT2_Fock_MO.csv $CurrDir/{self.name}.GMJ_PT2_Fock_MO.csv
+>>> COPY $WorkDir/DDCASPT2_Fock_MO.csv $CurrDir/{self.name}.DDCASPT2_Fock_MO.csv
+>>> COPY $WorkDir/DDCASPT2_PT2_Fock_MO.csv $CurrDir/{self.name}.DDCASPT2_PT2_Fock_MO.csv
 
 """
         else:
@@ -236,8 +236,8 @@ ITERation
 
 
 >>> COPY $WorkDir/{self.name}.rasscf.h5 $CurrDir/
->>> COPY $WorkDir/GMJ_Fock_MO.csv $CurrDir/{self.name}.GMJ_Fock_MO.csv
->>> COPY $WorkDir/GMJ_PT2_Fock_MO.csv $CurrDir/{self.name}.GMJ_PT2_Fock_MO.csv
+>>> COPY $WorkDir/DDCASPT2_Fock_MO.csv $CurrDir/{self.name}.DDCASPT2_Fock_MO.csv
+>>> COPY $WorkDir/DDCASPT2_PT2_Fock_MO.csv $CurrDir/{self.name}.DDCASPT2_PT2_Fock_MO.csv
 
 """
         return start_string+fileorb+end_string 
@@ -251,23 +251,23 @@ MAXITER
 
 >>foreach i in (B,E,F,G,H)
 >>foreach j in (P,M)
->>if ( -FILE GMJ_e2_${i}_${j}.csv )
->>> COPY $WorkDir/GMJ_RHS_${i}_${j}.csv $CurrDir/GMJ_RHS_${i}_${j}.csv
->>> COPY $WorkDir/GMJ_IVECW_${i}_${j}.csv $CurrDir/GMJ_IVECW_${i}_${j}.csv
->>> COPY $WorkDir/GMJ_IVECX_${i}_${j}.csv $CurrDir/GMJ_IVECX_${i}_${j}.csv
->>> COPY $WorkDir/GMJ_IVECC2_${i}_${j}.csv $CurrDir/GMJ_IVECC2_${i}_${j}.csv
->>> COPY $WorkDir/GMJ_e2_${i}_${j}.csv $CurrDir/GMJ_e2_${i}_${j}.csv
+>>if ( -FILE DDCASPT2_e2_${i}_${j}.csv )
+>>> COPY $WorkDir/DDCASPT2_RHS_${i}_${j}.csv $CurrDir/DDCASPT2_RHS_${i}_${j}.csv
+>>> COPY $WorkDir/DDCASPT2_IVECW_${i}_${j}.csv $CurrDir/DDCASPT2_IVECW_${i}_${j}.csv
+>>> COPY $WorkDir/DDCASPT2_IVECX_${i}_${j}.csv $CurrDir/DDCASPT2_IVECX_${i}_${j}.csv
+>>> COPY $WorkDir/DDCASPT2_IVECC2_${i}_${j}.csv $CurrDir/DDCASPT2_IVECC2_${i}_${j}.csv
+>>> COPY $WorkDir/DDCASPT2_e2_${i}_${j}.csv $CurrDir/DDCASPT2_e2_${i}_${j}.csv
 >>endif
 >>enddo
 >>enddo
 
 >>foreach i in (A,C,D)
->>if ( -FILE GMJ_e2_$i.csv )
->>> COPY $WorkDir/GMJ_RHS_$i.csv $CurrDir/GMJ_RHS_$i.csv
->>> COPY $WorkDir/GMJ_IVECW_$i.csv $CurrDir/GMJ_IVECW_$i.csv
->>> COPY $WorkDir/GMJ_IVECX_$i.csv $CurrDir/GMJ_IVECX_$i.csv
->>> COPY $WorkDir/GMJ_IVECC2_$i.csv $CurrDir/GMJ_IVECC2_$i.csv
->>> COPY $WorkDir/GMJ_e2_$i.csv $CurrDir/GMJ_e2_$i.csv
+>>if ( -FILE DDCASPT2_e2_$i.csv )
+>>> COPY $WorkDir/DDCASPT2_RHS_$i.csv $CurrDir/DDCASPT2_RHS_$i.csv
+>>> COPY $WorkDir/DDCASPT2_IVECW_$i.csv $CurrDir/DDCASPT2_IVECW_$i.csv
+>>> COPY $WorkDir/DDCASPT2_IVECX_$i.csv $CurrDir/DDCASPT2_IVECX_$i.csv
+>>> COPY $WorkDir/DDCASPT2_IVECC2_$i.csv $CurrDir/DDCASPT2_IVECC2_$i.csv
+>>> COPY $WorkDir/DDCASPT2_e2_$i.csv $CurrDir/DDCASPT2_e2_$i.csv
 >>endif
 >>enddo
 """
@@ -593,17 +593,17 @@ MAXITER
         Generate pairs in a parallel manner
         '''
         pairs = []
-        typ = os.path.basename(i).split('.')[0].replace('GMJ_e2_','')
+        typ = os.path.basename(i).split('.')[0].replace('DDCASPT2_e2_','')
         # print(typ)
         
-        IVEC = pd.read_csv(os.path.join(self.path,f'GMJ_IVECW_{typ}.csv'),sep='\s+',header=None,skiprows=[0])
-        RHS = pd.read_csv(os.path.join(self.path,f'GMJ_RHS_{typ}.csv'),sep=',',header=None,index_col=0)
+        IVEC = pd.read_csv(os.path.join(self.path,f'DDCASPT2_IVECW_{typ}.csv'),sep='\s+',header=None,skiprows=[0])
+        RHS = pd.read_csv(os.path.join(self.path,f'DDCASPT2_RHS_{typ}.csv'),sep=',',header=None,index_col=0)
         RHS.index = list(map(self.strip,RHS.index))
         RHS = np.array(RHS.index).reshape(IVEC.shape)
-        e2 = np.genfromtxt(os.path.join(self.path,f'GMJ_e2_{typ}.csv'),skip_header=True).reshape(RHS.shape)
-        IVECX = pd.read_csv(os.path.join(self.path,f'GMJ_IVECX_{typ}.csv'),sep='\s+',header=None,skiprows=[0])
+        e2 = np.genfromtxt(os.path.join(self.path,f'DDCASPT2_e2_{typ}.csv'),skip_header=True).reshape(RHS.shape)
+        IVECX = pd.read_csv(os.path.join(self.path,f'DDCASPT2_IVECX_{typ}.csv'),sep='\s+',header=None,skiprows=[0])
 
-        IVECC2 = pd.read_csv(os.path.join(self.path,f'GMJ_IVECC2_{typ}.csv'),sep='\s+',header=None,skiprows=[0])    
+        IVECC2 = pd.read_csv(os.path.join(self.path,f'DDCASPT2_IVECC2_{typ}.csv'),sep='\s+',header=None,skiprows=[0])    
         for idxi,i in enumerate(RHS):
             for idxj,j in enumerate(i):
                 # Split the index and enforce a standardization of p,q,r,s 
@@ -623,7 +623,7 @@ MAXITER
         # Load the PT2 Fock elements
         # Columns are as follows:
         # IT,IU,F(global index),FI(global index),fa(global index),d(global index)
-        pt2fock = os.path.join(self.path,f"{self.name}.GMJ_PT2_Fock_MO.csv")
+        pt2fock = os.path.join(self.path,f"{self.name}.DDCASPT2_PT2_Fock_MO.csv")
         
         pt2fock_values = np.nan_to_num(np.fromfile(pt2fock,dtype=float).reshape(-1,6)[:,3:])
         pt2fock_idx = np.fromfile(pt2fock,dtype=int).reshape(-1,6)[:,0:3]-1
@@ -631,16 +631,16 @@ MAXITER
         
         
         # Read CASSCF Fock from file
-        CASSCF_fock = np.fromfile(os.path.join(self.path,f"{self.name}.GMJ_Fock_MO.csv"))
+        CASSCF_fock = np.fromfile(os.path.join(self.path,f"{self.name}.DDCASPT2_Fock_MO.csv"))
         
         # Load one-electron integrals
-        oneelint = np.fromfile(os.path.join(self.path,f"{self.name}.GMJ_one_int.csv")).reshape(-1,1)
-        self.oneelint_idx = np.fromfile(os.path.join(self.path,f"{self.name}.GMJ_one_int_indx.csv"),dtype=int).reshape(-1,4)[:,0:2]-1
+        oneelint = np.fromfile(os.path.join(self.path,f"{self.name}.DDCASPT2_one_int.csv")).reshape(-1,1)
+        self.oneelint_idx = np.fromfile(os.path.join(self.path,f"{self.name}.DDCASPT2_one_int_indx.csv"),dtype=int).reshape(-1,4)[:,0:2]-1
         self.h_stacked = np.hstack([self.oneelint_idx,oneelint])
         
         # Load two-electron integrals (they're in physicist notation by default!) ijkl are indeed <ik|jl>
-        twoelint = np.fromfile(os.path.join(self.path,f"{self.name}.GMJ_two_int.csv")).reshape(-1,1)
-        twoelint_idx_chemist = np.fromfile(os.path.join(self.path,f"{self.name}.GMJ_two_int_indx.csv"),dtype=int).reshape(-1,4)-1
+        twoelint = np.fromfile(os.path.join(self.path,f"{self.name}.DDCASPT2_two_int.csv")).reshape(-1,1)
+        twoelint_idx_chemist = np.fromfile(os.path.join(self.path,f"{self.name}.DDCASPT2_two_int_indx.csv"),dtype=int).reshape(-1,4)-1
         
         twoelint_idx_physicist = twoelint_idx_chemist.copy()
         # <ij|kl>
@@ -672,9 +672,9 @@ MAXITER
         
         # Get two-electron indices
         
-        two_el_ex_labels = {i.split('.')[0].replace("GMJ_RHS_",""):[re.sub(r'(?<!\d)0+(\d+)', r'\1', j) for j in pd.read_csv(i,header=None)[0].values] for i in glob(os.path.join(self.path,"GMJ_RHS_*.csv"))}
+        two_el_ex_labels = {i.split('.')[0].replace("DDCASPT2_RHS_",""):[re.sub(r'(?<!\d)0+(\d+)', r'\1', j) for j in pd.read_csv(i,header=None)[0].values] for i in glob(os.path.join(self.path,"DDCASPT2_RHS_*.csv"))}
         
-        pair_labels = {i.split('.')[0].replace("GMJ_RHS_",""):['_'.join(re.sub(r'(?<!\d)0+(\d+)', r'\1', j).split('_')[0:2]) for j in pd.read_csv(i,header=None)[0].values] for i in glob(os.path.join(self.path,"GMJ_RHS_*.csv"))}
+        pair_labels = {i.split('.')[0].replace("DDCASPT2_RHS_",""):['_'.join(re.sub(r'(?<!\d)0+(\d+)', r'\1', j).split('_')[0:2]) for j in pd.read_csv(i,header=None)[0].values] for i in glob(os.path.join(self.path,"DDCASPT2_RHS_*.csv"))}
         
         # CASPT2 E_pq E_rs ordering
         self.index_dict = {"A":{"p":0,"q":1,"r":2,"s":3},
@@ -702,9 +702,9 @@ MAXITER
         
             
         if self.n_jobs==None:
-            self.pairs = np.vstack([self.gen_pairs(i) for i in tqdm(glob(os.path.join(self.path,"GMJ_e2_*.csv")),desc="Pairs")])    
+            self.pairs = np.vstack([self.gen_pairs(i) for i in tqdm(glob(os.path.join(self.path,"DDCASPT2_e2_*.csv")),desc="Pairs")])    
         else:
-            self.pairs = np.vstack(Parallel(n_jobs=self.n_jobs)(delayed(self.gen_pairs)(i) for i in tqdm(glob(os.path.join(self.path,"GMJ_e2_*.csv")),desc="Pairs")))  
+            self.pairs = np.vstack(Parallel(n_jobs=self.n_jobs)(delayed(self.gen_pairs)(i) for i in tqdm(glob(os.path.join(self.path,"DDCASPT2_e2_*.csv")),desc="Pairs")))  
         
         # qs pairs!
         uniquepairs = np.unique(self.pairs[:,3])

@@ -1,5 +1,5 @@
 #!/bin/bash
-donedirs=$(find . -name "GMJ_e2_H_P_3_.csv")
+donedirs=$(find . -name "DDCASPT2_e2_H_P_3_.csv")
 
 for i in $donedirs; do
  dirnames=$(dirname "${i}")

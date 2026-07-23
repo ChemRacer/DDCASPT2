@@ -117,7 +117,7 @@ pwd
 # DEFINE WorkDir
 mkdir $SLURM_SUBMIT_DIR/$SLURM_JOBID
 export WorkDir=$SLURM_SUBMIT_DIR/$SLURM_JOBID
-export MOLCAS_WORKDIR="/lustre/isaac/scratch/gjones39"
+export MOLCAS_WORKDIR="${SCRATCH}"
 export MOLCAS="/lustre/isaac/proj/UTK0022/GMJ/OpenMolcas/build"
 echo $WorkDir
 
@@ -194,7 +194,7 @@ oxo, iron = geom.atoms[0],geom.atoms[1]
 for idxr, r in tqdm(enumerate(radius_range)):
     radstr = f"{r:.2f}"
     rad_dir = os.path.join(os.getcwd(),radstr)
-    if os.path.exists(os.path.join(rad_dir,"GMJ_IVECC2_A.csv"))==False:
+    if os.path.exists(os.path.join(rad_dir,"DDCASPT2_IVECC2_A.csv"))==False:
         print(r)
         
         # Write xyz

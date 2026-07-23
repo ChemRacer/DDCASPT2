@@ -140,10 +140,10 @@ def gen_seward():
 def gen_motra(name):
     string=f'''&MOTRA
 Frozen=0
->>> COPY $WorkDir/GMJ_one_int_indx.csv $CurrDir/{name}.GMJ_one_int_indx.csv
->>> COPY $WorkDir/GMJ_one_int.csv $CurrDir/{name}.GMJ_one_int.csv
->>> COPY $WorkDir/GMJ_two_int_indx.csv $CurrDir/{name}.GMJ_two_int_indx.csv
->>> COPY $WorkDir/GMJ_two_int.csv $CurrDir/{name}.GMJ_two_int.csv
+>>> COPY $WorkDir/DDCASPT2_one_int_indx.csv $CurrDir/{name}.DDCASPT2_one_int_indx.csv
+>>> COPY $WorkDir/DDCASPT2_one_int.csv $CurrDir/{name}.DDCASPT2_one_int.csv
+>>> COPY $WorkDir/DDCASPT2_two_int_indx.csv $CurrDir/{name}.DDCASPT2_two_int_indx.csv
+>>> COPY $WorkDir/DDCASPT2_two_int.csv $CurrDir/{name}.DDCASPT2_two_int.csv
 '''
     return string
 
@@ -187,7 +187,7 @@ PRWF
 0
 PRSD
 >>> COPY $WorkDir/{name}.rasscf.h5 $CurrDir/
->>> COPY $WorkDir/GMJ_Fock_MO.csv $CurrDir/{name}.GMJ_Fock_MO.csv
+>>> COPY $WorkDir/DDCASPT2_Fock_MO.csv $CurrDir/{name}.DDCASPT2_Fock_MO.csv
 """
     return start_string+fileorb+end_string 
 
@@ -200,19 +200,19 @@ Imaginary Shift
 
 >>foreach i in (B,E,F,G,H)
 >>foreach j in (P,M)
->>if ( -FILE GMJ_e2_${i}_${j}.csv )
->>> COPY $WorkDir/GMJ_RHS_${i}_${j}.csv $CurrDir/GMJ_RHS_${i}_${j}.csv
->>> COPY $WorkDir/GMJ_IVECW_${i}_${j}.csv $CurrDir/GMJ_IVECW_${i}_${j}.csv
->>> COPY $WorkDir/GMJ_e2_${i}_${j}.csv $CurrDir/GMJ_e2_${i}_${j}.csv
+>>if ( -FILE DDCASPT2_e2_${i}_${j}.csv )
+>>> COPY $WorkDir/DDCASPT2_RHS_${i}_${j}.csv $CurrDir/DDCASPT2_RHS_${i}_${j}.csv
+>>> COPY $WorkDir/DDCASPT2_IVECW_${i}_${j}.csv $CurrDir/DDCASPT2_IVECW_${i}_${j}.csv
+>>> COPY $WorkDir/DDCASPT2_e2_${i}_${j}.csv $CurrDir/DDCASPT2_e2_${i}_${j}.csv
 >>endif
 >>enddo
 >>enddo
 
 >>foreach i in (A,C,D)
->>if ( -FILE GMJ_e2_$i.csv )
->>> COPY $WorkDir/GMJ_RHS_$i.csv $CurrDir/GMJ_RHS_$i.csv
->>> COPY $WorkDir/GMJ_IVECW_$i.csv $CurrDir/GMJ_IVECW_$i.csv
->>> COPY $WorkDir/GMJ_e2_$i.csv $CurrDir/GMJ_e2_$i.csv
+>>if ( -FILE DDCASPT2_e2_$i.csv )
+>>> COPY $WorkDir/DDCASPT2_RHS_$i.csv $CurrDir/DDCASPT2_RHS_$i.csv
+>>> COPY $WorkDir/DDCASPT2_IVECW_$i.csv $CurrDir/DDCASPT2_IVECW_$i.csv
+>>> COPY $WorkDir/DDCASPT2_e2_$i.csv $CurrDir/DDCASPT2_e2_$i.csv
 >>endif
 >>enddo
 
@@ -235,7 +235,7 @@ basis_set='ANO-RCC-VDZP'
 
 
 
-top='/home/grierjones/DDCASPT2/hydrogen_comps/minimal_2e_2o/chains/even'
+top='${LOCALHOME}/DDCASPT2/hydrogen_comps/minimal_2e_2o/chains/even'
 
 
 
@@ -330,7 +330,7 @@ def gen_data(i):
 
 
 
-os.chdir('/home/grierjones/DDCASPT2/hydrogen_comps/minimal_2e_2o/chains/even')
+os.chdir('${LOCALHOME}/DDCASPT2/hydrogen_comps/minimal_2e_2o/chains/even')
 
 
     

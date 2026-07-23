@@ -20,7 +20,7 @@ pwd
 # DEFINE WorkDir
 mkdir $SLURM_SUBMIT_DIR/$SLURM_JOBID
 export WorkDir=$SLURM_SUBMIT_DIR/$SLURM_JOBID
-export MOLCAS_WORKDIR="/lustre/isaac/scratch/gjones39"
+export MOLCAS_WORKDIR="${SCRATCH}"
 export MOLCAS="/lustre/isaac/proj/UTK0022/Grier2025/Test/build"
 echo $WorkDir
 
