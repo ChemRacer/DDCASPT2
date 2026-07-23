@@ -516,7 +516,7 @@ MAXITER
         # Find <pq|rs>
         intdict[r"$(\langle pq \vert rs \rangle)_{"+f"{idx}"+"}$"] = self.eightfold(p,q,r,s,integrals)
         # Find <pq|sr>
-        intdict[r"$(\langle pq \vert sr \rangle)_{"+f"{idx}"+"}$"] = self.eightfold(p,q,r,s,integrals)
+        intdict[r"$(\langle pq \vert sr \rangle)_{"+f"{idx}"+"}$"] = self.eightfold(p,q,s,r,integrals)
         
         # Find Jpp <pp|pp>
         intdict[r"$(\langle pp \vert pp \rangle)_{"+f"{idx}"+"}$"] = self.Coulomb(p,p,integrals)
@@ -646,23 +646,27 @@ MAXITER
         pairenergy_df = pd.DataFrame(self.pairenergylist,columns=['index','Pair_Energies']).set_index('index').astype({'Pair_Energies':float})
         # Everything together so far
         concatdf = pd.concat([h_df,important2e,bindf,allMO_feats,two_el_df,pairenergy_df],axis=1)
-        concatdf.to_csv(os.path.join(self.path,f"{self.name}_{root}.csv"),compression='zip') 
+        concatdf.to_csv(os.path.join(self.path,f"{self.name}.csv"),compression='zip') 
 
     def gen_pairs(self,i,root):
         '''
         Generate pairs in a parallel manner
         '''
         pairs = []
-        typ = os.path.basename(i).split('.')[0].replace('GMJ_e2_','').replace(f'_{root}_','')
+        
+        typ=re.compile(r"GMJ_e2_([A-Z](?:_[PM])?)\.csv").match(os.path.basename(i)).group(1)
+        
+        # labels = [ for f in filenames]
+        # typ = os.path.basename(i).split('.')[0].replace('GMJ_e2_','')#.replace(f'_','')
 
-        IVEC = pd.read_csv(os.path.join(self.path,f'GMJ_IVECW_{typ}_{root}_.csv'),sep='\s+',header=None,skiprows=[0])
-        RHS = pd.read_csv(os.path.join(self.path,f'GMJ_RHS_{typ}_{root}_.csv'),sep=',',header=None,index_col=0)
+        IVEC = pd.read_csv(os.path.join(self.path,f'GMJ_IVECW_{typ}.csv'),sep='\s+',header=None,skiprows=[0])
+        RHS = pd.read_csv(os.path.join(self.path,f'GMJ_RHS_{typ}.csv'),sep=',',header=None,index_col=0)
         RHS.index = list(map(self.strip,RHS.index))
         RHS = np.array(RHS.index).reshape(IVEC.shape)
-        e2 = np.genfromtxt(os.path.join(self.path,f'GMJ_e2_{typ}_{root}_.csv'),skip_header=True).reshape(RHS.shape)
-        IVECX = pd.read_csv(os.path.join(self.path,f'GMJ_IVECX_{typ}_{root}_.csv'),sep='\s+',header=None,skiprows=[0])
+        e2 = np.genfromtxt(os.path.join(self.path,f'GMJ_e2_{typ}.csv'),skip_header=True).reshape(RHS.shape)
+        IVECX = pd.read_csv(os.path.join(self.path,f'GMJ_IVECX_{typ}.csv'),sep='\s+',header=None,skiprows=[0])
 
-        IVECC2 = pd.read_csv(os.path.join(self.path,f'GMJ_IVECC2_{typ}_{root}_.csv'),sep='\s+',header=None,skiprows=[0])    
+        IVECC2 = pd.read_csv(os.path.join(self.path,f'GMJ_IVECC2_{typ}.csv'),sep='\s+',header=None,skiprows=[0])    
         for idxi,i in enumerate(RHS):
             for idxj,j in enumerate(i):
                 # Split the index and enforce a standardization of p,q,r,s 
@@ -755,9 +759,9 @@ MAXITER
         
         for msr in tqdm(msroots_range,desc="Root"):
             if self.n_jobs is None:
-                self.pairs = np.vstack([self.gen_pairs(i,msr) for i in tqdm(glob(os.path.join(self.path,f"GMJ_e2_*_{msr}_.csv")),desc="Pairs")])    
+                self.pairs = np.vstack([self.gen_pairs(i,msr) for i in tqdm(glob(os.path.join(self.path,f"GMJ_e2_*.csv")),desc="Pairs")])    
             else:
-                self.pairs = np.vstack(Parallel(n_jobs=self.n_jobs)(delayed(self.gen_pairs)(i,msr) for i in tqdm(glob(os.path.join(self.path,f"GMJ_e2_*_{msr}_.csv")),desc="Pairs")))  
+                self.pairs = np.vstack(Parallel(n_jobs=self.n_jobs)(delayed(self.gen_pairs)(i,msr) for i in tqdm(glob(os.path.join(self.path,f"GMJ_e2_*.csv")),desc="Pairs")))  
             
             # qs pairs!
             uniquepairs = np.unique(self.pairs[:,3])
