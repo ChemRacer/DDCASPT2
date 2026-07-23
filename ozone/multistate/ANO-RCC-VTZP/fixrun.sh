@@ -5,10 +5,10 @@ for i in ./ozo*; do
     rad=$(basename "$i")  # Extract directory name
 
     # Modify run.sh to update SBATCH settings
-    sed -i -E "s|^#SBATCH --account=.*|#SBATCH --account=ACF-UTK0022|;
+    sed -i -E "s|^#SBATCH --account=.*|#SBATCH --account=ACCOUNTNAME|;
                s|^#SBATCH --job-name=.*|#SBATCH --job-name=$rad|;
-               s|^#SBATCH --partition=.*|#SBATCH --partition=condo-kvogiatz|;
-               s|^#SBATCH --qos=.*|#SBATCH --qos=condo-kvogiatz|" run.sh
+               s|^#SBATCH --partition=.*|#SBATCH --partition=ACCOUNTNAME|;
+               s|^#SBATCH --qos=.*|#SBATCH --qos=ACCOUNTNAME|" run.sh
 
     cd ../
 done

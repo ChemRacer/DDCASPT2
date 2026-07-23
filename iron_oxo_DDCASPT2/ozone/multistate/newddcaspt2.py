@@ -55,7 +55,7 @@ def gen_run(name,path):
     with open(os.path.join(path,f'run.sh'),'w') as g:
         g.write(f"""#!/bin/bash
 #This file is a submission script to request the ISAAC resources from Slurm
-#SBATCH --account=ACF-UTK0011             # The project account to be charged
+#SBATCH --account=ACCOUNTNAME             # The project account to be charged
 #SBATCH --job-name={name}		       #The name of the job
 #SBATCH --nodes=1                     # Number of nodes
 #SBATCH --ntasks-per-node=4          # cpus per node
