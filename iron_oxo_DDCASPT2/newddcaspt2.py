@@ -68,7 +68,7 @@ pwd
 mkdir $SLURM_SUBMIT_DIR/$SLURM_JOBID
 export WorkDir=$SLURM_SUBMIT_DIR/$SLURM_JOBID
 export MOLCAS_WORKDIR="${SCRATCH}"
-export MOLCAS="/lustre/isaac/proj/UTK0022/GMJ/Test/build"
+export MOLCAS="${PROJECTPATH}GMJ/Test/build"
 echo $WorkDir
 
 
@@ -87,7 +87,7 @@ echo "Current working directory is $(pwd)"
 
 # THE COMMAND
 
-conda activate /lustre/isaac/proj/UTK0022/GMJ/modules/anaconda3/envs/ddcaspt2
+conda activate ${PROJECTPATH}GMJ/modules/anaconda3/envs/ddcaspt2
 pymolcas --new --clean {r}.input -oe {r}.output
 # CLEAN-UP AND EXIT
 rm -r $SLURM_SUBMIT_DIR/$SLURM_JOBID

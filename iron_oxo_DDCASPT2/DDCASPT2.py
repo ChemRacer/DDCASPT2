@@ -116,7 +116,7 @@ class DDCASPT2:
             os.environ['MOLCAS']='${LOCALHOME}/Test/build'
             os.environ['MOLCAS_WORKDIR']='/tmp'
         elif 'isaac' in os.getcwd():
-            os.environ['MOLCAS']="/lustre/isaac/proj/UTK0022/GMJ/Test/build"
+            os.environ['MOLCAS']="${PROJECTPATH}GMJ/Test/build"
             os.environ['MOLCAS_WORKDIR']='${SCRATCH}/'
 
         print(f"Found a valid MOLCAS installation at {os.environ['MOLCAS']}")

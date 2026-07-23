@@ -76,7 +76,7 @@ pwd
 mkdir $SLURM_SUBMIT_DIR/$SLURM_JOBID
 export WorkDir=$SLURM_SUBMIT_DIR/$SLURM_JOBID
 export MOLCAS_WORKDIR="${SCRATCH}"
-export MOLCAS="/lustre/isaac/proj/UTK0022/Grier2025/Test/build"
+export MOLCAS="${PROJECTPATH}Grier2025/Test/build"
 echo $WorkDir
 
 
